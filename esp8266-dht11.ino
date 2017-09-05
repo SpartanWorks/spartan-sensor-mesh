@@ -6,8 +6,8 @@
 
 const int AP_TIMEOUT = 300000; // 5 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
-const int SAMPLE_INTERVAL = 5000; // 5 seconds
-const int SAMPLE_BACKLOG = 10;
+const int SAMPLE_INTERVAL = 2000; // 2 seconds
+const int SAMPLE_BACKLOG = 30; // Averaged over 1 minute.
 const int SENSOR = 2;
 const int LED = 13;
 
