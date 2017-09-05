@@ -2,7 +2,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <DHT.h>
-#include "Stats.h"
+#include "Metric.h"
 
 const int AP_TIMEOUT = 300000; // 5 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -19,8 +19,8 @@ boolean error = true;
 int errors = 0;
 int measurements = 0;
 
-Stats<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
-Stats<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
+Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
+Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 
 ESP8266WebServer server(80);
 DHT dht(SENSOR, DHT11);

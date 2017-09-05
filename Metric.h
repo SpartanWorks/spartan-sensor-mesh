@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 template<typename T, uint32_t size>
-class Stats {
+class Metric {
 private:
   T samples[size];
   uint32_t index = 0;
@@ -12,7 +12,7 @@ private:
   T maxS;
 
 public:
-  Stats(T spanMin, T spanMax) {
+  Metric(T spanMin, T spanMax) {
     minS = spanMax;
     maxS = spanMin;
   }
