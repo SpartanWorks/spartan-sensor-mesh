@@ -4,12 +4,14 @@
 #include <DHT.h>
 #include "Stats.h"
 
-const int CONNECTION_TIMEOUT = 20;
-const int AVG_SAMPLES = 10;
-const int SAMPLE_INTERVAL = 5000;
+const int AP_TIMEOUT = 300000; // 5 minutes
+const int CONNECTION_TIMEOUT = 20000; // 20 seconds
+const int SAMPLE_INTERVAL = 5000; // 5 seconds
+const int SAMPLE_BACKLOG = 10;
 const int SENSOR = 2;
 const int LED = 13;
 
+boolean apEnabled = false;
 const char* apSsid = "ClimateSensor";
 const char* apPassword = "cl1m4t3p455w0r0";
 
@@ -17,8 +19,8 @@ boolean error = true;
 int errors = 0;
 int measurements = 0;
 
-Stats<float, AVG_SAMPLES> humidity(0.0f, 100.0f);
-Stats<float, AVG_SAMPLES> temperature(-40.0f, 125.0f);
+Stats<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
+Stats<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 
 ESP8266WebServer server(80);
 DHT dht(SENSOR, DHT11);
@@ -34,8 +36,8 @@ bool connect(char *ssid, char *password) {
   uint32_t i = 0;
   while((WiFi.status() != WL_CONNECTED) && (i < CONNECTION_TIMEOUT)) {
     Serial.print(".");
-    delay(1000);
-    ++i;
+    delay(500);
+    i += 500;
   }
 
   Serial.println("");
@@ -134,8 +136,9 @@ void setup(void){
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(apSsid, apPassword);
+  apEnabled = true;
 
-  Serial.print("Serving on: ");
+  Serial.print("Access point on: ");
   Serial.println(apSsid);
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
@@ -149,13 +152,12 @@ void setup(void){
   Serial.println("HTTP server started");
 
   dht.begin();
-  readSensor();
+  readSensor(0);
   Serial.println("Sensor initialized");
 }
 
-void readSensor() {
+void readSensor(uint32_t currTime) {
   static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
-  uint32_t currTime = millis();
 
   if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
     return;
@@ -176,7 +178,17 @@ void readSensor() {
   }
 }
 
+void timeoutAP(uint32_t currTime) {
+  if(apEnabled && currTime > AP_TIMEOUT) {
+    Serial.println("Disabling access point.");
+    WiFi.mode(WIFI_STA);
+    apEnabled = false;
+  }
+}
+
 void loop(void){
-  readSensor();
+  uint32_t currTime = millis();
+  readSensor(currTime);
+  timeoutAP(currTime);
   server.handleClient();
 }
