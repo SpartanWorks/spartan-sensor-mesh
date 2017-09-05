@@ -2,6 +2,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <DHT.h>
+#include "Stats.h"
 
 const int AVG_SAMPLES = 10;
 const int SAMPLE_INTERVAL = 5000;
@@ -10,49 +11,6 @@ const int LED = 13;
 
 const char* ssid = "SSID";
 const char* password = "p455w0r0";
-
-template<typename T, uint32_t size>
-class Stats {
-private:
-  T samples[size];
-  uint32_t index = 0;
-  T minS;
-  T maxS;
-
-public:
-  Stats(T spanMin, T spanMax) {
-    minS = spanMax;
-    maxS = spanMin;
-  }
-
-  void add(T s) {
-    minS = std::min(s, minS);
-    maxS = std::max(s, maxS);
-    samples[index] = s;
-    index = (index + 1) % size;
-  }
-
-  T min() {
-    return minS;
-  }
-
-  T max() {
-    return maxS;
-  }
-
-  T last() {
-    uint32_t i = (index + size - 1) % size;
-    return samples[i];
-  }
-
-  T average() {
-    T avg;
-    for(uint32_t i = 0; i < size; ++i) {
-      avg += samples[i];
-    }
-    return avg / size;
-  }
-};
 
 boolean error = true;
 int errors = 0;
@@ -81,17 +39,17 @@ void handleTemp() {
   message += ",\"avgHumidity\":";
   message += String(humidity.average(), 2);
   message += ",\"minHumidity\":";
-  message += String(humidity.min(), 2);
+  message += String(humidity.minimum(), 2);
   message += ",\"maxHumidity\":";
-  message += String(humidity.max(), 2);
+  message += String(humidity.maximum(), 2);
   message += ",\"temperature\":";
   message += String(temperature.last(), 2);
   message += ",\"avgTemperature\":";
   message += String(temperature.average(), 2);
   message += ",\"minTemperature\":";
-  message += String(temperature.min(), 2);
+  message += String(temperature.minimum(), 2);
   message += ",\"maxTemperature\":";
-  message += String(temperature.max(), 2);
+  message += String(temperature.maximum(), 2);
   message += ",\"errors\":";
   message += String(errors);
   message += ",\"measurements\":";
