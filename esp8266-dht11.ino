@@ -85,9 +85,9 @@ void handleConfig() {
   digitalWrite(LED, 0);
 }
 
-void handleTemp() {
+void handleSensor() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /temp");
+  Serial.println("Serving /sensor");
 
   String message = "{";
   message += "\"humidity\":";
@@ -142,7 +142,7 @@ void setup(void){
 
   server.on("/", handleRoot);
   server.on("/config", handleConfig);
-  server.on("/temp", handleTemp);
+  server.on("/sensor", handleSensor);
   server.onNotFound(handleNotFound);
 
   server.begin();
