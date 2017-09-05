@@ -4,13 +4,14 @@
 #include <DHT.h>
 #include "Stats.h"
 
+const int CONNECTION_TIMEOUT = 20;
 const int AVG_SAMPLES = 10;
 const int SAMPLE_INTERVAL = 5000;
 const int SENSOR = 2;
 const int LED = 13;
 
-const char* ssid = "SSID";
-const char* password = "p455w0r0";
+const char* apSsid = "ClimateSensor";
+const char* apPassword = "cl1m4t3p455w0r0";
 
 boolean error = true;
 int errors = 0;
@@ -22,10 +23,65 @@ Stats<float, AVG_SAMPLES> temperature(-40.0f, 125.0f);
 ESP8266WebServer server(80);
 DHT dht(SENSOR, DHT11);
 
+bool connect(char *ssid, char *password) {
+
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  // Wait for connection
+  uint32_t i = 0;
+  while((WiFi.status() != WL_CONNECTED) && (i < CONNECTION_TIMEOUT)) {
+    Serial.print(".");
+    delay(1000);
+    ++i;
+  }
+
+  Serial.println("");
+
+  if(WiFi.status() != WL_CONNECTED) {
+    Serial.println("Connection failed.");
+    return false;
+  }
+
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  return true;
+}
+
 void handleRoot() {
   digitalWrite(LED, 1);
   Serial.println("Serving /");
-  server.send(200, "text/plain", "hello from esp8266!");
+  server.send(200, "text/plain", "Hello world!");
+  digitalWrite(LED, 0);
+}
+
+void handleConfig() {
+  digitalWrite(LED, 1);
+  Serial.println("Serving /config");
+
+  char ssid[128] = "";
+  char pass[128] = "";
+
+  for(uint8_t i = 0; i < server.args(); ++i) {
+    String name = server.argName(i);
+    String arg = server.arg(i);
+    if (name == "ssid") {
+      arg.toCharArray(ssid, 128);
+    } else if (name == "pass") {
+      arg.toCharArray(pass, 128);
+    }
+  }
+
+  if(connect(ssid, pass)) {
+    server.send(200, "text/plain", "OK!");
+  } else {
+    server.send(401, "text/plain", "Not authorized!");
+  }
   digitalWrite(LED, 0);
 }
 
@@ -76,22 +132,16 @@ void setup(void){
   Serial.begin(115200);
   Serial.println("");
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(apSsid, apPassword);
 
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.print("Serving on: ");
+  Serial.println(apSsid);
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.softAPIP());
 
   server.on("/", handleRoot);
+  server.on("/config", handleConfig);
   server.on("/temp", handleTemp);
   server.onNotFound(handleNotFound);
 
