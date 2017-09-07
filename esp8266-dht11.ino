@@ -17,7 +17,6 @@ const char* apPassword = "cl1m4t3p455w0r0";
 
 boolean error = true;
 int errors = 0;
-int measurements = 0;
 
 Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
 Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
@@ -26,7 +25,6 @@ ESP8266WebServer server(80);
 DHT dht(SENSOR, DHT11);
 
 bool connect(char *ssid, char *password) {
-
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
@@ -92,28 +90,40 @@ void handleSensor() {
   Serial.println("Serving /sensor");
 
   String message = "{";
-  message += "\"humidity\":";
-  message += String(humidity.last(), 2);
-  message += ",\"avgHumidity\":";
+
+  message += "\"humidity\":{";
+  message += "\"val\":";
+  message += String(humidity.value(), 2);
+  message += ",\"avg\":";
   message += String(humidity.average(), 2);
-  message += ",\"minHumidity\":";
+  message += ",\"var\":";
+  message += String(humidity.variance(), 2);
+  message += ",\"min\":";
   message += String(humidity.minimum(), 2);
-  message += ",\"maxHumidity\":";
+  message += ",\"max\":";
   message += String(humidity.maximum(), 2);
-  message += ",\"temperature\":";
-  message += String(temperature.last(), 2);
-  message += ",\"avgTemperature\":";
+  message += "}";
+
+  message += ",\"temperature\":{";
+  message += "\"val\":";
+  message += String(temperature.value(), 2);
+  message += ",\"avg\":";
   message += String(temperature.average(), 2);
-  message += ",\"minTemperature\":";
+  message += ",\"var\":";
+  message += String(temperature.variance(), 2);
+  message += ",\"min\":";
   message += String(temperature.minimum(), 2);
-  message += ",\"maxTemperature\":";
+  message += ",\"max\":";
   message += String(temperature.maximum(), 2);
-  message += ",\"errors\":";
+  message += "}";
+
+  message +=",\"errors\":";
   message += String(errors);
   message += ",\"measurements\":";
-  message += String(measurements);
-  message += ",\"sensor\":";
+  message += String(temperature.count());
+  message += ",\"status\":";
   message += error ? "\"error\"" : "\"ok\"";
+
   message += "}";
 
   server.send(200, "application/json", message);
@@ -170,7 +180,6 @@ void readSensor(uint32_t currTime) {
   if(!isnan(hum) && !isnan(temp)) {
     humidity.add(hum);
     temperature.add(temp);
-    measurements++;
     error = false;
   } else {
     errors++;

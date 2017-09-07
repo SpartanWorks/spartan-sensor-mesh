@@ -3,21 +3,30 @@
 
 #include <Arduino.h>
 
-template<typename T, uint32_t size>
+template<typename T, uint16_t size>
 class Metric {
 private:
   T samples[size];
-  uint32_t index = 0;
+  uint16_t index = 0;
+  uint32_t countS = 0;
   T minS;
   T maxS;
+  T avg;
+  T var;
 
 public:
   Metric(T spanMin, T spanMax) {
     minS = spanMax;
     maxS = spanMin;
+    avg = (T) 0;
+    var = (T) 0;
   }
 
   void add(T s) {
+    T delta = s - avg;
+    countS++;
+    avg += delta / countS;
+    var += delta * (s - avg);
     minS = std::min(s, minS);
     maxS = std::max(s, maxS);
     samples[index] = s;
@@ -32,17 +41,29 @@ public:
     return maxS;
   }
 
+  T average() {
+    return avg;
+  }
+
+  T variance() {
+    return (countS > 1) ? (var / (countS - 1)) : ((T) 0);
+  }
+
   T last() {
-    uint32_t i = (index + size - 1) % size;
+    uint16_t i = (index + size - 1) % size;
     return samples[i];
   }
 
-  T average() {
+  T value() {
     T avg;
-    for(uint32_t i = 0; i < size; ++i) {
+    for(uint16_t i = 0; i < size; ++i) {
       avg += samples[i];
     }
     return avg / size;
+  }
+
+  uint16_t count() {
+    return countS;
   }
 };
 
