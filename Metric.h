@@ -12,14 +12,20 @@ private:
   T minS;
   T maxS;
   T avg;
+  T movingAvg;
   T var;
 
 public:
   Metric(T spanMin, T spanMax) {
     minS = spanMax;
     maxS = spanMin;
+    movingAvg = (T) 0;
     avg = (T) 0;
     var = (T) 0;
+
+    for(uint16_t i = 0; i < size; ++i) {
+      samples[i] = (T) 0;
+    }
   }
 
   void add(T s) {
@@ -29,6 +35,7 @@ public:
     var += delta * (s - avg);
     minS = std::min(s, minS);
     maxS = std::max(s, maxS);
+    movingAvg += s/size - samples[index]/size;
     samples[index] = s;
     index = (index + 1) % size;
   }
@@ -55,11 +62,7 @@ public:
   }
 
   T value() {
-    T avg;
-    for(uint16_t i = 0; i < size; ++i) {
-      avg += samples[i];
-    }
-    return avg / size;
+    return movingAvg;
   }
 
   uint16_t count() {
