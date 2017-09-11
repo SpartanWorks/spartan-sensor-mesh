@@ -1,1 +1,3 @@
 frontend/dist
+frontend/package-lock.json
+frontend/node_modules

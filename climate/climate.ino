@@ -4,6 +4,8 @@
 #include <DHT.h>
 #include "Metric.h"
 #include "index.html.h"
+#include "main.css.h"
+#include "main.js.h"
 
 const int AP_TIMEOUT = 300000; // 5 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -54,10 +56,24 @@ bool connect(char *ssid, char *password) {
   return true;
 }
 
-void handleRoot() {
+void handleIndex() {
   digitalWrite(LED, 1);
   Serial.println("Serving /");
   server.send(200, "text/html", FPSTR(index_html));
+  digitalWrite(LED, 0);
+}
+
+void handleJS() {
+  digitalWrite(LED, 1);
+  Serial.println("Serving /main.js");
+  server.send(200, "application/javascript", FPSTR(main_js));
+  digitalWrite(LED, 0);
+}
+
+void handleCSS() {
+  digitalWrite(LED, 1);
+  Serial.println("Serving /main.css");
+  server.send(200, "text/css", FPSTR(main_css));
   digitalWrite(LED, 0);
 }
 
@@ -154,7 +170,9 @@ void setup(void){
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  server.on("/", handleRoot);
+  server.on("/", handleIndex);
+  server.on("/main.js", handleJS);
+  server.on("/main.css", handleCSS);
   server.on("/config", handleConfig);
   server.on("/sensor", handleSensor);
   server.onNotFound(handleNotFound);

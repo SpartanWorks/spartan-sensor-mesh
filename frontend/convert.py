@@ -35,8 +35,7 @@ def cify(filename, hexes):
     return contents
 
 def spit(filename, contents):
-    print("Wrote " + filename + ":\n")
-    print(contents)
+    print("Wrote " + filename)
     with open(filename, "w") as f:
         f.write(contents)
 
