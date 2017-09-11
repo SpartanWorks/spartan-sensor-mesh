@@ -45,7 +45,6 @@ if __name__ == "__main__":
     parser.add_argument('--output-dir', type=str, nargs=1, help="Output directory")
     args = parser.parse_args()
 
-    print(args)
     for f in args.files:
         output_dir = ""
         if "output_dir" in args:
