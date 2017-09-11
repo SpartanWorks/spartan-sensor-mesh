@@ -59,21 +59,21 @@ bool connect(char *ssid, char *password) {
 void handleIndex() {
   digitalWrite(LED, 1);
   Serial.println("Serving /");
-  server.send(200, "text/html", FPSTR(index_html));
+  server.send_P(200, PSTR("text/html"), index_html);
   digitalWrite(LED, 0);
 }
 
 void handleJS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.js");
-  server.send(200, "application/javascript", FPSTR(main_js));
+  server.send_P(200, PSTR("application/javascript"), main_js);
   digitalWrite(LED, 0);
 }
 
 void handleCSS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.css");
-  server.send(200, "text/css", FPSTR(main_css));
+  server.send_P(200, PSTR("text/css"), main_css);
   digitalWrite(LED, 0);
 }
 
