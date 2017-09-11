@@ -29,8 +29,7 @@ def cify(filename, hexes):
             contents += "\n    "
         contents += hexes[i] + ", "
 
-    contents = contents[0:-2]
-    contents += "\n};\n"
+    contents += "0x0\n};\n"
     contents += "#endif\n"
     return contents
 
