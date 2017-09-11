@@ -125,14 +125,14 @@ gulp.task("watch", ["html", "bundle", "server"], () => {
 
 gulp.task("default", ["html", "bundle"]);
 
-gulp.task("test", (done) => {
+gulp.task("test", ["style-type-definitions"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
   }, done).start();
 });
 
-gulp.task("test-ci", (done) => {
+gulp.task("test-ci", ["style-type-definitions"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
@@ -140,7 +140,7 @@ gulp.task("test-ci", (done) => {
   }, done).start();
 });
 
-gulp.task("test-watch", (done) => {
+gulp.task("test-watch", ["style-type-definitions"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
   }, done).start();

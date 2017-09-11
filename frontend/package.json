@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf coverage dist node_modules package-lock.json",
     "build": "ENV=dev gulp",
     "build:watch": "ENV=dev gulp watch",
     "build:release": "ENV=prod gulp",
+    "clean": "rimraf coverage dist node_modules package-lock.json",
     "postbuild:release": "./convert.py --output-dir ../climate dist/*",
+    "prebuild": "npm run test",
+    "prebuild:release": "npm run test",
+    "pretest": "gulp lint",
+    "pretest:ci": "gulp lint",
     "test": "ENV=test gulp test",
     "test:ci": "ENV=test gulp test-ci",
     "test:watch": "ENV=test gulp test-watch"
