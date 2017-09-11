@@ -79,7 +79,7 @@ void handleCSS() {
 
 void handleConfig() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /config");
+  Serial.println("Serving /api/config");
 
   char ssid[128] = "";
   char pass[128] = "";
@@ -104,7 +104,7 @@ void handleConfig() {
 
 void handleSensor() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /sensor");
+  Serial.println("Serving /api/sensor");
 
   String message = "{";
 
@@ -147,13 +147,6 @@ void handleSensor() {
   digitalWrite(LED, 0);
 }
 
-void handleNotFound() {
-  digitalWrite(LED, 1);
-  Serial.println("Serving 404");
-  server.send(404, "text/plain", "File Not Found");
-  digitalWrite(LED, 0);
-}
-
 void setup(void){
   pinMode(LED, OUTPUT);
   digitalWrite(LED, 0);
@@ -170,12 +163,11 @@ void setup(void){
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  server.on("/", handleIndex);
+  server.on("/api/config", handleConfig);
+  server.on("/api/sensor", handleSensor);
   server.on("/main.js", handleJS);
   server.on("/main.css", handleCSS);
-  server.on("/config", handleConfig);
-  server.on("/sensor", handleSensor);
-  server.onNotFound(handleNotFound);
+  server.onNotFound(handleIndex);
 
   server.begin();
   Serial.println("HTTP server started");

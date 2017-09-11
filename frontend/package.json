@@ -52,6 +52,7 @@
   "dependencies": {
     "mobx": "^3.2.2",
     "mobx-observer": "^0.1.1",
-    "preact": "^8.2.1"
+    "preact": "^8.2.1",
+    "preact-router": "^2.5.7"
   }
 }
