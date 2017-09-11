@@ -21,7 +21,7 @@ def cify(filename, hexes):
     contents += "#define " + guard + "\n"
     contents += "#include <Arduino.h>\n"
     contents += "#include <WString.h>\n"
-    contents += "PGM_P " + var + " PROGMEM = {"
+    contents += "const char " + var + "[] PROGMEM = {"
 
     for i in range(0, len(hexes)-1):
         if (i % 16) == 0:

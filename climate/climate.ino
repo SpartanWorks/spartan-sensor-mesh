@@ -3,7 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <DHT.h>
 #include "Metric.h"
-#include "home.html.h"
+#include "index.html.h"
 
 const int AP_TIMEOUT = 300000; // 5 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -57,7 +57,7 @@ bool connect(char *ssid, char *password) {
 void handleRoot() {
   digitalWrite(LED, 1);
   Serial.println("Serving /");
-  server.send(200, "text/html", FPSTR(homepage));
+  server.send(200, "text/html", FPSTR(index_html));
   digitalWrite(LED, 0);
 }
 
