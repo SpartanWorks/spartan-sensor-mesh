@@ -7,7 +7,7 @@
 #include "main.css.h"
 #include "main.js.h"
 
-const int AP_TIMEOUT = 300000; // 5 minutes
+const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int SAMPLE_BACKLOG = 30; // Averaged over 1 minute.
