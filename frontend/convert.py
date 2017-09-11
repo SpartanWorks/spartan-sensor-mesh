@@ -1,7 +1,8 @@
 #!/bin/env python3
 
-import sys
+import argparse
 import os
+import sys
 
 def slurp(filename):
     contents = ""
@@ -39,5 +40,17 @@ def spit(filename, contents):
         f.write(contents)
 
 if __name__ == "__main__":
-    for arg in sys.argv[1:]:
-        spit(arg + ".h", cify(arg, hexify(slurp(arg))))
+    parser = argparse.ArgumentParser(description='Convert any file to PROGMEM bytes.')
+    parser.add_argument('files', metavar='FILES', type=str, nargs='+', help="Input files")
+    parser.add_argument('--output-dir', type=str, nargs=1, help="Output directory")
+    args = parser.parse_args()
+
+    print(args)
+    for f in args.files:
+        output_dir = ""
+        if "output_dir" in args:
+            output_dir = args.output_dir[0]
+        else:
+            output_dir = os.path.dirname(f)
+        output_file = output_dir + "/" + os.path.basename(f) + ".h"
+        spit(output_file, cify(f, hexify(slurp(f))))
