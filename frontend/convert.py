@@ -21,10 +21,11 @@ def cify(filename, hexes):
     contents += "#define " + guard + "\n"
     contents += "#include <Arduino.h>\n"
     contents += "#include <WString.h>\n"
-    contents += "const char " + var + "[] PROGMEM = {"
+    contents += "const char " + var + "[] PROGMEM = {\n"
 
     for i in range(0, len(hexes)-1):
         if (i % 16) == 0:
+            contents = contents[0:-1]
             contents += "\n    "
         contents += hexes[i] + ", "
 
