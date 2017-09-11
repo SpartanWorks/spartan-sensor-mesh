@@ -3,9 +3,11 @@
 #include <ESP8266WebServer.h>
 #include <DHT.h>
 #include "Metric.h"
-#include "home.html.h"
+#include "index.html.h"
+#include "main.css.h"
+#include "main.js.h"
 
-const int AP_TIMEOUT = 300000; // 5 minutes
+const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int SAMPLE_BACKLOG = 30; // Averaged over 1 minute.
@@ -54,16 +56,30 @@ bool connect(char *ssid, char *password) {
   return true;
 }
 
-void handleRoot() {
+void handleIndex() {
   digitalWrite(LED, 1);
   Serial.println("Serving /");
-  server.send(200, "text/html", FPSTR(homepage));
+  server.send_P(200, PSTR("text/html"), index_html);
+  digitalWrite(LED, 0);
+}
+
+void handleJS() {
+  digitalWrite(LED, 1);
+  Serial.println("Serving /main.js");
+  server.send_P(200, PSTR("application/javascript"), main_js);
+  digitalWrite(LED, 0);
+}
+
+void handleCSS() {
+  digitalWrite(LED, 1);
+  Serial.println("Serving /main.css");
+  server.send_P(200, PSTR("text/css"), main_css);
   digitalWrite(LED, 0);
 }
 
 void handleConfig() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /config");
+  Serial.println("Serving /api/config");
 
   char ssid[128] = "";
   char pass[128] = "";
@@ -88,7 +104,7 @@ void handleConfig() {
 
 void handleSensor() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /sensor");
+  Serial.println("Serving /api/sensor");
 
   String message = "{";
 
@@ -131,13 +147,6 @@ void handleSensor() {
   digitalWrite(LED, 0);
 }
 
-void handleNotFound() {
-  digitalWrite(LED, 1);
-  Serial.println("Serving 404");
-  server.send(404, "text/plain", "File Not Found");
-  digitalWrite(LED, 0);
-}
-
 void setup(void){
   pinMode(LED, OUTPUT);
   digitalWrite(LED, 0);
@@ -154,10 +163,11 @@ void setup(void){
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  server.on("/", handleRoot);
-  server.on("/config", handleConfig);
-  server.on("/sensor", handleSensor);
-  server.onNotFound(handleNotFound);
+  server.on("/api/config", handleConfig);
+  server.on("/api/sensor", handleSensor);
+  server.on("/main.js", handleJS);
+  server.on("/main.css", handleCSS);
+  server.onNotFound(handleIndex);
 
   server.begin();
   Serial.println("HTTP server started");
