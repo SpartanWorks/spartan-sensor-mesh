@@ -3,6 +3,7 @@
 const browserify = require("browserify");
 const buffer = require("vinyl-buffer");
 const connect = require("gulp-connect");
+const cssModulesify = require("css-modulesify");
 const DtsCreator = require("typed-css-modules");
 const glob = require("glob");
 const gulp = require("gulp");
@@ -37,11 +38,12 @@ gulp.task("bundle", ["style-type-definitions", "lint"], () => {
   }
   const bundle = browserify("src/app/main.tsx", { debug: !prod })
     .plugin(require("tsify"))
-    .plugin(require("css-modulesify"), {
+    .plugin(cssModulesify, {
       before: postcss,
       global: true,
       output: "./dist/main.css",
       rootDir: __dirname,
+      generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
     })
     .bundle()
     .on("error", gutil.log)
