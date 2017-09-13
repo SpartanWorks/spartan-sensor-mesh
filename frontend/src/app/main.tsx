@@ -1,8 +1,10 @@
 import * as preact from "preact";
 import { route, Router } from "preact-router";
+import { actions } from "./actions/sensor";
 import { Config } from "./containers/config/config";
 import { Dashboard } from "./containers/dashboard/dashboard";
 import * as styles from "./main.css";
+import { SensorService } from "./services/sensor";
 import { mainStore } from "./store/main";
 
 interface RouteProps {
@@ -39,11 +41,13 @@ const Main = () => (
 );
 
 export function onLoad() {
-  console.log("App successfully loaded!");
+  const sensorService = new SensorService();
+  sensorService.onUpdate((d) => actions.dataRetrieved(d));
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);
   document.body.appendChild(container);
   preact.render(<Main/>, container);
+  console.log("App successfully loaded!");
 }
 
 (function () {
