@@ -1,7 +1,7 @@
 import * as preact from "preact";
 import { route, Router } from "preact-router";
 import { ConfigContainer } from "./containers/config/configContainer";
-import { MainContainer } from "./containers/main/mainContainer";
+import { Dashboard } from "./containers/dashboard/dashboard";
 import * as styles from "./main.css";
 import { mainStore } from "./store/main";
 
@@ -10,8 +10,8 @@ interface RouteProps {
   default?: boolean;
 }
 
-const MainRoute = (p: RouteProps) => (
-  <MainContainer store={mainStore}/>
+const DashboardRoute = (p: RouteProps) => (
+  <Dashboard store={mainStore}/>
 );
 
 const ConfigRoute = (p: RouteProps) => (
@@ -32,7 +32,7 @@ class NotFoundRoute extends preact.Component<RouteProps, {}> {
 
 const Main = () => (
     <Router>
-      <MainRoute path="/"/>
+      <DashboardRoute path="/"/>
       <ConfigRoute path="/config"/>
       <NotFoundRoute default/>
     </Router>
