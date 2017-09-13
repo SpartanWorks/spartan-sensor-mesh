@@ -1,6 +1,6 @@
 import * as preact from "preact";
 import { route, Router } from "preact-router";
-import { ConfigContainer } from "./containers/config/configContainer";
+import { Config } from "./containers/config/config";
 import { Dashboard } from "./containers/dashboard/dashboard";
 import * as styles from "./main.css";
 import { mainStore } from "./store/main";
@@ -15,7 +15,7 @@ const DashboardRoute = (p: RouteProps) => (
 );
 
 const ConfigRoute = (p: RouteProps) => (
-  <ConfigContainer/>
+  <Config/>
 );
 
 class NotFoundRoute extends preact.Component<RouteProps, {}> {

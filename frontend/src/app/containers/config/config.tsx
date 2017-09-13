@@ -1,7 +1,7 @@
 import * as preact from "preact";
-import * as styles from "./configContainer.css";
+import * as styles from "./config.css";
 
-export class ConfigContainer extends preact.Component<{}, any> {
+export class Config extends preact.Component<{}, any> {
   onSubmit(event: Event) {
     let ssid = (document.querySelector("#config-ssid") as any).value;
     let pass = (document.querySelector("#config-pass") as any).value;
