@@ -1,17 +1,3 @@
 .main-wrapper {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-
-  &, & * {
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-
-  & .main-button-wrapper {
-    position: absolute;
-    right: 23px;
-    bottom: 23px;
-  }
+  height: 100vh;
 }

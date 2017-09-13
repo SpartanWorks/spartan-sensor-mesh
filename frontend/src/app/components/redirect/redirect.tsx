@@ -9,7 +9,9 @@ interface Props {
 export class RedirectButton extends preact.Component<Props, any> {
   render() {
     return (
-      <div className={styles.mainButton} onClick={() => actions.redirectionRequested(this.props.to)}/>
+      <div className={styles.wrapper}>
+        <div className={styles.button} onClick={() => actions.redirectionRequested(this.props.to)}/>
+      </div>
     );
   }
 }

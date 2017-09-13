@@ -2,6 +2,7 @@ import * as preact from "preact";
 import { route, Router } from "preact-router";
 import { ConfigContainer } from "./containers/config/configContainer";
 import { MainContainer } from "./containers/main/mainContainer";
+import * as styles from "./main.css";
 import { mainStore } from "./store/main";
 
 interface RouteProps {
@@ -40,6 +41,7 @@ const Main = () => (
 export function onLoad() {
   console.log("App successfully loaded!");
   const container = document.createElement("div");
+  container.classList.add(styles.appContainer);
   document.body.appendChild(container);
   preact.render(<Main/>, container);
 }

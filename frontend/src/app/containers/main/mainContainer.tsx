@@ -10,19 +10,10 @@ interface Props {
 
 @observer
 export class MainContainer extends preact.Component<Props, any> {
-  props: Props;
-
-  constructor(props: Props) {
-    super(props);
-    this.props = props;
-  }
-
-  render () {
+  render() {
     return (
       <div className={styles.mainWrapper}>
-        <div className={styles.mainButtonWrapper}>
-          <RedirectButton to={"/config"}/>
-        </div>
+        <RedirectButton to={"/config"}/>
       </div>
     );
   }
