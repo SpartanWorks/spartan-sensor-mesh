@@ -1,2 +1,2 @@
 export const mainWrapper: string;
-export const mainButton: string;
+export const mainButtonWrapper: string;

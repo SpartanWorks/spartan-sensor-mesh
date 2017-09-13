@@ -1,8 +1,7 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
-import { userActions } from "../../actions/user";
+import { RedirectButton } from "../../components/redirect/redirect";
 import { MainStore } from "../../store/main";
-import { DuckContainer } from "../duck/duckContainer";
 import * as styles from "./mainContainer.css";
 
 interface Props {
@@ -21,8 +20,9 @@ export class MainContainer extends preact.Component<Props, any> {
   render () {
     return (
       <div className={styles.mainWrapper}>
-        <div className={styles.mainButton} onClick={userActions.mainButtonClicked}/>
-        <DuckContainer duckIsVisible={this.props.store.duckIsVisible}/>
+        <div className={styles.mainButtonWrapper}>
+          <RedirectButton to={"/config"}/>
+        </div>
       </div>
     );
   }
