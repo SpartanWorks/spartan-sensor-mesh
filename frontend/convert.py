@@ -6,12 +6,12 @@ import sys
 
 def slurp(filename):
     contents = ""
-    with open(filename, "r") as f:
+    with open(filename, "rb") as f:
         contents = f.read()
     return contents
 
-def hexify(string):
-    return list(map(hex, map(ord, string)))
+def hexify(data):
+    return list(map(hex, data))
 
 def cify(filename, hexes, pretty_print):
     var = os.path.basename(filename).replace(".", "_")
@@ -21,6 +21,7 @@ def cify(filename, hexes, pretty_print):
     contents += "#define " + guard + "\n"
     contents += "#include <Arduino.h>\n"
     contents += "#include <WString.h>\n"
+    contents += "const uint32_t " + var + "_len = " + str(len(hexes)) + ";\n"
     contents += "const char " + var + "[] PROGMEM = {\n"
 
     for i in range(0, len(hexes)-1):
@@ -29,7 +30,7 @@ def cify(filename, hexes, pretty_print):
             contents += "\n    "
         contents += hexes[i] + ", "
 
-    contents += "0x0\n};\n"
+    contents += "\n};\n"
     contents += "#endif\n"
     return contents
 

@@ -3,9 +3,9 @@
 #include <ESP8266WebServer.h>
 #include <DHT.h>
 #include "Metric.h"
-#include "index.html.h"
-#include "main.css.h"
-#include "main.js.h"
+#include "index.html.gz.h"
+#include "main.css.gz.h"
+#include "main.js.gz.h"
 
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -58,22 +58,25 @@ bool connect(char *ssid, char *password) {
 
 void handleIndex() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /");
-  server.send_P(200, PSTR("text/html"), index_html);
+  Serial.println("Serving *");
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("text/html"), index_html_gz, index_html_gz_len);
   digitalWrite(LED, 0);
 }
 
 void handleJS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.js");
-  server.send_P(200, PSTR("application/javascript"), main_js);
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("application/javascript"), main_js_gz, main_js_gz_len);
   digitalWrite(LED, 0);
 }
 
 void handleCSS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.css");
-  server.send_P(200, PSTR("text/css"), main_css);
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("text/css"), main_css_gz, main_css_gz_len);
   digitalWrite(LED, 0);
 }
 
@@ -147,6 +150,35 @@ void handleSensor() {
   digitalWrite(LED, 0);
 }
 
+void readSensor(uint32_t currTime) {
+  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
+
+  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
+    return;
+  }
+
+  float hum = dht.readHumidity(true);
+  float temp = dht.readTemperature(false, true);
+  lastSampleTime = currTime;
+
+  if(!isnan(hum) && !isnan(temp)) {
+    humidity.add(hum);
+    temperature.add(temp);
+    error = false;
+  } else {
+    errors++;
+    error = true;
+  }
+}
+
+void timeoutAP(uint32_t currTime) {
+  if(apEnabled && currTime > AP_TIMEOUT) {
+    Serial.println("Disabling access point.");
+    WiFi.mode(WIFI_STA);
+    apEnabled = false;
+  }
+}
+
 void setup(void){
   pinMode(LED, OUTPUT);
   digitalWrite(LED, 0);
@@ -175,35 +207,6 @@ void setup(void){
   dht.begin();
   readSensor(0);
   Serial.println("Sensor initialized");
-}
-
-void readSensor(uint32_t currTime) {
-  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
-
-  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
-    return;
-  }
-
-  float hum = dht.readHumidity(true);
-  float temp = dht.readTemperature(false, true);
-  lastSampleTime = currTime;
-
-  if(!isnan(hum) && !isnan(temp)) {
-    humidity.add(hum);
-    temperature.add(temp);
-    error = false;
-  } else {
-    errors++;
-    error = true;
-  }
-}
-
-void timeoutAP(uint32_t currTime) {
-  if(apEnabled && currTime > AP_TIMEOUT) {
-    Serial.println("Disabling access point.");
-    WiFi.mode(WIFI_STA);
-    apEnabled = false;
-  }
 }
 
 void loop(void){

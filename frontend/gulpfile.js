@@ -8,6 +8,7 @@ const DtsCreator = require("typed-css-modules");
 const glob = require("glob");
 const gulp = require("gulp");
 const gutil = require("gulp-util");
+const gzip = require("gulp-gzip");
 const rename = require("gulp-rename");
 const karmaServer = require("karma").Server;
 const source = require("vinyl-source-stream");
@@ -21,7 +22,7 @@ const postcss = [ // order matters
   require("postcss-import"),
   require("postcss-color-function"),
   require("postcss-assets")({
-    loadPaths: ["src/"]
+    loadPaths: ["./src/"]
   }),
   require("postcss-camel-case"),
   require("postcss-modules-local-by-default"),
@@ -31,12 +32,12 @@ module.exports = {
   postcss
 };
 
-gulp.task("bundle", ["style-type-definitions", "lint"], () => {
+gulp.task("bundle", ["style-type-definitions"], (done) => {
   const prod = process.env.ENV === "prod";
   if (prod){
     postcss.push(require('postcss-clean'));
   }
-  const bundle = browserify("src/app/main.tsx", { debug: !prod })
+  const bundle = browserify("./src/app/main.tsx", { debug: !prod })
     .plugin(require("tsify"))
     .plugin(cssModulesify, {
       before: postcss,
@@ -60,12 +61,12 @@ gulp.task("bundle", ["style-type-definitions", "lint"], () => {
   }
   bundle
     .pipe(gulp.dest("./dist/"))
-    .pipe(connect.reload());
+    .on('end', done);
 });
 
-gulp.task("tslint", () => {
+gulp.task("lint", () => {
   gulp
-    .src(["src/**/*.ts", "src/**/*.tsx"])
+    .src(["./src/**/*.ts", "./src/**/*.tsx"])
     .on("error", gutil.log)
     .pipe(tslint({
       fix: true,
@@ -73,8 +74,6 @@ gulp.task("tslint", () => {
     }))
     .pipe(tslint.report());
 });
-
-gulp.task("lint", ["tslint"]);
 
 gulp.task("style-type-definitions", (done) => {
   let creator = new DtsCreator({
@@ -106,35 +105,19 @@ gulp.task("style-type-definitions", (done) => {
 
 gulp.task("html", () => {
   gulp
-    .src(["src/index.html"])
+    .src(["./src/index.html"])
     .on("error", gutil.log)
-    .pipe(gulp.dest("./dist/"))
-    .pipe(connect.reload());
+    .pipe(gulp.dest("./dist/"));
 });
 
-gulp.task("server", () => {
-  connect.server({
-    host: "0.0.0.0",
-    livereload: true,
-    port: 8888,
-    root: "dist/",
-  });
-});
-
-gulp.task("watch", ["html", "bundle", "server"], () => {
-  gulp.watch("src/**/*.*", { debounceDelay: 2000 }, ["html", "bundle"]);
-});
-
-gulp.task("default", ["html", "bundle"]);
-
-gulp.task("test", ["style-type-definitions"], (done) => {
+gulp.task("test", ["style-type-definitions", "lint"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
   }, done).start();
 });
 
-gulp.task("test-ci", ["style-type-definitions"], (done) => {
+gulp.task("test-ci", ["style-type-definitions", "lint"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
@@ -142,8 +125,35 @@ gulp.task("test-ci", ["style-type-definitions"], (done) => {
   }, done).start();
 });
 
-gulp.task("test-watch", ["style-type-definitions"], (done) => {
+gulp.task("test-watch", ["style-type-definitions", "lint"], (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
   }, done).start();
 });
+
+gulp.task("develop", ["html", "bundle"]);
+
+gulp.task("reload", ["develop"], () => {
+  gulp
+    .src("./dist/")
+    .pipe(connect.reload());
+});
+
+gulp.task("watch", ["develop"], () => {
+  gulp.watch("./src/**/*.*", { debounceDelay: 2000 }, ["reload"]);
+  connect.server({
+    host: "0.0.0.0",
+    livereload: true,
+    port: 8888,
+    root: "./dist/",
+  });
+});
+
+gulp.task("release", ["develop"], () => {
+  gulp
+    .src("./dist/**/*.!(gz)")
+    .pipe(gzip())
+    .pipe(gulp.dest("./dist/"));
+});
+
+gulp.task("default", ["develop"]);
