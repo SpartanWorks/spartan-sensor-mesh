@@ -150,6 +150,35 @@ void handleSensor() {
   digitalWrite(LED, 0);
 }
 
+void readSensor(uint32_t currTime) {
+  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
+
+  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
+    return;
+  }
+
+  float hum = dht.readHumidity(true);
+  float temp = dht.readTemperature(false, true);
+  lastSampleTime = currTime;
+
+  if(!isnan(hum) && !isnan(temp)) {
+    humidity.add(hum);
+    temperature.add(temp);
+    error = false;
+  } else {
+    errors++;
+    error = true;
+  }
+}
+
+void timeoutAP(uint32_t currTime) {
+  if(apEnabled && currTime > AP_TIMEOUT) {
+    Serial.println("Disabling access point.");
+    WiFi.mode(WIFI_STA);
+    apEnabled = false;
+  }
+}
+
 void setup(void){
   pinMode(LED, OUTPUT);
   digitalWrite(LED, 0);
@@ -178,35 +207,6 @@ void setup(void){
   dht.begin();
   readSensor(0);
   Serial.println("Sensor initialized");
-}
-
-void readSensor(uint32_t currTime) {
-  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
-
-  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
-    return;
-  }
-
-  float hum = dht.readHumidity(true);
-  float temp = dht.readTemperature(false, true);
-  lastSampleTime = currTime;
-
-  if(!isnan(hum) && !isnan(temp)) {
-    humidity.add(hum);
-    temperature.add(temp);
-    error = false;
-  } else {
-    errors++;
-    error = true;
-  }
-}
-
-void timeoutAP(uint32_t currTime) {
-  if(apEnabled && currTime > AP_TIMEOUT) {
-    Serial.println("Disabling access point.");
-    WiFi.mode(WIFI_STA);
-    apEnabled = false;
-  }
 }
 
 void loop(void){
