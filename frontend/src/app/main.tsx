@@ -51,9 +51,7 @@ export function onLoad() {
 }
 
 (function () {
-  const DOMContentLoaded = document.readyState === "interactive";
-
-  if (DOMContentLoaded) {
+  if (document.readyState === "interactive") {
     onLoad();
   } else {
     document.addEventListener("DOMContentLoaded", onLoad);
