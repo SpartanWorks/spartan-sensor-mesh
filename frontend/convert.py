@@ -6,12 +6,12 @@ import sys
 
 def slurp(filename):
     contents = ""
-    with open(filename, "r") as f:
+    with open(filename, "rb") as f:
         contents = f.read()
     return contents
 
-def hexify(string):
-    return list(map(hex, map(ord, string)))
+def hexify(data):
+    return list(map(hex, data))
 
 def cify(filename, hexes, pretty_print):
     var = os.path.basename(filename).replace(".", "_")

@@ -3,9 +3,9 @@
 #include <ESP8266WebServer.h>
 #include <DHT.h>
 #include "Metric.h"
-#include "index.html.h"
-#include "main.css.h"
-#include "main.js.h"
+#include "index.html.gz.h"
+#include "main.css.gz.h"
+#include "main.js.gz.h"
 
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -58,22 +58,25 @@ bool connect(char *ssid, char *password) {
 
 void handleIndex() {
   digitalWrite(LED, 1);
-  Serial.println("Serving /");
-  server.send_P(200, PSTR("text/html"), index_html);
+  Serial.println("Serving *");
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("text/html"), index_html_gz);
   digitalWrite(LED, 0);
 }
 
 void handleJS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.js");
-  server.send_P(200, PSTR("application/javascript"), main_js);
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("application/javascript"), main_js_gz);
   digitalWrite(LED, 0);
 }
 
 void handleCSS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.css");
-  server.send_P(200, PSTR("text/css"), main_css);
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, PSTR("text/css"), main_css_gz);
   digitalWrite(LED, 0);
 }
 
