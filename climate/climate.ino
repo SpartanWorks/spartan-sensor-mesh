@@ -60,7 +60,7 @@ void handleIndex() {
   digitalWrite(LED, 1);
   Serial.println("Serving *");
   server.sendHeader("Content-Encoding", "gzip");
-  server.send_P(200, PSTR("text/html"), index_html_gz);
+  server.send_P(200, PSTR("text/html"), index_html_gz, index_html_gz_len);
   digitalWrite(LED, 0);
 }
 
@@ -68,7 +68,7 @@ void handleJS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.js");
   server.sendHeader("Content-Encoding", "gzip");
-  server.send_P(200, PSTR("application/javascript"), main_js_gz);
+  server.send_P(200, PSTR("application/javascript"), main_js_gz, main_js_gz_len);
   digitalWrite(LED, 0);
 }
 
@@ -76,7 +76,7 @@ void handleCSS() {
   digitalWrite(LED, 1);
   Serial.println("Serving /main.css");
   server.sendHeader("Content-Encoding", "gzip");
-  server.send_P(200, PSTR("text/css"), main_css_gz);
+  server.send_P(200, PSTR("text/css"), main_css_gz, main_css_gz_len);
   digitalWrite(LED, 0);
 }
 
