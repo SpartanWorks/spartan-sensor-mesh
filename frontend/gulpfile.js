@@ -151,7 +151,7 @@ gulp.task("watch", ["develop"], () => {
 
 gulp.task("release", ["develop"], () => {
   gulp
-    .src("./dist/**/*.!(gz)")
+    .src(["./dist/**/*.html", "./dist/**/*.js", "./dist/**/*.css"])
     .pipe(gzip())
     .pipe(gulp.dest("./dist/"));
 });
