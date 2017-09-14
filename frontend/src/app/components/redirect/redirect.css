@@ -2,16 +2,19 @@
   --red: #d33;
 }
 
-.main-wrapper {
+.wrapper {
+  position: fixed;
+  right: 0;
+  bottom: 0;
 
-  &, & * {
-    margin: 0;
-    padding: 0;
-  }
+  & .button {
+    position: absolute;
+    right: 23px;
+    bottom: 23px;
 
-  & .main-button {
     width: 50px;
     height: 50px;
+
     background-color: var(--red);
     border-radius: 50%;
     cursor: pointer;

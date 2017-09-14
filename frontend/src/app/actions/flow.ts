@@ -1,7 +1,8 @@
 import { action } from "mobx";
+import { route } from "preact-router";
 import { MainStore, mainStore } from "../store/main";
 
-class UserActions {
+class FlowActions {
   store: MainStore;
 
   constructor(store: MainStore) {
@@ -9,10 +10,10 @@ class UserActions {
   }
 
   @action.bound
-  mainButtonClicked() {
-    this.store.duckIsVisible = !this.store.duckIsVisible;
+  redirectionRequested(to: string) {
+    route(to);
   }
 
 }
 
-export const userActions = new UserActions(mainStore);
+export const actions = new FlowActions(mainStore);

@@ -1,0 +1,14 @@
+:root {
+  --background-color: #fcfcfc;
+}
+
+body {
+  background-color: var(--background-color);
+
+  margin: 0;
+  padding: 0;
+
+  & .app-container {
+    height: 100vh;
+  }
+}
