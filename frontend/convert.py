@@ -30,6 +30,7 @@ def cify(filename, hexes, pretty_print):
             contents += "\n    "
         contents += hexes[i] + ", "
 
+    contents = contents[0:-2]
     contents += "\n};\n"
     contents += "#endif\n"
     return contents
