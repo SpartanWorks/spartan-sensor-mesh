@@ -10,12 +10,12 @@ interface Props {
 }
 
 @observer
-export class Dashboard extends preact.Component<Props, any> {
+export class Dashboard extends preact.Component<Props, {}> {
   render() {
     return (
       <div className={styles.mainWrapper}>
-        <ClimateWidget humidity={this.props.store.data.humidity.avg}
-                       temperature={this.props.store.data.temperature.avg}/>
+        <ClimateWidget humidity={this.props.store.data.humidity.val}
+                       temperature={this.props.store.data.temperature.val}/>
         <RedirectButton to={"/config"}/>
       </div>
     );
