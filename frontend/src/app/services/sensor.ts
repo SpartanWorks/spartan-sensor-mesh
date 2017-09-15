@@ -1,6 +1,17 @@
+export interface Metric {
+  avg: number;
+  max: number;
+  min: number;
+  val: number;
+  var: number;
+}
+
 export interface SensorData {
-  humidity: number;
-  temperature: number;
+  humidity: Metric;
+  temperature: Metric;
+  errors: number;
+  measurements: number;
+  status: "ok" | "error";
 }
 
 export interface UpdateCallback {
@@ -8,17 +19,28 @@ export interface UpdateCallback {
 }
 
 export class SensorService {
+  baseUrl: string;
   onUpdateCallback: UpdateCallback;
 
-  constructor() {
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+    this.connect(2000);
+  }
+
+  private connect(interval: number) {
     setInterval(() => {
       if (this.onUpdateCallback) {
-        this.onUpdateCallback({
-          humidity: Math.floor(Math.random() * 100 + 1),
-          temperature: Math.floor(Math.random() * 35 + 1)
-        });
+        fetch(this.baseUrl + "/api/sensor")
+          .then((r) => r.json())
+          .then(this.onUpdateCallback)
+          .catch((e) => {
+            console.error({
+              error: "Fetching data failed.",
+              cause: e
+            });
+          });
       }
-    }, 2000);
+    }, interval);
   }
 
   onUpdate(callback: UpdateCallback) {

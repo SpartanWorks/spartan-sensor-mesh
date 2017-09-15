@@ -41,8 +41,9 @@ const Main = () => (
 );
 
 export function onLoad() {
-  const sensorService = new SensorService();
-  sensorService.onUpdate((d) => actions.dataRetrieved(d));
+  const url = window.location.protocol + "//" + window.location.host;
+  const sensorService = new SensorService(url);
+  sensorService.onUpdate(actions.dataRetrieved);
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);
   document.body.appendChild(container);
