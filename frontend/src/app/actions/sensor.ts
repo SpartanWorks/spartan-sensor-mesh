@@ -11,8 +11,7 @@ export class SensorActions {
 
   @action.bound
   dataRetrieved(data: SensorData) {
-    this.store.humidity = data.humidity;
-    this.store.temperature = data.temperature;
+    this.store.data = data;
   }
 
 }

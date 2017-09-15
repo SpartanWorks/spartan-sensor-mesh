@@ -1,11 +1,27 @@
 import { observable } from "mobx";
+import { SensorData } from "../services/sensor";
 
 export class MainStore {
   @observable
-  humidity = 0;
-
-  @observable
-  temperature = 0;
+  data: SensorData = {
+    status: "ok",
+    measurements: 0,
+    errors: 0,
+    humidity: {
+      avg: 0,
+      max: 0,
+      min: 0,
+      val: 0,
+      var: 0
+    },
+    temperature: {
+      avg: 0,
+      max: 0,
+      min: 0,
+      val: 0,
+      var: 0
+    },
+  };
 }
 
 export const mainStore = new MainStore();
