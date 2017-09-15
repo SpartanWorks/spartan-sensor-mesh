@@ -1,4 +1,4 @@
-import { observable } from "mobx";
+import { action, observable } from "mobx";
 import { SensorData } from "../services/sensor";
 
 export class MainStore {
@@ -22,6 +22,9 @@ export class MainStore {
       var: 0
     },
   };
-}
 
-export const mainStore = new MainStore();
+  @action.bound
+  dataRetrieved(data: SensorData) {
+    this.data = data;
+  }
+}
