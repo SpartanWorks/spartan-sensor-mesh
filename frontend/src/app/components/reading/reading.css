@@ -49,6 +49,9 @@
       border-radius: 50%;
     }
   }
+  & .left {
+    transition: all .3s ease-in-out;
+  }
 
   & .shadow {
     width: 100%;
@@ -74,18 +77,6 @@
 
     & .right {
       transform: rotate(180deg);
-    }
-  }
-}
-
-.progress-value {
-  & .gauge {
-    & progress-bar {
-      border-color: var(--bar-color);
-    }
-
-    & .left {
-      transform: rotate(313deg);
     }
   }
 }

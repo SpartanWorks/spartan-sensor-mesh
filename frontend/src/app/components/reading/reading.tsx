@@ -11,7 +11,10 @@ export const Reading = (props: Props) => {
   const moreLess = (props.progress > 180) ? styles.progressMore : styles.progressLess;
   const leftStyle = {
     "border-color": props.color,
-    "transform": "rotate(" + props.progress + "deg)"
+    "transform": "rotate(" + props.progress + "deg)",
+    "-webkit-transform": "rotate(" + props.progress + "deg)",
+    "-moz-transform": "rotate(" + props.progress + "deg)",
+    "-ms-transform": "rotate(" + props.progress + "deg)"
   };
   const rightStyle = {
     "border-color": props.color
