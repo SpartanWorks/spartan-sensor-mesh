@@ -10,10 +10,14 @@ interface Props {
 export const ClimateWidget = (props: Props) => (
   <div className={styles.wrapper}>
     <div className={styles.humidity}>
-      <Reading value={props.humidity} unit="%"/>
+      <Reading label={"" + Math.round(props.humidity) + "%"}
+               progress={Math.round(props.humidity * 3.6)}
+               color="blue"/>
     </div>
     <div className={styles.temperature}>
-      <Reading value={props.temperature} unit="°C"/>
+      <Reading label={"" + Math.round(props.temperature) + "°C"}
+               progress={360}
+               color="red"/>
     </div>
   </div>
 );

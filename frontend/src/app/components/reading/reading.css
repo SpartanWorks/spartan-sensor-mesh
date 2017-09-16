@@ -1,9 +1,91 @@
+:root {
+  --label-color: black;
+  --label-size: 30px;
+  --gauge-size: 200px;
+  --bar-color: blue;
+  --shadow-color: lightgray;
+}
+
 .wrapper {
-  & .value {
-    
+  width: var(--gauge-size);
+  height: var(--gauge-size);
+  position: relative;
+
+  & *, & *:after, & *:before {
+    box-sizing: border-box;
   }
 
-  & .unit {
-    
+  & .label {
+    width: 100%;
+    height: 100%;
+    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    font-size: var(--label-size);
+    color: var(--label-color);
+  }
+
+  & .gauge {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    clip: rect(0, var(--gauge-size), var(--gauge-size), calc(var(--gauge-size) / 2));
+
+    & .progress-bar {
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
+      clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
+
+      border-width: calc(var(--gauge-size) / 10);
+      border-style: solid;
+      border-color: var(--bar-color);
+      border-radius: 50%;
+    }
+  }
+
+  & .shadow {
+    width: 100%;
+    height: 100%;
+    border-width: calc(var(--gauge-size) / 10);
+    border-style: solid;
+    border-color: var(--shadow-color);
+    border-radius: 50%;
+  }
+}
+
+.progress-less {
+  & .gauge {
+    & .right {
+      display: none;
+    }
+  }
+}
+
+.progress-more {
+  & .gauge {
+    clip: rect(auto, auto, auto, auto);
+
+    & .right {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.progress-value {
+  & .gauge {
+    & progress-bar {
+      border-color: var(--bar-color);
+    }
+
+    & .left {
+      transform: rotate(313deg);
+    }
   }
 }
