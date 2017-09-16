@@ -23,24 +23,28 @@ export class SensorService {
   onUpdateCallback: UpdateCallback;
 
   constructor(baseUrl: string) {
+    this.onUpdateCallback = () => {
+      // Do nothing.
+    };
     this.baseUrl = baseUrl;
-    this.connect(2000);
+   }
+
+  connect(interval: number) {
+    this.fetchData().then(() => {
+      setInterval(this.fetchData.bind(this), interval);
+    });
   }
 
-  private connect(interval: number) {
-    setInterval(() => {
-      if (this.onUpdateCallback) {
-        fetch(this.baseUrl + "/api/sensor")
-          .then((r) => r.json())
-          .then(this.onUpdateCallback)
-          .catch((e) => {
-            console.error({
-              error: "Fetching data failed.",
-              cause: e
-            });
-          });
-      }
-    }, interval);
+  private fetchData(): Promise<void> {
+    return fetch(this.baseUrl + "/api/sensor")
+      .then((r) => r.json())
+      .then(this.onUpdateCallback)
+      .catch((e) => {
+        console.error({
+          error: "Fetching data failed.",
+          cause: e
+        });
+      });
   }
 
   onUpdate(callback: UpdateCallback) {
