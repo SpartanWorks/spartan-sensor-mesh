@@ -1,53 +1,20 @@
 import * as preact from "preact";
-import { route, Router } from "preact-router";
-import { actions } from "./actions/sensor";
-import { Config } from "./containers/config/config";
-import { Dashboard } from "./containers/dashboard/dashboard";
+import { Main } from "./containers/main/main";
 import * as styles from "./main.css";
 import { SensorService } from "./services/sensor";
-import { mainStore } from "./store/main";
-
-interface RouteProps {
-  path?: string;
-  default?: boolean;
-}
-
-const DashboardRoute = (p: RouteProps) => (
-  <Dashboard store={mainStore}/>
-);
-
-const ConfigRoute = (p: RouteProps) => (
-  <Config/>
-);
-
-class NotFoundRoute extends preact.Component<RouteProps, {}> {
-  componentWillMount() {
-    route("/", true);
-  }
-
-  render() {
-    return (
-      <div />
-    );
-  }
-}
-
-const Main = () => (
-    <Router>
-      <DashboardRoute path="/"/>
-      <ConfigRoute path="/config"/>
-      <NotFoundRoute default/>
-    </Router>
-);
+import { MainStore } from "./store/main";
 
 export function onLoad() {
-  const url = window.location.protocol + "//" + window.location.host;
-  const sensorService = new SensorService(url);
-  sensorService.onUpdate(actions.dataRetrieved);
+  const mainStore = new MainStore();
+
+  const sensorService = new SensorService(window.location.protocol + "//" + window.location.host);
+  sensorService.onUpdate(mainStore.dataRetrieved);
+
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);
   document.body.appendChild(container);
-  preact.render(<Main/>, container);
+
+  preact.render(<Main store={mainStore}/>, container);
   console.log("App successfully loaded!");
 }
 
