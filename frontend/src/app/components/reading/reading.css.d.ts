@@ -3,7 +3,7 @@ export const label: string;
 export const gauge: string;
 export const progressBar: string;
 export const left: string;
+export const right: string;
 export const shadow: string;
 export const progressLess: string;
-export const right: string;
 export const progressMore: string;

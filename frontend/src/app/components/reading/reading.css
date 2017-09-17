@@ -1,9 +1,11 @@
 :root {
-  --label-color: black;
-  --label-size: 30px;
-  --gauge-size: 200px;
+  --label-color: gray;
+  --label-size: 50px;
+  --gauge-size: 250px;
   --bar-color: blue;
+  --bar-width: calc(var(--gauge-size) / 13);
   --shadow-color: lightgray;
+  --animation-speed: .5s;
 }
 
 .wrapper {
@@ -43,20 +45,25 @@
       position: absolute;
       clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
 
-      border-width: calc(var(--gauge-size) / 10);
+      border-width: var(--bar-width);
       border-style: solid;
       border-color: var(--bar-color);
       border-radius: 50%;
     }
   }
+
   & .left {
-    transition: all .3s ease-in-out;
+    transition: all var(--animation-speed) ease-in-out;
+  }
+
+  & .right {
+    transition: border var(--animation-speed) ease-in-out;
   }
 
   & .shadow {
     width: 100%;
     height: 100%;
-    border-width: calc(var(--gauge-size) / 10);
+    border-width: var(--bar-width);
     border-style: solid;
     border-color: var(--shadow-color);
     border-radius: 50%;

@@ -24,7 +24,7 @@ export class Dashboard extends preact.Component<Props, {}> {
         <div className={styles.mainWrapper}>
           <ClimateWidget humidity={this.props.store.data.humidity.val}
                          temperature={this.props.store.data.temperature.val}
-                         minTemperature={12}
+                         minTemperature={11}
                          maxTemperature={37}/>
           <RedirectButton to={"/config"}/>
         </div>

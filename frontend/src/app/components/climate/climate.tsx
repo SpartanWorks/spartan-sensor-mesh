@@ -46,7 +46,7 @@ export const ClimateWidget = (props: Props) => (
     <div className={styles.humidity}>
       <Reading label={"" + Math.round(props.humidity) + "%"}
                progress={Math.round(props.humidity * 3.6)}
-               color="blue"/>
+               color="dodgerblue"/>
     </div>
     <div className={styles.temperature}>
       <Reading label={"" + Math.round(props.temperature) + "°C"}
