@@ -1,4 +1,5 @@
 import * as preact from "preact";
+import { RedirectButton } from "../../components/redirect/redirect";
 import * as styles from "./config.css";
 
 export class Config extends preact.Component<{}, any> {
@@ -33,6 +34,7 @@ export class Config extends preact.Component<{}, any> {
             </div>
           </fieldset>
         </form>
+        <RedirectButton to={"/"}/>
       </div>
     );
   }

@@ -9,6 +9,7 @@ export function onLoad() {
 
   const sensorService = new SensorService(window.location.protocol + "//" + window.location.host);
   sensorService.onUpdate(mainStore.dataRetrieved);
+  sensorService.connect(5000);
 
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);

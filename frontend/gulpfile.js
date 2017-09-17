@@ -16,8 +16,12 @@ const sourcemaps = require("gulp-sourcemaps");
 const tslint = require("gulp-tslint");
 const uglify = require("gulp-uglify");
 
+const prod = process.env.ENV === "prod";
+
 const postcss = [ // order matters
-  require("postcss-cssnext"),
+  require("postcss-cssnext")({
+    warnForDuplicates: !prod
+  }),
   require("postcss-custom-properties"),
   require("postcss-import"),
   require("postcss-color-function"),
@@ -33,14 +37,10 @@ module.exports = {
 };
 
 gulp.task("bundle", ["style-type-definitions"], (done) => {
-  const prod = process.env.ENV === "prod";
-  if (prod){
-    postcss.push(require('postcss-clean'));
-  }
   const bundle = browserify("./src/app/main.tsx", { debug: !prod })
     .plugin(require("tsify"))
     .plugin(cssModulesify, {
-      before: postcss,
+      before: prod ? postcss.concat(require("cssnano")) : postcss,
       global: true,
       output: "./dist/main.css",
       rootDir: __dirname,
@@ -53,7 +53,7 @@ gulp.task("bundle", ["style-type-definitions"], (done) => {
   if (prod) {
     bundle
       .pipe(uglify())
-      .on('error', gutil.log);
+      .on("error", gutil.log);
   } else {
     bundle
       .pipe(sourcemaps.init({loadMaps: true}))
@@ -61,7 +61,7 @@ gulp.task("bundle", ["style-type-definitions"], (done) => {
   }
   bundle
     .pipe(gulp.dest("./dist/"))
-    .on('end', done);
+    .on("end", done);
 });
 
 gulp.task("lint", () => {

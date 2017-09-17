@@ -1,0 +1,89 @@
+:root {
+  --label-color: gray;
+  --label-size: 50px;
+  --gauge-size: 250px;
+  --bar-color: blue;
+  --bar-width: calc(var(--gauge-size) / 13);
+  --shadow-color: lightgray;
+  --animation-speed: .5s;
+}
+
+.wrapper {
+  width: var(--gauge-size);
+  height: var(--gauge-size);
+  position: relative;
+
+  & *, & *:after, & *:before {
+    box-sizing: border-box;
+  }
+
+  & .label {
+    width: 100%;
+    height: 100%;
+    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    font-size: var(--label-size);
+    color: var(--label-color);
+  }
+
+  & .gauge {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    clip: rect(0, var(--gauge-size), var(--gauge-size), calc(var(--gauge-size) / 2));
+
+    & .progress-bar {
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
+      clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
+
+      border-width: var(--bar-width);
+      border-style: solid;
+      border-color: var(--bar-color);
+      border-radius: 50%;
+    }
+  }
+
+  & .left {
+    transition: all var(--animation-speed) ease-in-out;
+  }
+
+  & .right {
+    transition: border var(--animation-speed) ease-in-out;
+  }
+
+  & .shadow {
+    width: 100%;
+    height: 100%;
+    border-width: var(--bar-width);
+    border-style: solid;
+    border-color: var(--shadow-color);
+    border-radius: 50%;
+  }
+}
+
+.progress-less {
+  & .gauge {
+    & .right {
+      display: none;
+    }
+  }
+}
+
+.progress-more {
+  & .gauge {
+    clip: rect(auto, auto, auto, auto);
+
+    & .right {
+      transform: rotate(180deg);
+    }
+  }
+}

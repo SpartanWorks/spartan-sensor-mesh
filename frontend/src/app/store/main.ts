@@ -3,6 +3,9 @@ import { SensorData } from "../services/sensor";
 
 export class MainStore {
   @observable
+  dataLoaded = false;
+
+  @observable
   data: SensorData = {
     status: "ok",
     measurements: 0,
@@ -25,6 +28,7 @@ export class MainStore {
 
   @action.bound
   dataRetrieved(data: SensorData) {
+    this.dataLoaded = true;
     this.data = data;
   }
 }

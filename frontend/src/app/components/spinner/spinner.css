@@ -1,0 +1,18 @@
+:root {
+  --spinner-inactive: lightgray;
+  --spinner-active: blue;
+}
+
+.spinner {
+  border: 16px solid var(--spinner-inactive);
+  border-top: 16px solid var(--spinner-active);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
