@@ -13,7 +13,7 @@ interface Props {
 @observer
 export class Dashboard extends preact.Component<Props, {}> {
   render() {
-    if(!this.props.store.dataLoaded) {
+    if (!this.props.store.dataLoaded) {
       return (
         <div className={styles.mainWrapper}>
           <Spinner/>
