@@ -22,14 +22,14 @@ export const Reading = (props: Props) => {
 
   return (
     <div className={styles.wrapper + " " + moreLess}>
-      <div className={styles.label}>
-        {props.children}
-      </div>
+      <div className={styles.shadow}/>
       <div className={styles.gauge}>
         <div className={styles.left + " " + styles.progressBar} style={leftStyle}></div>
         <div className={styles.right + " " + styles.progressBar} style={rightStyle}></div>
       </div>
-      <div className={styles.shadow}/>
+      <div className={styles.label}>
+        {props.children}
+      </div>
     </div>
   );
 };

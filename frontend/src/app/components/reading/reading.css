@@ -56,6 +56,7 @@
   & .shadow {
     width: 100%;
     height: 100%;
+    position: absolute;
     border-width: var(--bar-width);
     border-style: solid;
     border-color: var(--shadow-color);
