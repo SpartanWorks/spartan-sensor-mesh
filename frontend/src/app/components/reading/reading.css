@@ -1,6 +1,4 @@
 :root {
-  --label-color: gray;
-  --label-size: 50px;
   --gauge-size: 250px;
   --bar-color: blue;
   --bar-width: calc(var(--gauge-size) / 13);
@@ -15,18 +13,6 @@
 
   & *, & *:after, & *:before {
     box-sizing: border-box;
-  }
-
-  & .label {
-    width: 100%;
-    height: 100%;
-    background: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    font-size: var(--label-size);
-    color: var(--label-color);
   }
 
   & .gauge {
@@ -50,6 +36,13 @@
       border-color: var(--bar-color);
       border-radius: 50%;
     }
+  }
+
+  & .label {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: none;
   }
 
   & .left {

@@ -2,9 +2,9 @@ import * as preact from "preact";
 import * as styles from "./reading.css";
 
 interface Props {
-  label: string;
   color: string;
   progress: number;
+  children?: Array<preact.Component<any, any>>;
 }
 
 export const Reading = (props: Props) => {
@@ -22,7 +22,9 @@ export const Reading = (props: Props) => {
 
   return (
     <div className={styles.wrapper + " " + moreLess}>
-      <span className={styles.label}>{props.label}</span>
+      <div className={styles.label}>
+        {props.children}
+      </div>
       <div className={styles.gauge}>
         <div className={styles.left + " " + styles.progressBar} style={leftStyle}></div>
         <div className={styles.right + " " + styles.progressBar} style={rightStyle}></div>
