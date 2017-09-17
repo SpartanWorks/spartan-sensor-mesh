@@ -1,7 +1,7 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
 import { ClimateWidget } from "../../components/climate/climate";
-import { RedirectButton } from "../../components/redirect/redirect";
+import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { MainStore } from "../../store/main";
 import * as styles from "./dashboard.css";
@@ -26,7 +26,7 @@ export class Dashboard extends preact.Component<Props, {}> {
                          temperature={this.props.store.data.temperature.val}
                          minTemperature={11}
                          maxTemperature={37}/>
-          <RedirectButton to={"/config"}/>
+          <RedirectButton to={"/config"} icon={iconCogs}/>
         </div>
       );
     }

@@ -1,5 +1,6 @@
 :root {
-  --red: #d33;
+  --icon-chart: inline("assets/chart.svg");
+  --icon-cogs: inline("assets/cogs.svg");
 }
 
 .wrapper {
@@ -14,9 +15,17 @@
 
     width: 50px;
     height: 50px;
-
-    background-color: var(--red);
-    border-radius: 50%;
     cursor: pointer;
+    background: lightgray;
   }
+}
+
+.icon-chart {
+  mask: var(--icon-chart) no-repeat;
+  mask-size: cover;
+}
+
+.icon-cogs {
+  mask: var(--icon-cogs) no-repeat;
+  mask-size: cover;
 }
