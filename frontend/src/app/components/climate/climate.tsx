@@ -48,26 +48,30 @@ function valueWithin(val: number, min: number, max: number): number {
 }
 
 export const ClimateWidget = (props: Props) => (
-  <div className={styles.wrapper}>
-    <Reading progress={Math.round(props.humidity * 3.6)} color="dodgerblue">
-      <div className={styles.readingWrapper}>
-        <span className={styles.dummy}/>
-        <div className={styles.reading}>
-          <span className={styles.value}>{"" + Math.round(props.humidity)}</span>
-          <span className={styles.unit}>%</span>
+  <div className={styles.widgetWrapper}>
+    <div className={styles.itemWrapper}>
+      <Reading progress={Math.round(props.humidity * 3.6)} color="dodgerblue">
+        <div className={styles.readingWrapper}>
+          <span className={styles.dummy}/>
+          <div className={styles.reading}>
+            <span className={styles.value}>{"" + Math.round(props.humidity)}</span>
+            <span className={styles.unit}>%</span>
+          </div>
+          <span className={styles.label}>Humidity</span>
         </div>
-        <span className={styles.label}>Humidity</span>
-      </div>
-    </Reading>
-    <Reading progress={360} color={jet(valueWithin(props.temperature, props.minTemperature, props.maxTemperature))}>
-      <div className={styles.readingWrapper}>
-        <span className={styles.dummy}/>
-        <div className={styles.reading}>
-          <span className={styles.value}>{"" + Math.round(props.temperature)}</span>
-          <span className={styles.unit}>°C</span>
+      </Reading>
+    </div>
+    <div className={styles.itemWrapper}>
+      <Reading progress={360} color={jet(valueWithin(props.temperature, props.minTemperature, props.maxTemperature))}>
+        <div className={styles.readingWrapper}>
+          <span className={styles.dummy}/>
+          <div className={styles.reading}>
+            <span className={styles.value}>{"" + Math.round(props.temperature)}</span>
+            <span className={styles.unit}>°C</span>
+          </div>
+          <span className={styles.label}>Temperature</span>
         </div>
-        <span className={styles.label}>Temperature</span>
-      </div>
-    </Reading>
+      </Reading>
+    </div>
   </div>
 );
