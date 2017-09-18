@@ -1,10 +1,10 @@
 import * as preact from "preact";
+import { SensorData } from "../../services/sensor";
 import { Reading } from "../reading/reading";
 import * as styles from "./climate.css";
 
 interface Props {
-  humidity: number;
-  temperature: number;
+  data: SensorData;
   minTemperature: number;
   maxTemperature: number;
 }
@@ -50,11 +50,13 @@ function valueWithin(val: number, min: number, max: number): number {
 export const ClimateWidget = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.itemWrapper}>
-      <Reading progress={Math.round(props.humidity * 3.6)} color="dodgerblue">
+      <Reading progress={Math.round(props.data.humidity.val * 3.6)}
+               color="dodgerblue"
+               isError={props.data.status === "error"}>
         <div className={styles.readingWrapper}>
           <span className={styles.dummy}/>
           <div className={styles.reading}>
-            <span className={styles.value}>{"" + Math.round(props.humidity)}</span>
+            <span className={styles.value}>{"" + Math.round(props.data.humidity.val)}</span>
             <span className={styles.unit}>%</span>
           </div>
           <span className={styles.label}>Humidity</span>
@@ -62,11 +64,13 @@ export const ClimateWidget = (props: Props) => (
       </Reading>
     </div>
     <div className={styles.itemWrapper}>
-      <Reading progress={360} color={jet(valueWithin(props.temperature, props.minTemperature, props.maxTemperature))}>
+      <Reading progress={360}
+               color={jet(valueWithin(props.data.temperature.val, props.minTemperature, props.maxTemperature))}
+               isError={props.data.status === "error"}>
         <div className={styles.readingWrapper}>
           <span className={styles.dummy}/>
           <div className={styles.reading}>
-            <span className={styles.value}>{"" + Math.round(props.temperature)}</span>
+            <span className={styles.value}>{"" + Math.round(props.data.temperature.val)}</span>
             <span className={styles.unit}>°C</span>
           </div>
           <span className={styles.label}>Temperature</span>

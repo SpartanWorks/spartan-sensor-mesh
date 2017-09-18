@@ -4,6 +4,8 @@
   --bar-width: calc(var(--gauge-size) / 13);
   --shadow-color: lightgray;
   --animation-speed: .5s;
+  --error-color: red;
+  --error-size: 20px;
 }
 
 .wrapper {
@@ -36,6 +38,12 @@
       border-color: var(--bar-color);
       border-radius: 50%;
     }
+  }
+
+  & .error {
+    font-size: var(--error-size);
+    content: "!";
+    color: var(--error-color);
   }
 
   & .label {
@@ -80,4 +88,9 @@
       transform: rotate(180deg);
     }
   }
+}
+
+
+.hidden {
+  display: none;
 }
