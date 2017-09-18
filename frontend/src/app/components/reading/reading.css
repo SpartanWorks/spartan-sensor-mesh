@@ -6,6 +6,7 @@
   --animation-speed: .5s;
   --error-color: red;
   --error-size: 20px;
+  --error-icon: inline("assets/alert.svg");
 }
 
 .wrapper {
@@ -41,9 +42,24 @@
   }
 
   & .error {
-    font-size: var(--error-size);
-    content: "!";
-    color: var(--error-color);
+    width: var(--error-size);
+    height: var(--error-size);
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+    background-color: var(--error-color);
+    mask: var(--error-icon) no-repeat;
+    mask-size: cover;
+
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.5s;
+  }
+
+  & .hidden {
+    visibility: hidden;
+    opacity: 0;
   }
 
   & .label {
@@ -88,9 +104,4 @@
       transform: rotate(180deg);
     }
   }
-}
-
-
-.hidden {
-  display: none;
 }
