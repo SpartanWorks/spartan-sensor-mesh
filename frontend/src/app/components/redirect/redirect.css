@@ -1,6 +1,7 @@
 :root {
   --icon-chart: inline("assets/chart.svg");
   --icon-cogs: inline("assets/cogs.svg");
+  --spacing: 15px;
 }
 
 .wrapper {
@@ -10,8 +11,8 @@
 
   & .button {
     position: absolute;
-    right: 23px;
-    bottom: 23px;
+    right: var(--spacing);
+    bottom: var(--spacing);
 
     width: 50px;
     height: 50px;
