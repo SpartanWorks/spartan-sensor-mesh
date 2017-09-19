@@ -1,10 +1,10 @@
 import * as preact from "preact";
+import { SensorData } from "../../services/sensor";
 import { Reading } from "../reading/reading";
 import * as styles from "./climate.css";
 
 interface Props {
-  humidity: number;
-  temperature: number;
+  data: SensorData;
   minTemperature: number;
   maxTemperature: number;
 }
@@ -47,30 +47,37 @@ function valueWithin(val: number, min: number, max: number): number {
   return (clamp(val, min, max) - min) / (max - min);
 }
 
+interface LabelProps {
+  label: string;
+  value: number;
+  unit: string;
+}
+
+export const Label = (props: LabelProps) => (
+  <div className={styles.labelWrapper}>
+    <span className={styles.dummy}>{props.label}</span>
+    <div className={styles.reading}>
+      <span className={styles.value}>{"" + props.value}</span>
+      <span className={styles.unit}>{props.unit}</span>
+    </div>
+    <span className={styles.label}>{props.label}</span>
+  </div>
+);
+
 export const ClimateWidget = (props: Props) => (
   <div className={styles.widgetWrapper}>
-    <div className={styles.itemWrapper}>
-      <Reading progress={Math.round(props.humidity * 3.6)} color="dodgerblue">
-        <div className={styles.readingWrapper}>
-          <span className={styles.dummy}/>
-          <div className={styles.reading}>
-            <span className={styles.value}>{"" + Math.round(props.humidity)}</span>
-            <span className={styles.unit}>%</span>
-          </div>
-          <span className={styles.label}>Humidity</span>
-        </div>
+    <div className={styles.readingWrapper}>
+      <Reading progress={Math.round(props.data.humidity.val * 3.6)}
+               color="dodgerblue"
+               isError={props.data.status === "error"}>
+      <Label label="Humidity" value={Math.round(props.data.humidity.val)} unit="%"/>
       </Reading>
     </div>
-    <div className={styles.itemWrapper}>
-      <Reading progress={360} color={jet(valueWithin(props.temperature, props.minTemperature, props.maxTemperature))}>
-        <div className={styles.readingWrapper}>
-          <span className={styles.dummy}/>
-          <div className={styles.reading}>
-            <span className={styles.value}>{"" + Math.round(props.temperature)}</span>
-            <span className={styles.unit}>°C</span>
-          </div>
-          <span className={styles.label}>Temperature</span>
-        </div>
+    <div className={styles.readingWrapper}>
+      <Reading progress={360}
+               color={jet(valueWithin(props.data.temperature.val, props.minTemperature, props.maxTemperature))}
+               isError={props.data.status === "error"}>
+        <Label label="Temperature" value={Math.round(props.data.temperature.val)} unit="°C"/>
       </Reading>
     </div>
   </div>

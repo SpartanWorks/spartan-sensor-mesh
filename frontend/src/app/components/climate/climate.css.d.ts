@@ -1,6 +1,6 @@
 export const widgetWrapper: string;
-export const itemWrapper: string;
 export const readingWrapper: string;
+export const labelWrapper: string;
 export const reading: string;
 export const value: string;
 export const unit: string;

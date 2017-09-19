@@ -4,6 +4,9 @@
   --bar-width: calc(var(--gauge-size) / 13);
   --shadow-color: lightgray;
   --animation-speed: .5s;
+  --error-color: red;
+  --error-size: 20px;
+  --error-icon: inline("assets/alert.svg");
 }
 
 .wrapper {
@@ -36,6 +39,27 @@
       border-color: var(--bar-color);
       border-radius: 50%;
     }
+  }
+
+  & .error {
+    width: var(--error-size);
+    height: var(--error-size);
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+    background-color: var(--error-color);
+    mask: var(--error-icon) no-repeat;
+    mask-size: cover;
+
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.5s;
+  }
+
+  & .hidden {
+    visibility: hidden;
+    opacity: 0;
   }
 
   & .label {

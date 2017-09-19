@@ -4,6 +4,7 @@ import * as styles from "./reading.css";
 interface Props {
   color: string;
   progress: number;
+  isError: boolean;
   children?: Array<preact.Component<any, any>>;
 }
 
@@ -27,6 +28,7 @@ export const Reading = (props: Props) => {
         <div className={styles.left + " " + styles.progressBar} style={leftStyle}></div>
         <div className={styles.right + " " + styles.progressBar} style={rightStyle}></div>
       </div>
+      <div className={props.isError ? styles.error : styles.hidden}/>
       <div className={styles.label}>
         {props.children}
       </div>
