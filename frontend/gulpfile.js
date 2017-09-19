@@ -9,7 +9,6 @@ const glob = require("glob");
 const gulp = require("gulp");
 const gutil = require("gulp-util");
 const gzip = require("gulp-gzip");
-const rename = require("gulp-rename");
 const karmaServer = require("karma").Server;
 const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
@@ -22,14 +21,11 @@ const postcss = [ // order matters
   require("postcss-cssnext")({
     warnForDuplicates: !prod
   }),
-  require("postcss-custom-properties"),
   require("postcss-import"),
-  require("postcss-color-function"),
   require("postcss-assets")({
     loadPaths: ["./src/"]
   }),
   require("postcss-camel-case"),
-  require("postcss-modules-local-by-default"),
 ];
 
 module.exports = {
