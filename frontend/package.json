@@ -39,7 +39,6 @@
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "postcss-assets": "^4.2.0",
-    "postcss-camel-case": "^1.0.1",
     "postcss-cssnext": "^3.0.2",
     "postcss-import": "^10.0.0",
     "rimraf": "^2.6.1",

@@ -25,7 +25,6 @@ const postcss = [ // order matters
   require("postcss-assets")({
     loadPaths: ["./src/"]
   }),
-  require("postcss-camel-case"),
 ];
 
 module.exports = {
@@ -73,7 +72,6 @@ gulp.task("lint", () => {
 
 gulp.task("style-type-definitions", (done) => {
   let creator = new DtsCreator({
-    camelCase: true,
     searchDir: "./src"
   });
   glob("./src/**/*.css", null, (err, files) => {
