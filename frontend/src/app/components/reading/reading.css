@@ -26,7 +26,7 @@
     position: absolute;
     clip: rect(0, var(--gauge-size), var(--gauge-size), calc(var(--gauge-size) / 2));
 
-    & .progress-bar {
+    & .progressBar {
       width: 100%;
       height: 100%;
       left: 0;
@@ -88,7 +88,7 @@
   }
 }
 
-.progress-less {
+.progressLess {
   & .gauge {
     & .right {
       display: none;
@@ -96,7 +96,7 @@
   }
 }
 
-.progress-more {
+.progressMore {
   & .gauge {
     clip: rect(auto, auto, auto, auto);
 

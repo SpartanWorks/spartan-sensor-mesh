@@ -21,12 +21,12 @@
   }
 }
 
-.icon-chart {
+.iconChart {
   mask: var(--icon-chart) no-repeat;
   mask-size: cover;
 }
 
-.icon-cogs {
+.iconCogs {
   mask: var(--icon-cogs) no-repeat;
   mask-size: cover;
 }
