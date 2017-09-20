@@ -57,15 +57,6 @@ bool connect(char *ssid, char *password) {
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
-  char sensorNameBytes[256];
-  sensorName.toCharArray(sensorNameBytes, 256);
-
-  MDNS.begin(sensorNameBytes, WiFi.localIP());
-  MDNS.addService("http", "tcp", HTTP_PORT);
-  Serial.print("mDNS responder started on ");
-  Serial.println(WiFi.localIP());
-
   return true;
 }
 
@@ -207,18 +198,14 @@ void setup(void){
   WiFi.softAP(sensorNameBytes, sensorPassword);
   apEnabled = true;
 
-  Serial.println("Setting up wifi");
-  waitForConnection(CONNECTION_TIMEOUT);
-
   Serial.print("Access point on: ");
   Serial.println(sensorName);
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  MDNS.begin(sensorNameBytes, WiFi.localIP());
+  MDNS.begin(sensorName.c_str());
   MDNS.addService("http", "tcp", HTTP_PORT);
-  Serial.print("mDNS responder started on ");
-  Serial.println(WiFi.localIP());
+  Serial.println("mDNS responder started");
 
   server.on("/api/config", handleConfig);
   server.on("/api/sensor", handleSensor);
