@@ -15,8 +15,8 @@ const int SENSOR = 2;
 const int LED = 13;
 
 boolean apEnabled = false;
-const char* apSsidPrefix = "ClimateSensor-";
-const char* apPassword = "cl1m4t3p455w0r0";
+const char* apSsidPrefix = "Sensor-";
+const char* apPassword = "53n50rp455w0r0";
 
 boolean error = true;
 int errors = 0;
