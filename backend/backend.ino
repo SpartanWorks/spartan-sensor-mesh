@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <DHT.h>
@@ -7,6 +8,7 @@
 #include "main.css.gz.h"
 #include "main.js.gz.h"
 
+const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
@@ -15,8 +17,8 @@ const int SENSOR = 2;
 const int LED = 13;
 
 boolean apEnabled = false;
-const char* apSsidPrefix = "Sensor-";
-const char* apPassword = "53n50rp455w0r0";
+String sensorName = "Sensor-";
+const char* sensorPassword = "53n50rp455w0r0";
 
 boolean error = true;
 int errors = 0;
@@ -24,7 +26,7 @@ int errors = 0;
 Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
 Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 
-ESP8266WebServer server(80);
+ESP8266WebServer server(HTTP_PORT);
 DHT dht(SENSOR, DHT11);
 
 bool connect(char *ssid, char *password) {
@@ -51,6 +53,14 @@ bool connect(char *ssid, char *password) {
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  char sensorNameBytes[256];
+  sensorName.toCharArray(sensorNameBytes, 256);
+
+  MDNS.begin(sensorNameBytes, WiFi.localIP());
+  MDNS.addService("http", "tcp", HTTP_PORT);
+  Serial.print("mDNS responder started on ");
   Serial.println(WiFi.localIP());
 
   return true;
@@ -186,19 +196,23 @@ void setup(void){
   Serial.begin(115200);
   Serial.println("");
 
-  String apSsid = apSsidPrefix;
-  apSsid += String(ESP.getChipId(), HEX);
-  char apSsidBytes[256];
-  apSsid.toCharArray(apSsidBytes, 256);
+  sensorName += String(ESP.getChipId(), HEX);
+  char sensorNameBytes[256];
+  sensorName.toCharArray(sensorNameBytes, 256);
 
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(apSsidBytes, apPassword);
+  WiFi.softAP(sensorNameBytes, sensorPassword);
   apEnabled = true;
 
   Serial.print("Access point on: ");
-  Serial.println(apSsid);
+  Serial.println(sensorName);
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
+
+  MDNS.begin(sensorNameBytes, WiFi.localIP());
+  MDNS.addService("http", "tcp", HTTP_PORT);
+  Serial.print("mDNS responder started on ");
+  Serial.println(WiFi.localIP());
 
   server.on("/api/config", handleConfig);
   server.on("/api/sensor", handleSensor);
