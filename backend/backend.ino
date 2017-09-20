@@ -29,26 +29,29 @@ Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 ESP8266WebServer server(HTTP_PORT);
 DHT dht(SENSOR, DHT11);
 
-bool connect(char *ssid, char *password) {
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  // Wait for connection
+bool waitForConnection(uint32_t timeout) {
   uint32_t i = 0;
-  while((WiFi.status() != WL_CONNECTED) && (i < CONNECTION_TIMEOUT)) {
+  while((WiFi.status() != WL_CONNECTED) && (i < timeout)) {
     Serial.print(".");
     delay(500);
     i += 500;
   }
-
   Serial.println("");
 
   if(WiFi.status() != WL_CONNECTED) {
     Serial.println("Connection failed.");
     return false;
   }
+
+  return true;
+}
+
+bool connect(char *ssid, char *password) {
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+  waitForConnection(CONNECTION_TIMEOUT);
 
   Serial.print("Connected to ");
   Serial.println(ssid);
@@ -203,6 +206,9 @@ void setup(void){
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(sensorNameBytes, sensorPassword);
   apEnabled = true;
+
+  Serial.println("Setting up wifi");
+  waitForConnection(CONNECTION_TIMEOUT);
 
   Serial.print("Access point on: ");
   Serial.println(sensorName);
