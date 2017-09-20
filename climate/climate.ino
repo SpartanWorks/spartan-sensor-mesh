@@ -15,7 +15,7 @@ const int SENSOR = 2;
 const int LED = 13;
 
 boolean apEnabled = false;
-const char* apSsid = "ClimateSensor";
+const char* apSsidPrefix = "ClimateSensor-";
 const char* apPassword = "cl1m4t3p455w0r0";
 
 boolean error = true;
@@ -186,8 +186,13 @@ void setup(void){
   Serial.begin(115200);
   Serial.println("");
 
+  String apSsid = apSsidPrefix;
+  apSsid += String(ESP.getChipId(), HEX);
+  char apSsidBytes[256];
+  apSsid.toCharArray(apSsidBytes, 256);
+
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(apSsid, apPassword);
+  WiFi.softAP(apSsidBytes, apPassword);
   apEnabled = true;
 
   Serial.print("Access point on: ");
