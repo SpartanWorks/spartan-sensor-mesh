@@ -28,10 +28,10 @@ export const Reading = (props: Props) => {
         <div className={styles.left + " " + styles.progressBar} style={leftStyle}></div>
         <div className={styles.right + " " + styles.progressBar} style={rightStyle}></div>
       </div>
-      <div className={props.isError ? styles.error : styles.hidden}/>
       <div className={styles.label}>
         {props.children}
       </div>
+      <div title="Sensor is not responding." className={props.isError ? styles.error : styles.hidden}/>
     </div>
   );
 };
