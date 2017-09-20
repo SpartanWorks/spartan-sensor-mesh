@@ -34,7 +34,7 @@ export class Config extends preact.Component<{}, any> {
             </div>
           </fieldset>
         </form>
-        <RedirectButton to={"/"} icon={iconChart}/>
+        <RedirectButton to={"/"} icon={iconChart} tooltip="Go back to sensor readings."/>
       </div>
     );
   }

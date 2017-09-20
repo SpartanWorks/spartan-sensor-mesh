@@ -25,7 +25,7 @@ export class Dashboard extends preact.Component<Props, {}> {
           <ClimateWidget data={this.props.store.data}
                          minTemperature={11}
                          maxTemperature={37}/>
-          <RedirectButton to={"/config"} icon={iconCogs}/>
+          <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
         </div>
       );
     }
