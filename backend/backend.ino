@@ -46,7 +46,7 @@ bool waitForConnection(uint32_t timeout) {
   return true;
 }
 
-bool connect(char *ssid, char *password) {
+bool connect(const char *ssid, const char *password) {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
@@ -88,20 +88,19 @@ void handleConfig() {
   digitalWrite(LED, 1);
   Serial.println("Serving /api/config");
 
-  char ssid[128] = "";
-  char pass[128] = "";
+  String ssid, pass;
 
   for(uint8_t i = 0; i < server.args(); ++i) {
     String name = server.argName(i);
     String arg = server.arg(i);
     if (name == "ssid") {
-      arg.toCharArray(ssid, 128);
+      ssid = arg;
     } else if (name == "pass") {
-      arg.toCharArray(pass, 128);
+      pass = arg;
     }
   }
 
-  if(connect(ssid, pass)) {
+  if(connect(ssid.c_str(), pass.c_str())) {
     server.send(200, "text/plain", "OK!");
   } else {
     server.send(401, "text/plain", "Not authorized!");
@@ -188,14 +187,13 @@ void setup(void){
   digitalWrite(LED, 0);
 
   Serial.begin(115200);
-  Serial.println("");
+  Serial.println("Setting up wifi...");
 
   sensorName += String(ESP.getChipId(), HEX);
-  char sensorNameBytes[256];
-  sensorName.toCharArray(sensorNameBytes, 256);
+  WiFi.hostname(sensorName.c_str());
 
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(sensorNameBytes, sensorPassword);
+  WiFi.softAP(sensorName.c_str(), sensorPassword);
   apEnabled = true;
 
   Serial.print("Access point on: ");
