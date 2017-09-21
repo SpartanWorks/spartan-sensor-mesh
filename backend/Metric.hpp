@@ -17,18 +17,13 @@ private:
   T last = (T) 0;
 
 public:
-  Metric(T spanMin, T spanMax) {
-    minS = spanMax;
-    maxS = spanMin;
-  }
-
   virtual void add(T s) {
     T delta = s - avg;
     countS++;
     avg += delta / countS;
     var += delta * (s - avg);
-    minS = min(s, minS);
-    maxS = max(s, maxS);
+    minS = (countS == 1) ? s : min(s, minS);
+    maxS = (countS == 1) ? s : max(s, maxS);
     last = s;
   }
 
@@ -72,7 +67,7 @@ private:
   uint16_t index = 0;
 
 public:
-  SmoothMetric(T spanMin, T spanMax): Metric<T>(spanMin, spanMax) {
+  SmoothMetric(): Metric<T>() {
     for(uint16_t i = 0; i < smoothingSize; ++i) {
       samples[i] = (T) 0;
     }

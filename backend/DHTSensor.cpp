@@ -2,8 +2,8 @@
 
 DHTSensor::DHTSensor(uint16_t pin, uint16_t model):
     sensor(DHT(pin, model)),
-    humidity(SmoothMetric<float, SAMPLE_BACKLOG>(0.0f, 100.0f)),
-    temperature(SmoothMetric<float, SAMPLE_BACKLOG>(-40.0f, 125.0f))
+    humidity(SmoothMetric<float, SAMPLE_BACKLOG>()),
+    temperature(SmoothMetric<float, SAMPLE_BACKLOG>())
 {}
 
 void DHTSensor::begin() {
