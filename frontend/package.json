@@ -8,7 +8,7 @@
     "build:watch": "ENV=dev gulp watch",
     "build:release": "ENV=prod gulp release",
     "clean": "rimraf coverage dist node_modules package-lock.json",
-    "postbuild:release": "./convert.py --pretty-print --output-dir ../climate dist/*.gz",
+    "postbuild:release": "./convert.py --pretty-print --output-dir ../backend dist/*.gz",
     "prebuild": "npm run test",
     "prebuild:release": "npm run test",
     "pretest": "gulp lint",

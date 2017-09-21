@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <DHT.h>
@@ -7,6 +8,7 @@
 #include "main.css.gz.h"
 #include "main.js.gz.h"
 
+const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
@@ -15,8 +17,8 @@ const int SENSOR = 2;
 const int LED = 13;
 
 boolean apEnabled = false;
-const char* apSsid = "ClimateSensor";
-const char* apPassword = "cl1m4t3p455w0r0";
+String sensorName = "Sensor-";
+const char* sensorPassword = "53n50rp455w0r0";
 
 boolean error = true;
 int errors = 0;
@@ -24,23 +26,16 @@ int errors = 0;
 Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
 Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 
-ESP8266WebServer server(80);
+ESP8266WebServer server(HTTP_PORT);
 DHT dht(SENSOR, DHT11);
 
-bool connect(char *ssid, char *password) {
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  // Wait for connection
+bool waitForConnection(uint32_t timeout) {
   uint32_t i = 0;
-  while((WiFi.status() != WL_CONNECTED) && (i < CONNECTION_TIMEOUT)) {
+  while((WiFi.status() != WL_CONNECTED) && (i < timeout)) {
     Serial.print(".");
     delay(500);
     i += 500;
   }
-
   Serial.println("");
 
   if(WiFi.status() != WL_CONNECTED) {
@@ -48,11 +43,20 @@ bool connect(char *ssid, char *password) {
     return false;
   }
 
+  return true;
+}
+
+bool connect(const char *ssid, const char *password) {
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+  waitForConnection(CONNECTION_TIMEOUT);
+
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
   return true;
 }
 
@@ -84,20 +88,19 @@ void handleConfig() {
   digitalWrite(LED, 1);
   Serial.println("Serving /api/config");
 
-  char ssid[128] = "";
-  char pass[128] = "";
+  String ssid, pass;
 
   for(uint8_t i = 0; i < server.args(); ++i) {
     String name = server.argName(i);
     String arg = server.arg(i);
     if (name == "ssid") {
-      arg.toCharArray(ssid, 128);
+      ssid = arg;
     } else if (name == "pass") {
-      arg.toCharArray(pass, 128);
+      pass = arg;
     }
   }
 
-  if(connect(ssid, pass)) {
+  if(connect(ssid.c_str(), pass.c_str())) {
     server.send(200, "text/plain", "OK!");
   } else {
     server.send(401, "text/plain", "Not authorized!");
@@ -184,16 +187,23 @@ void setup(void){
   digitalWrite(LED, 0);
 
   Serial.begin(115200);
-  Serial.println("");
+  Serial.println("Setting up wifi...");
+
+  sensorName += String(ESP.getChipId(), HEX);
+  WiFi.hostname(sensorName.c_str());
 
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(apSsid, apPassword);
+  WiFi.softAP(sensorName.c_str(), sensorPassword);
   apEnabled = true;
 
   Serial.print("Access point on: ");
-  Serial.println(apSsid);
+  Serial.println(sensorName);
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
+
+  MDNS.begin(sensorName.c_str());
+  MDNS.addService("http", "tcp", HTTP_PORT);
+  Serial.println("mDNS responder started");
 
   server.on("/api/config", handleConfig);
   server.on("/api/sensor", handleSensor);
