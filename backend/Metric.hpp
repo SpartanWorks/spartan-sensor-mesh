@@ -9,21 +9,21 @@
 template<typename T>
 class Metric {
 private:
-  uint32_t countS = 0;
   T minS = (T) 0;
   T maxS = (T) 0;
-  T avg = (T) 0;
   T var = (T) 0;
   T last = (T) 0;
+  T avg = (T) 0;
+  uint32_t count = 0;
 
 public:
   virtual void add(T s) {
     T delta = s - avg;
-    countS++;
-    avg += delta / countS;
+    count++;
+    avg += delta / count;
     var += delta * (s - avg);
-    minS = (countS == 1) ? s : min(s, minS);
-    maxS = (countS == 1) ? s : max(s, maxS);
+    minS = (count == 1) ? s : min(s, minS);
+    maxS = (count == 1) ? s : max(s, maxS);
     last = s;
   }
 
@@ -40,11 +40,15 @@ public:
   }
 
   virtual T variance() const {
-    return (countS > 1) ? (var / (countS - 1)) : ((T) 0);
+    return (count > 1) ? (var / (count - 1)) : ((T) 0);
   }
 
   virtual T value() const {
     return last;
+  }
+
+  virtual uint32_t samples() const {
+    return count;
   }
 
   virtual String toJSON() const {
@@ -63,20 +67,24 @@ template<typename T, uint16_t smoothingSize>
 class SmoothMetric: public Metric<T> {
 private:
   T movingAvg = (T) 0;
-  T samples[smoothingSize];
+  T smoothingSamples[smoothingSize];
   uint16_t index = 0;
 
 public:
   SmoothMetric(): Metric<T>() {
     for(uint16_t i = 0; i < smoothingSize; ++i) {
-      samples[i] = (T) 0;
+      smoothingSamples[i] = (T) 0;
     }
   }
 
   void add(T s) {
     Metric<T>::add(s);
-    movingAvg += s/smoothingSize - samples[index]/smoothingSize;
-    samples[index] = s;
+    if (this->samples() > smoothingSize) {
+      movingAvg += s/smoothingSize - smoothingSamples[index]/smoothingSize;
+    } else {
+      movingAvg = this->average();
+    }
+    smoothingSamples[index] = s;
     index = (index + 1) % smoothingSize;
   }
 
