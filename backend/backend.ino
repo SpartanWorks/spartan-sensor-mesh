@@ -114,40 +114,11 @@ void handleSensor() {
   Serial.println("Serving /api/sensor");
 
   String message = "{";
-
-  message += "\"humidity\":{";
-  message += "\"val\":";
-  message += String(humidity.value(), 2);
-  message += ",\"avg\":";
-  message += String(humidity.average(), 2);
-  message += ",\"var\":";
-  message += String(humidity.variance(), 2);
-  message += ",\"min\":";
-  message += String(humidity.minimum(), 2);
-  message += ",\"max\":";
-  message += String(humidity.maximum(), 2);
-  message += "}";
-
-  message += ",\"temperature\":{";
-  message += "\"val\":";
-  message += String(temperature.value(), 2);
-  message += ",\"avg\":";
-  message += String(temperature.average(), 2);
-  message += ",\"var\":";
-  message += String(temperature.variance(), 2);
-  message += ",\"min\":";
-  message += String(temperature.minimum(), 2);
-  message += ",\"max\":";
-  message += String(temperature.maximum(), 2);
-  message += "}";
-
-  message +=",\"errors\":";
-  message += String(errors);
-  message += ",\"measurements\":";
-  message += String(measurements);
-  message += ",\"status\":";
-  message += error ? "\"error\"" : "\"ok\"";
-
+  message += "\"humidity\":" + humidity.toJSON();
+  message += ",\"temperature\":" + temperature.toJSON();
+  message +=",\"errors\":" + String(errors);
+  message += ",\"measurements\":" + String(measurements);
+  message += ",\"status\":" + String(error ? "\"error\"" : "\"ok\"");
   message += "}";
 
   server.send(200, "application/json", message);

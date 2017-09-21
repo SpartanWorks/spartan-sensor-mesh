@@ -48,6 +48,17 @@ public:
   T value() {
     return last;
   }
+
+  String toJSON() {
+    String json = "{";
+    json += "\"val\":" + String(this->value(), 2);
+    json += ",\"avg\":" + String(this->average(), 2);
+    json += ",\"var\":" + String(this->variance(), 2);
+    json += ",\"min\":" + String(this->minimum(), 2);
+    json += ",\"max\":" + String(this->maximum(), 2);
+    json += "}";
+    return json;
+  }
 };
 
 template<typename T, uint16_t smoothingSize>
