@@ -22,9 +22,10 @@ const char* sensorPassword = "53n50rp455w0r0";
 
 boolean error = true;
 int errors = 0;
+int measurements = 0;
 
-Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
-Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
+SmoothMetric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
+SmoothMetric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
 
 ESP8266WebServer server(HTTP_PORT);
 DHT dht(SENSOR, DHT11);
@@ -143,7 +144,7 @@ void handleSensor() {
   message +=",\"errors\":";
   message += String(errors);
   message += ",\"measurements\":";
-  message += String(temperature.count());
+  message += String(measurements);
   message += ",\"status\":";
   message += error ? "\"error\"" : "\"ok\"";
 
@@ -167,6 +168,7 @@ void readSensor(uint32_t currTime) {
   if(!isnan(hum) && !isnan(temp)) {
     humidity.add(hum);
     temperature.add(temp);
+    measurements++;
     error = false;
   } else {
     errors++;
