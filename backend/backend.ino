@@ -2,8 +2,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <DHT.h>
-#include "Metric.h"
+#include "DHTSensor.hpp"
 #include "index.html.gz.h"
 #include "main.css.gz.h"
 #include "main.js.gz.h"
@@ -12,22 +11,14 @@ const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int CONNECTION_TIMEOUT = 20000; // 20 seconds
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
-const int SAMPLE_BACKLOG = 30; // Averaged over 1 minute.
 const int SENSOR = 2;
 const int LED = 13;
 
-boolean apEnabled = false;
 String sensorName = "Sensor-";
 const char* sensorPassword = "53n50rp455w0r0";
 
-boolean error = true;
-int errors = 0;
-
-Metric<float, SAMPLE_BACKLOG> humidity(0.0f, 100.0f);
-Metric<float, SAMPLE_BACKLOG> temperature(-40.0f, 125.0f);
-
 ESP8266WebServer server(HTTP_PORT);
-DHT dht(SENSOR, DHT11);
+DHTSensor dht = DHTSensor(SENSOR, DHT11);
 
 bool waitForConnection(uint32_t timeout) {
   uint32_t i = 0;
@@ -112,44 +103,7 @@ void handleSensor() {
   digitalWrite(LED, 1);
   Serial.println("Serving /api/sensor");
 
-  String message = "{";
-
-  message += "\"humidity\":{";
-  message += "\"val\":";
-  message += String(humidity.value(), 2);
-  message += ",\"avg\":";
-  message += String(humidity.average(), 2);
-  message += ",\"var\":";
-  message += String(humidity.variance(), 2);
-  message += ",\"min\":";
-  message += String(humidity.minimum(), 2);
-  message += ",\"max\":";
-  message += String(humidity.maximum(), 2);
-  message += "}";
-
-  message += ",\"temperature\":{";
-  message += "\"val\":";
-  message += String(temperature.value(), 2);
-  message += ",\"avg\":";
-  message += String(temperature.average(), 2);
-  message += ",\"var\":";
-  message += String(temperature.variance(), 2);
-  message += ",\"min\":";
-  message += String(temperature.minimum(), 2);
-  message += ",\"max\":";
-  message += String(temperature.maximum(), 2);
-  message += "}";
-
-  message +=",\"errors\":";
-  message += String(errors);
-  message += ",\"measurements\":";
-  message += String(temperature.count());
-  message += ",\"status\":";
-  message += error ? "\"error\"" : "\"ok\"";
-
-  message += "}";
-
-  server.send(200, "application/json", message);
+  server.send(200, "application/json", dht.toJSON());
   digitalWrite(LED, 0);
 }
 
@@ -159,22 +113,13 @@ void readSensor(uint32_t currTime) {
   if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
     return;
   }
-
-  float hum = dht.readHumidity(true);
-  float temp = dht.readTemperature(false, true);
+  dht.update();
   lastSampleTime = currTime;
-
-  if(!isnan(hum) && !isnan(temp)) {
-    humidity.add(hum);
-    temperature.add(temp);
-    error = false;
-  } else {
-    errors++;
-    error = true;
-  }
 }
 
 void timeoutAP(uint32_t currTime) {
+  static boolean apEnabled = true;
+
   if(apEnabled && currTime > AP_TIMEOUT) {
     Serial.println("Disabling access point.");
     WiFi.mode(WIFI_STA);
@@ -194,7 +139,6 @@ void setup(void){
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(sensorName.c_str(), sensorPassword);
-  apEnabled = true;
 
   Serial.print("Access point on: ");
   Serial.println(sensorName);
