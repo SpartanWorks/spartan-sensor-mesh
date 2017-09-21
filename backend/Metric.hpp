@@ -1,7 +1,10 @@
-#ifndef __METRIC_H__
-#define __METRIC_H__
+#ifndef __METRIC_HPP__
+#define __METRIC_HPP__
 
 #include <Arduino.h>
+
+#define min(a,b) ((a)<(b)?(a):(b))
+#define max(a,b) ((a)>(b)?(a):(b))
 
 template<typename T>
 class Metric {
@@ -19,37 +22,37 @@ public:
     maxS = spanMin;
   }
 
-  void add(T s) {
+  virtual void add(T s) {
     T delta = s - avg;
     countS++;
     avg += delta / countS;
     var += delta * (s - avg);
-    minS = std::min(s, minS);
-    maxS = std::max(s, maxS);
+    minS = min(s, minS);
+    maxS = max(s, maxS);
     last = s;
   }
 
-  T minimum() {
+  virtual T minimum() const {
     return minS;
   }
 
-  T maximum() {
+  virtual T maximum() const {
     return maxS;
   }
 
-  T average() {
+  virtual T average() const {
     return avg;
   }
 
-  T variance() {
+  virtual T variance() const {
     return (countS > 1) ? (var / (countS - 1)) : ((T) 0);
   }
 
-  T value() {
+  virtual T value() const {
     return last;
   }
 
-  String toJSON() {
+  virtual String toJSON() const {
     String json = "{";
     json += "\"val\":" + String(this->value(), 2);
     json += ",\"avg\":" + String(this->average(), 2);
@@ -64,7 +67,6 @@ public:
 template<typename T, uint16_t smoothingSize>
 class SmoothMetric: public Metric<T> {
 private:
-
   T movingAvg = (T) 0;
   T samples[smoothingSize];
   uint16_t index = 0;
@@ -83,7 +85,7 @@ public:
     index = (index + 1) % smoothingSize;
   }
 
-  T value() {
+  T value() const {
     return movingAvg;
   }
 };
