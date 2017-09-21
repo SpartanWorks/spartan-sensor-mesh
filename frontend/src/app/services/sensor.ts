@@ -30,20 +30,24 @@ export class SensorService {
    }
 
   connect(interval: number) {
-    this.fetchData().then(() => {
-      setInterval(this.fetchData.bind(this), interval);
-    });
+    this.fetchData(interval);
   }
 
-  private fetchData(): Promise<void> {
+  private fetchData(interval: number): Promise<void> {
+    const repeat = () => this.fetchData(interval);
+
     return fetch(this.baseUrl + "/api/sensor")
       .then((r) => r.json())
       .then(this.onUpdateCallback)
+      .then(() => {
+        setTimeout(repeat, interval);
+      })
       .catch((e) => {
         console.error({
           error: "Fetching data failed.",
           cause: e
         });
+        repeat();
       });
   }
 
