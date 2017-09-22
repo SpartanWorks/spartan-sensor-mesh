@@ -97,13 +97,8 @@ public:
   }
 
   virtual T variance() const {
-    if (this->count > windowSize) {
-      return this->var / (windowSize - 1);
-    } else {
-      return Metric<T>::variance();
-    }
+    return (this->count > windowSize) ? (this->var / (windowSize - 1)) : Metric<T>::variance();
   }
-
 };
 
 #endif
