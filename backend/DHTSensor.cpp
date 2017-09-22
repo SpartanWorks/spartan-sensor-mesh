@@ -2,8 +2,8 @@
 
 DHTSensor::DHTSensor(uint16_t pin, uint16_t model):
     sensor(DHT(pin, model)),
-    humidity(WindowedMetric<float, SAMPLE_BACKLOG>()),
-    temperature(WindowedMetric<float, SAMPLE_BACKLOG>())
+    humidity(WindowedReading<float, SAMPLE_BACKLOG>()),
+    temperature(WindowedReading<float, SAMPLE_BACKLOG>())
 {}
 
 void DHTSensor::begin() {

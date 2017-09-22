@@ -14,12 +14,14 @@ export class MainStore {
     humidity: {
       value: 0,
       variance: 0,
-      mean: 0
+      mean: 0,
+      samples: 0
     },
     temperature: {
       value: 0,
       variance: 0,
-      mean: 0
+      mean: 0,
+      samples: 0
     },
   };
 

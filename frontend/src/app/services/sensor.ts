@@ -1,15 +1,15 @@
-export interface Metric {
+export interface Reading {
   value: number;
   mean: number;
   variance: number;
+  samples: number;
   maximum?: number;
   minimum?: number;
-  window?: number;
 }
 
 export interface SensorData {
-  humidity: Metric;
-  temperature: Metric;
+  humidity: Reading;
+  temperature: Reading;
   errors: number;
   measurements: number;
   status: "ok" | "error";
