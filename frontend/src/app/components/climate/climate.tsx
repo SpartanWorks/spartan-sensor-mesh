@@ -65,8 +65,8 @@ export const Label = (props: LabelProps) => (
   </div>
 );
 
-function getTooltip(window?: number) {
-  return window ? ("Averaged from " + window + " readings.") : "Exact reading.";
+function getTooltip(readings: number, window?: number) {
+  return "Averaged from last " + (window ? Math.min(window, readings) : readings) + " readings.";
 }
 
 export const ClimateWidget = (props: Props) => (
@@ -78,7 +78,7 @@ export const ClimateWidget = (props: Props) => (
       <Label label="Humidity"
              value={Math.round(props.data.humidity.mean)}
              unit="%"
-             tooltip={getTooltip(props.data.humidity.window)}/>
+             tooltip={getTooltip(props.data.measurements, props.data.humidity.window)}/>
       </Reading>
     </div>
     <div className={styles.readingWrapper}>
@@ -88,7 +88,7 @@ export const ClimateWidget = (props: Props) => (
         <Label label="Temperature"
                value={Math.round(props.data.temperature.mean)}
                unit="°C"
-               tooltip={getTooltip(props.data.temperature.window)}/>
+               tooltip={getTooltip(props.data.measurements, props.data.temperature.window)}/>
       </Reading>
     </div>
   </div>
