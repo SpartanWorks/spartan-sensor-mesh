@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define DIGITS 5
+
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 
@@ -13,13 +15,13 @@ protected:
   T maxS = (T) 0;
   T var = (T) 0;
   T last = (T) 0;
-  T avg = (T) 0;
+  T meanS = (T) 0;
   uint32_t count = 0;
 
-  virtual void updateAverage(T s) {
-    T delta = s - avg;
-    avg += delta / count;
-    var += delta * (s - avg);
+  virtual void updateMean(T s) {
+    T delta = s - meanS;
+    meanS += delta / count;
+    var += delta * (s - meanS);
   }
 
 public:
@@ -28,7 +30,7 @@ public:
     minS = (count == 1) ? s : min(s, minS);
     maxS = (count == 1) ? s : max(s, maxS);
     last = s;
-    this->updateAverage(s);
+    this->updateMean(s);
   }
 
   virtual T minimum() const {
@@ -39,8 +41,8 @@ public:
     return maxS;
   }
 
-  virtual T average() const {
-    return avg;
+  virtual T mean() const {
+    return meanS;
   }
 
   virtual T variance() const {
@@ -57,11 +59,11 @@ public:
 
   virtual String toJSON() const {
     String json = "{";
-    json += "\"val\":" + String(this->value(), 2);
-    json += ",\"avg\":" + String(this->average(), 2);
-    json += ",\"var\":" + String(this->variance(), 2);
-    json += ",\"min\":" + String(this->minimum(), 2);
-    json += ",\"max\":" + String(this->maximum(), 2);
+    json += "\"value\":" + String(this->value(), DIGITS);
+    json += ",\"mean\":" + String(this->mean(), DIGITS);
+    json += ",\"variance\":" + String(this->variance(), DIGITS);
+    json += ",\"minimum\":" + String(this->minimum(), DIGITS);
+    json += ",\"maximum\":" + String(this->maximum(), DIGITS);
     json += "}";
     return json;
   }
@@ -73,13 +75,13 @@ protected:
   T window[windowSize];
   uint16_t index = 0;
 
-  void updateAverage(T s) {
+  void updateMean(T s) {
     if (this->count > windowSize) {
-      T oldAvg = this->avg;
-      this->avg += s/windowSize - window[index]/windowSize;
-      this->var += (s - oldAvg) * (s - this->avg) - (window[index] - oldAvg) * (window[index] - this->avg);
+      T oldMean = this->meanS;
+      this->meanS += s/windowSize - window[index]/windowSize;
+      this->var += (s - oldMean) * (s - this->meanS) - (window[index] - oldMean) * (window[index] - this->meanS);
     } else {
-      Metric<T>::updateAverage(s);
+      Metric<T>::updateMean(s);
     }
   }
 
@@ -98,6 +100,16 @@ public:
 
   virtual T variance() const {
     return (this->count > windowSize) ? (this->var / (windowSize - 1)) : Metric<T>::variance();
+  }
+
+  virtual String toJSON() const {
+    String json = "{";
+    json += "\"value\":" + String(this->value(), DIGITS);
+    json += ",\"mean\":" + String(this->mean(), DIGITS);
+    json += ",\"variance\":" + String(this->variance(), DIGITS);
+    json += ",\"window\":" + String(windowSize);
+    json += "}";
+    return json;
   }
 };
 

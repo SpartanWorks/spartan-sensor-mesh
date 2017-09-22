@@ -51,12 +51,13 @@ interface LabelProps {
   label: string;
   value: number;
   unit: string;
+  tooltip: string;
 }
 
 export const Label = (props: LabelProps) => (
   <div className={styles.labelWrapper}>
     <span className={styles.dummy}>{props.label}</span>
-    <div className={styles.reading}>
+    <div title={props.tooltip} className={styles.reading}>
       <span className={styles.value}>{"" + props.value}</span>
       <span className={styles.unit}>{props.unit}</span>
     </div>
@@ -64,20 +65,30 @@ export const Label = (props: LabelProps) => (
   </div>
 );
 
+function getTooltip(window?: number) {
+  return window ? ("Averaged from " + window + " readings.") : "Exact reading.";
+}
+
 export const ClimateWidget = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <Reading progress={props.data.humidity.avg * 3.6}
+      <Reading progress={props.data.humidity.mean * 3.6}
                color="dodgerblue"
                isError={props.data.status === "error"}>
-      <Label label="Humidity" value={Math.round(props.data.humidity.avg)} unit="%"/>
+      <Label label="Humidity"
+             value={Math.round(props.data.humidity.mean)}
+             unit="%"
+             tooltip={getTooltip(props.data.humidity.window)}/>
       </Reading>
     </div>
     <div className={styles.readingWrapper}>
       <Reading progress={360}
-               color={jet(valueWithin(props.data.temperature.avg, props.minTemperature, props.maxTemperature))}
+               color={jet(valueWithin(props.data.temperature.mean, props.minTemperature, props.maxTemperature))}
                isError={props.data.status === "error"}>
-        <Label label="Temperature" value={Math.round(props.data.temperature.avg)} unit="°C"/>
+        <Label label="Temperature"
+               value={Math.round(props.data.temperature.mean)}
+               unit="°C"
+               tooltip={getTooltip(props.data.temperature.window)}/>
       </Reading>
     </div>
   </div>

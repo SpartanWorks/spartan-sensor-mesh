@@ -1,9 +1,10 @@
 export interface Metric {
-  avg: number;
-  max: number;
-  min: number;
-  val: number;
-  var: number;
+  value: number;
+  mean: number;
+  variance: number;
+  maximum?: number;
+  minimum?: number;
+  window?: number;
 }
 
 export interface SensorData {
@@ -12,6 +13,7 @@ export interface SensorData {
   errors: number;
   measurements: number;
   status: "ok" | "error";
+  type: string;
 }
 
 export interface UpdateCallback {
