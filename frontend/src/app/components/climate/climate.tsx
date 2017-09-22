@@ -67,17 +67,17 @@ export const Label = (props: LabelProps) => (
 export const ClimateWidget = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <Reading progress={Math.round(props.data.humidity.val * 3.6)}
+      <Reading progress={props.data.humidity.avg * 3.6}
                color="dodgerblue"
                isError={props.data.status === "error"}>
-      <Label label="Humidity" value={Math.round(props.data.humidity.val)} unit="%"/>
+      <Label label="Humidity" value={Math.round(props.data.humidity.avg)} unit="%"/>
       </Reading>
     </div>
     <div className={styles.readingWrapper}>
       <Reading progress={360}
-               color={jet(valueWithin(props.data.temperature.val, props.minTemperature, props.maxTemperature))}
+               color={jet(valueWithin(props.data.temperature.avg, props.minTemperature, props.maxTemperature))}
                isError={props.data.status === "error"}>
-        <Label label="Temperature" value={Math.round(props.data.temperature.val)} unit="°C"/>
+        <Label label="Temperature" value={Math.round(props.data.temperature.avg)} unit="°C"/>
       </Reading>
     </div>
   </div>
