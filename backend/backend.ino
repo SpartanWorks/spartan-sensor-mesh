@@ -12,7 +12,7 @@ const int SENSOR = 2;
 String sensorName = "Sensor-";
 const char* sensorPassword = "53n50rp455w0r0";
 
-DHTSensor dht = DHTSensor(SENSOR, DHT11);
+DHTSensor dht = DHTSensor(SENSOR, DHT22);
 APIServer server(HTTP_PORT, &dht);
 
 void readSensor(uint32_t currTime) {
