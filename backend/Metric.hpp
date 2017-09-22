@@ -107,6 +107,7 @@ public:
     json += "\"value\":" + String(this->value(), DIGITS);
     json += ",\"mean\":" + String(this->mean(), DIGITS);
     json += ",\"variance\":" + String(this->variance(), DIGITS);
+    // NOTE Max & min don't make much sense here, so we don't return them.
     json += ",\"window\":" + String(windowSize);
     json += "}";
     return json;
