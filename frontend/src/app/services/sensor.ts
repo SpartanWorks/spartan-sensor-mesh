@@ -1,17 +1,19 @@
-export interface Metric {
-  avg: number;
-  max: number;
-  min: number;
-  val: number;
-  var: number;
+export interface Reading {
+  value: number;
+  mean: number;
+  variance: number;
+  samples: number;
+  maximum?: number;
+  minimum?: number;
 }
 
 export interface SensorData {
-  humidity: Metric;
-  temperature: Metric;
+  humidity: Reading;
+  temperature: Reading;
   errors: number;
   measurements: number;
   status: "ok" | "error";
+  type: string;
 }
 
 export interface UpdateCallback {

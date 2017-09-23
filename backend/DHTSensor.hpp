@@ -3,7 +3,7 @@
 
 #include <DHT.h>
 #include "Sensor.hpp"
-#include "Metric.hpp"
+#include "Reading.hpp"
 
 #define SAMPLE_BACKLOG 30
 
@@ -12,8 +12,8 @@ private:
   boolean error = true;
   uint32_t nErrors = 0;
   uint32_t nMeasurements = 0;
-  SmoothMetric<float, SAMPLE_BACKLOG> humidity;
-  SmoothMetric<float, SAMPLE_BACKLOG> temperature;
+  WindowedReading<float, SAMPLE_BACKLOG> humidity;
+  WindowedReading<float, SAMPLE_BACKLOG> temperature;
   DHT sensor;
 
 public:

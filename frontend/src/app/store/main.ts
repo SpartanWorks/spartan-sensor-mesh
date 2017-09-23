@@ -7,22 +7,21 @@ export class MainStore {
 
   @observable
   data: SensorData = {
+    type: "UNKNOWN",
     status: "ok",
     measurements: 0,
     errors: 0,
     humidity: {
-      avg: 0,
-      max: 0,
-      min: 0,
-      val: 0,
-      var: 0
+      value: 0,
+      variance: 0,
+      mean: 0,
+      samples: 0
     },
     temperature: {
-      avg: 0,
-      max: 0,
-      min: 0,
-      val: 0,
-      var: 0
+      value: 0,
+      variance: 0,
+      mean: 0,
+      samples: 0
     },
   };
 
