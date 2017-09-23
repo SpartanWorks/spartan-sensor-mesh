@@ -24,7 +24,6 @@
     left: 0;
     top: 0;
     position: absolute;
-    clip: rect(0, var(--gauge-size), var(--gauge-size), calc(var(--gauge-size) / 2));
 
     & .progressBar {
       width: 100%;
@@ -89,19 +88,17 @@
 }
 
 .progressLess {
-  & .gauge {
-    & .right {
-      display: none;
-    }
+  clip: rect(0, var(--gauge-size), var(--gauge-size), calc(var(--gauge-size) / 2));
+
+  & .right {
+    display: none;
   }
 }
 
 .progressMore {
-  & .gauge {
-    clip: rect(auto, auto, auto, auto);
+  clip: rect(auto, auto, auto, auto);
 
-    & .right {
-      transform: rotate(180deg);
-    }
+  & .right {
+    transform: rotate(180deg);
   }
 }
