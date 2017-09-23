@@ -11,8 +11,8 @@ void DHTSensor::begin() {
 }
 
 void DHTSensor::update() {
-  float hum = this->sensor.readHumidity(true);
-  float temp = this->sensor.readTemperature(false, true);
+  float hum = this->sensor.readHumidity();
+  float temp = this->sensor.readTemperature();
 
   if(!isnan(hum) && !isnan(temp)) {
     this->humidity.add(hum);
