@@ -26,7 +26,7 @@ const Gauge = (props: GaugeProps) => {
       <div className={styles.right + " " + styles.progressBar} style={rightStyle}></div>
     </div>
   );
-}
+};
 
 interface Props {
   color: string;
