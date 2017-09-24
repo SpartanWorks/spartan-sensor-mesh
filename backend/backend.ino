@@ -38,8 +38,8 @@ void timeoutAP(uint32_t currTime) {
 
 void setup(void){
   Serial.begin(115200);
-  Serial.println("Setting up wifi...");
 
+  Serial.println("Setting up wifi...");
   sensorName += String(ESP.getChipId(), HEX);
   WiFi.hostname(sensorName.c_str());
 
@@ -51,11 +51,23 @@ void setup(void){
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
+  SPIFFS.begin();
+  FSInfo info;
+  SPIFFS.info(info);
+  Serial.println("SPIFFS initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B)");
+
+  Serial.println("Uploaded files:");
+  Dir dir = SPIFFS.openDir("/");
+  while (dir.next()) {
+    Serial.print("- " + dir.fileName());
+    File f = dir.openFile("r");
+    Serial.println(" (" + String(f.size()) + " B)");
+    f.close();
+  }
+
   dht.begin();
   readSensor(0);
   Serial.println("Sensor initialized");
-
-  SPIFFS.begin();
 
   server.begin();
   Serial.println("API server started");
