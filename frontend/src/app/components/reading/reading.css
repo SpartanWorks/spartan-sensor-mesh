@@ -1,8 +1,7 @@
 :root {
   --gauge-size: 250px;
-  --bar-width-stack-top: calc(var(--gauge-size) / 13);
-  --bar-width-stack-bottom: calc(var(--gauge-size) / 13 * 0.97);
-  --shadow-width: calc(var(--gauge-size) / 13);
+  --bar-width: calc(var(--gauge-size) / 13);
+  --shadow-width: var(--bar-width);
   --shadow-color: lightgray;
   --animation-speed: .5s;
   --error-color: red;
@@ -83,7 +82,6 @@
     border-style: solid;
     border-color: var(--shadow-color);
     border-radius: 50%;
-    transform: scale(0.999);
   }
 }
 
@@ -111,13 +109,27 @@
 
 .stackTop {
   & .progressBar {
-      border-width: var(--bar-width-stack-top);
+      border-width: var(--bar-width);
   }
 }
 
 .stackBottom {
-  transform: scale(0.995);
   & .progressBar {
-      border-width: var(--bar-width-stack-bottom);
+      border-width: var(--bar-width);
+  }
+}
+
+/* Browsers tend to run into aliasing problems when stacking multiple round shapes. */
+.aliasingFix {
+  & .shadow {
+    transform: scale(0.999);
+  }
+
+  & .stackBottom {
+    transform: scale(0.997);
+
+    & .progressBar {
+      border-width: calc(var(--bar-width) * 0.97);
+    }
   }
 }

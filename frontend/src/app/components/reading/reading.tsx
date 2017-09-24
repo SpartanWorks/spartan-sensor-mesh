@@ -39,7 +39,7 @@ interface Props {
 }
 
 export const Reading = (props: Props) => (
-  <div className={styles.wrapper}>
+  <div className={styles.wrapper + " " + styles.aliasingFix}>
     <div className={styles.shadow}/>
     {
       props.uncertainty ? (

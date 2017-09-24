@@ -12,3 +12,4 @@ export const progressMore: string;
 export const stack: string;
 export const stackTop: string;
 export const stackBottom: string;
+export const aliasingFix: string;
