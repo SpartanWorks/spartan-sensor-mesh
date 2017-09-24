@@ -1,6 +1,8 @@
 :root {
   --gauge-size: 250px;
-  --bar-width: calc(var(--gauge-size) / 13);
+  --bar-width-stack-top: calc(var(--gauge-size) / 13);
+  --bar-width-stack-bottom: calc(var(--gauge-size) / 13 * 0.97);
+  --shadow-width: calc(var(--gauge-size) / 13);
   --shadow-color: lightgray;
   --animation-speed: .5s;
   --error-color: red;
@@ -32,7 +34,6 @@
       position: absolute;
       clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
 
-      border-width: var(--bar-width);
       border-style: solid;
       border-radius: 50%;
     }
@@ -78,10 +79,11 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    border-width: var(--bar-width);
+    border-width: var(--shadow-width);
     border-style: solid;
     border-color: var(--shadow-color);
     border-radius: 50%;
+    transform: scale(0.999);
   }
 }
 
@@ -108,7 +110,14 @@
 }
 
 .stackTop {
+  & .progressBar {
+      border-width: var(--bar-width-stack-top);
+  }
 }
 
 .stackBottom {
+  transform: scale(0.995);
+  & .progressBar {
+      border-width: var(--bar-width-stack-bottom);
+  }
 }
