@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Sensor *s, const FS &fs): ESP8266WebServer(port), sensor(s), files(fs)
+APIServer::APIServer(uint16_t port, const Sensor *s, FS &fs): ESP8266WebServer(port), sensor(s), files(fs)
 {}
 
 bool waitForConnection(uint32_t timeout) {
@@ -63,8 +63,14 @@ void APIServer::handleApiSensor() {
 
 void APIServer::handleWildcard() {
   Serial.println("Serving *");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("text/html"), index_html_gz, index_html_gz_len);
+  File f = this->files.open("/index.html.gz", "r");
+
+  if(!f) {
+    this->send(500, "application/json", "{\"error\":\"Internal server error.\"}");
+  }
+
+  this->streamFile(f, "text/html");
+  f.close();
 }
 
 void APIServer::begin() {
@@ -72,7 +78,6 @@ void APIServer::begin() {
 
   this->on("/api/config",       [this]() { this->handleApiConfig(); });
   this->on("/api/sensor",       [this]() { this->handleApiSensor(); });
-  FS fs = static_cast<FS>(this->files); // I just want to see the world burn.
-  this->serveStatic("/static/", fs, "/", "max-age=86400");
+  this->serveStatic("/static/", this->files, "/", "max-age=86400");
   this->onNotFound(             [this]() { this->handleWildcard(); });
 }
