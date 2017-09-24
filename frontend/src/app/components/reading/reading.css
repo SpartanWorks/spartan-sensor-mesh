@@ -1,6 +1,5 @@
 :root {
   --gauge-size: 250px;
-  --bar-color: blue;
   --bar-width: calc(var(--gauge-size) / 13);
   --shadow-color: lightgray;
   --animation-speed: .5s;
@@ -35,7 +34,6 @@
 
       border-width: var(--bar-width);
       border-style: solid;
-      border-color: var(--bar-color);
       border-radius: 50%;
     }
   }
