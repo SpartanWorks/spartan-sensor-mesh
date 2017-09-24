@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Sensor *s): ESP8266WebServer(port), sensor(s)
+APIServer::APIServer(uint16_t port, const Sensor *s, FS &fs): ESP8266WebServer(port), sensor(s), files(fs)
 {}
 
 bool waitForConnection(uint32_t timeout) {
@@ -63,28 +63,21 @@ void APIServer::handleApiSensor() {
 
 void APIServer::handleWildcard() {
   Serial.println("Serving *");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("text/html"), index_html_gz, index_html_gz_len);
-}
+  File f = this->files.open("/index.html.gz", "r");
 
-void APIServer::handleStaticJS() {
-  Serial.println("Serving /main.js");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("application/javascript"), main_js_gz, main_js_gz_len);
-}
+  if(!f) {
+    this->send(500, "application/json", "{\"error\":\"Internal server error.\"}");
+  }
 
-void APIServer::handleStaticCSS() {
-  Serial.println("Serving /main.css");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("text/css"), main_css_gz, main_css_gz_len);
+  this->streamFile(f, "text/html");
+  f.close();
 }
 
 void APIServer::begin() {
   ESP8266WebServer::begin();
 
-  this->on("/api/config", [this]() { this->handleApiConfig(); });
-  this->on("/api/sensor", [this]() { this->handleApiSensor(); });
-  this->on("/main.js",    [this]() { this->handleStaticJS(); });
-  this->on("/main.css",   [this]() { this->handleStaticCSS(); });
-  this->onNotFound(       [this]() { this->handleWildcard(); });
+  this->on("/api/config",       [this]() { this->handleApiConfig(); });
+  this->on("/api/sensor",       [this]() { this->handleApiSensor(); });
+  this->serveStatic("/static/", this->files, "/", "max-age=86400");
+  this->onNotFound(             [this]() { this->handleWildcard(); });
 }

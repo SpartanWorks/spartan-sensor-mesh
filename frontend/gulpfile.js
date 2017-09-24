@@ -31,13 +31,13 @@ module.exports = {
   postcss
 };
 
-gulp.task("bundle", ["style-type-definitions"], (done) => {
+gulp.task("bundle", ["create-dirs", "style-type-definitions"], (done) => {
   const bundle = browserify("./src/app/main.tsx", { debug: !prod })
     .plugin(require("tsify"))
     .plugin(cssModulesify, {
       before: prod ? postcss.concat(require("cssnano")) : postcss,
       global: true,
-      output: "./dist/main.css",
+      output: "./dist/static/main.css",
       rootDir: __dirname,
       generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
     })
@@ -55,7 +55,7 @@ gulp.task("bundle", ["style-type-definitions"], (done) => {
       .pipe(sourcemaps.write());
   }
   bundle
-    .pipe(gulp.dest("./dist/"))
+    .pipe(gulp.dest("./dist/static/"))
     .on("end", done);
 });
 
@@ -68,6 +68,11 @@ gulp.task("lint", () => {
       formatter: "verbose",
     }))
     .pipe(tslint.report());
+});
+
+gulp.task("create-dirs", () => {
+  gulp.src("")
+    .pipe(gulp.dest("./dist/static/"));
 });
 
 gulp.task("style-type-definitions", (done) => {
