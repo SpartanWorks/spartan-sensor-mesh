@@ -30,8 +30,6 @@ const Gauge = (props: GaugeProps) => {
 
 interface Props {
   color: string;
-  colorAbove?: string;
-  colorBelow?: string;
   progress: number;
   uncertainty?: number;
   isError: boolean;
@@ -44,9 +42,9 @@ export const Reading = (props: Props) => (
     {
       props.uncertainty ? (
         <div className={styles.stack}>
-          <Gauge color={props.colorAbove || ""} progress={Math.min(360, props.progress + props.uncertainty)} stacked/>
           <Gauge color={props.color} progress={props.progress} stacked/>
-          <Gauge color={props.colorBelow || ""} progress={Math.max(0, props.progress - props.uncertainty)}/>
+          <Gauge color="rgba(0, 0, 0, 0.1)" progress={Math.min(360, props.progress + props.uncertainty)} stacked/>
+          <Gauge color={props.color} progress={Math.max(0, props.progress - props.uncertainty)}/>
         </div>
       ) : (
         <Gauge color={props.color} progress={props.progress}/>
