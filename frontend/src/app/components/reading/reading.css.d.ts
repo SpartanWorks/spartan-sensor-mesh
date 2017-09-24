@@ -9,3 +9,6 @@ export const right: string;
 export const shadow: string;
 export const progressLess: string;
 export const progressMore: string;
+export const stack: string;
+export const stackTop: string;
+export const stackBottom: string;

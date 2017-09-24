@@ -102,3 +102,15 @@
     transform: rotate(180deg);
   }
 }
+
+.stack {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.stackTop {
+}
+
+.stackBottom {
+}
