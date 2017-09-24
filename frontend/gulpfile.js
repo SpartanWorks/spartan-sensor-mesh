@@ -31,7 +31,7 @@ module.exports = {
   postcss
 };
 
-gulp.task("bundle", ["style-type-definitions"], (done) => {
+gulp.task("bundle", ["create-dirs", "style-type-definitions"], (done) => {
   const bundle = browserify("./src/app/main.tsx", { debug: !prod })
     .plugin(require("tsify"))
     .plugin(cssModulesify, {
@@ -68,6 +68,11 @@ gulp.task("lint", () => {
       formatter: "verbose",
     }))
     .pipe(tslint.report());
+});
+
+gulp.task("create-dirs", () => {
+  gulp.src("")
+    .pipe(gulp.dest("./dist/static/"));
 });
 
 gulp.task("style-type-definitions", (done) => {

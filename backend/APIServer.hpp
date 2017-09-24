@@ -7,8 +7,6 @@
 #include <FS.h>
 #include "Sensor.hpp"
 #include "index.html.gz.h"
-#include "main.css.gz.h"
-#include "main.js.gz.h"
 
 const int WIFI_CONNECTION_TIMEOUT = 20000; // 20 seconds
 
@@ -20,8 +18,6 @@ private:
   void handleApiConfig();
   void handleApiSensor();
   void handleWildcard();
-  void handleStaticJS();
-  void handleStaticCSS();
 
 public:
   APIServer(uint16_t port, const Sensor *s, const FS &fs);

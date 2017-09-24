@@ -67,25 +67,11 @@ void APIServer::handleWildcard() {
   this->send_P(200, PSTR("text/html"), index_html_gz, index_html_gz_len);
 }
 
-void APIServer::handleStaticJS() {
-  Serial.println("Serving /main.js");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("application/javascript"), main_js_gz, main_js_gz_len);
-}
-
-void APIServer::handleStaticCSS() {
-  Serial.println("Serving /main.css");
-  this->sendHeader("Content-Encoding", "gzip");
-  this->send_P(200, PSTR("text/css"), main_css_gz, main_css_gz_len);
-}
-
 void APIServer::begin() {
   ESP8266WebServer::begin();
 
   this->on("/api/config",       [this]() { this->handleApiConfig(); });
   this->on("/api/sensor",       [this]() { this->handleApiSensor(); });
-  this->on("/static/main.js",   [this]() { this->handleStaticJS(); });
-  this->on("/static/main.css",  [this]() { this->handleStaticCSS(); });
   FS fs = static_cast<FS>(this->files); // I just want to see the world burn.
   this->serveStatic("/static/", fs, "/", "max-age=86400");
   this->onNotFound(             [this]() { this->handleWildcard(); });
