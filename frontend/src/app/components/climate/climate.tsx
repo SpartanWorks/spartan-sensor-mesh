@@ -69,7 +69,10 @@ export const ClimateWidget = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
       <Reading progress={props.data.humidity.mean * 3.6}
-               color="dodgerblue"
+               uncertainty={Math.sqrt(props.data.humidity.variance) * 3.6}
+               colorAbove="rgba(1, 1, 1, 0.1)"
+               color="rgb(27, 129, 229)"
+               colorBelow="rgb(30, 144, 255)"
                isError={props.data.status === "error"}>
       <Label label="Humidity"
              value={Math.round(props.data.humidity.mean)}
