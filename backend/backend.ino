@@ -3,6 +3,7 @@
 #include <WiFiClient.h>
 #include "APIServer.hpp"
 #include "DHTSensor.hpp"
+#include <FS.h>
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
@@ -13,7 +14,7 @@ String sensorName = "Sensor-";
 const char* sensorPassword = "53n50rp455w0r0";
 
 DHTSensor dht = DHTSensor(SENSOR, DHT22);
-APIServer server(HTTP_PORT, &dht);
+APIServer server(HTTP_PORT, &dht, SPIFFS);
 
 void readSensor(uint32_t currTime) {
   static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
@@ -53,6 +54,8 @@ void setup(void){
   dht.begin();
   readSensor(0);
   Serial.println("Sensor initialized");
+
+  SPIFFS.begin();
 
   server.begin();
   Serial.println("API server started");

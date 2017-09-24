@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Sensor *s): ESP8266WebServer(port), sensor(s)
+APIServer::APIServer(uint16_t port, const Sensor *s, const FS &fs): ESP8266WebServer(port), sensor(s), files(fs)
 {}
 
 bool waitForConnection(uint32_t timeout) {
@@ -82,9 +82,11 @@ void APIServer::handleStaticCSS() {
 void APIServer::begin() {
   ESP8266WebServer::begin();
 
-  this->on("/api/config", [this]() { this->handleApiConfig(); });
-  this->on("/api/sensor", [this]() { this->handleApiSensor(); });
-  this->on("/main.js",    [this]() { this->handleStaticJS(); });
-  this->on("/main.css",   [this]() { this->handleStaticCSS(); });
-  this->onNotFound(       [this]() { this->handleWildcard(); });
+  this->on("/api/config",       [this]() { this->handleApiConfig(); });
+  this->on("/api/sensor",       [this]() { this->handleApiSensor(); });
+  this->on("/static/main.js",   [this]() { this->handleStaticJS(); });
+  this->on("/static/main.css",  [this]() { this->handleStaticCSS(); });
+  FS fs = static_cast<FS>(this->files); // I just want to see the world burn.
+  this->serveStatic("/static/", fs, "/", "max-age=86400");
+  this->onNotFound(             [this]() { this->handleWildcard(); });
 }

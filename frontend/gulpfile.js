@@ -37,7 +37,7 @@ gulp.task("bundle", ["style-type-definitions"], (done) => {
     .plugin(cssModulesify, {
       before: prod ? postcss.concat(require("cssnano")) : postcss,
       global: true,
-      output: "./dist/main.css",
+      output: "./dist/static/main.css",
       rootDir: __dirname,
       generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
     })
@@ -55,7 +55,7 @@ gulp.task("bundle", ["style-type-definitions"], (done) => {
       .pipe(sourcemaps.write());
   }
   bundle
-    .pipe(gulp.dest("./dist/"))
+    .pipe(gulp.dest("./dist/static/"))
     .on("end", done);
 });
 
