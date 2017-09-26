@@ -43,14 +43,14 @@ export class DeviceService {
   }
 
   private fetchData(interval: number): Promise<void> {
-    const repeat = () => this.fetchData(interval);
+    const repeat = () => {
+      setTimeout(() => this.fetchData(interval), interval);
+    };
 
-    return fetch(this.baseUrl + "/api/sensor")
+    return fetch(this.baseUrl + "/api/data")
       .then((r) => r.json())
       .then(this.onUpdateCallback)
-      .then(() => {
-        setTimeout(repeat, interval);
-      })
+      .then(repeat)
       .catch((e) => {
         console.error({
           error: "Fetching data failed.",
