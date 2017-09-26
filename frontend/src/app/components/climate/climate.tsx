@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { SensorData } from "../../services/sensor";
+import { SensorData } from "../../services/device";
 import { Reading } from "../reading/reading";
 import * as styles from "./climate.css";
 

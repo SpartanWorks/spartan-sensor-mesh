@@ -12,8 +12,7 @@ const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int SENSOR = 2;
 
 Device device("53n50rp455w0r0");
-DHTSensor dht = DHTSensor(SENSOR, DHT22);
-APIServer server(HTTP_PORT, &dht, SPIFFS);
+APIServer server(HTTP_PORT, device, SPIFFS);
 
 void readSensor(uint32_t currTime) {
   static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
@@ -64,7 +63,7 @@ void setup(void){
     f.close();
   }
 
-  device.attach(&dht);
+  device.attach(new DHTSensor(SENSOR, DHT22));
   device.begin();
   readSensor(0);
   Serial.println("Device initialized");

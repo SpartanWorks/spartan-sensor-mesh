@@ -22,7 +22,7 @@ export class Dashboard extends preact.Component<Props, {}> {
     } else {
       return (
         <div className={styles.mainWrapper}>
-          <ClimateWidget data={this.props.store.data}
+          <ClimateWidget data={this.props.store.data.sensors[0]} // FIXME Render all sensors according to their type.
                          minTemperature={11}
                          maxTemperature={37}/>
           <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>

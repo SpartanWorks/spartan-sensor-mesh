@@ -16,11 +16,18 @@ export interface SensorData {
   type: string;
 }
 
-export interface UpdateCallback {
-  (arg: SensorData): void;
+export interface DeviceData {
+  model: string;
+  name: string;
+  group: string;
+  sensors: Array<SensorData>;
 }
 
-export class SensorService {
+export interface UpdateCallback {
+  (arg: DeviceData): void;
+}
+
+export class DeviceService {
   baseUrl: string;
   onUpdateCallback: UpdateCallback;
 
