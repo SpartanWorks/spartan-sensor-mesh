@@ -3,6 +3,7 @@
 #include <WiFiClient.h>
 #include "APIServer.hpp"
 #include "DHTSensor.hpp"
+#include "Device.hpp"
 #include <FS.h>
 
 const int HTTP_PORT = 80;
@@ -10,8 +11,7 @@ const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int SENSOR = 2;
 
-String sensorName = "Sensor-";
-const char* sensorPassword = "53n50rp455w0r0";
+Device device("53n50rp455w0r0");
 
 DHTSensor dht = DHTSensor(SENSOR, DHT22);
 APIServer server(HTTP_PORT, &dht, SPIFFS);
@@ -38,25 +38,25 @@ void timeoutAP(uint32_t currTime) {
 
 void setup(void){
   Serial.begin(115200);
+  Serial.println("");
 
-  Serial.println("Setting up wifi...");
-  sensorName += String(ESP.getChipId(), HEX);
-  WiFi.hostname(sensorName.c_str());
-
+  WiFi.hostname(device.name().c_str());
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(sensorName.c_str(), sensorPassword);
+  WiFi.softAP(device.name().c_str(), device.password().c_str());
 
-  Serial.print("Access point on: ");
-  Serial.println(sensorName);
-  Serial.print("IP address: ");
+  Serial.println("WiFi initialized:");
+  Serial.print("- SSID: ");
+  Serial.println(device.name());
+  Serial.print("- Password: ");
+  Serial.println(device.password());
+  Serial.print("- IP address: ");
   Serial.println(WiFi.softAPIP());
 
   SPIFFS.begin();
   FSInfo info;
   SPIFFS.info(info);
-  Serial.println("SPIFFS initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B)");
+  Serial.println("FS initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
 
-  Serial.println("Uploaded files:");
   Dir dir = SPIFFS.openDir("/");
   while (dir.next()) {
     Serial.print("- " + dir.fileName());
@@ -70,11 +70,11 @@ void setup(void){
   Serial.println("Sensor initialized");
 
   server.begin();
-  Serial.println("API server started");
+  Serial.println("API server initialized");
 
-  MDNS.begin(sensorName.c_str());
+  MDNS.begin(device.name().c_str());
   MDNS.addService("http", "tcp", HTTP_PORT);
-  Serial.println("mDNS responder started");
+  Serial.println("mDNS responder initialized");
 }
 
 void loop(void){

@@ -1,7 +1,15 @@
 #include "Device.hpp"
 
-Device::Device(String n, String g): dName(n), dGroup(g)
-{}
+Device::Device(String p): Device("", p, "") {
+}
+
+Device::Device(String n, String p): Device(n, p, n) {
+}
+
+Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g) {
+  dName = (dName == "") ? String("Device-") + String(ESP.getChipId(), HEX) : dName;
+  dGroup = (dGroup == "") ? dName : dGroup;
+}
 
 void Device::begin() {
 }
@@ -15,6 +23,10 @@ String Device::model() const {
 
 String Device::name() const {
   return this->dName;
+}
+
+String Device::password() const {
+  return this->dPass;
 }
 
 String Device::group() const {
