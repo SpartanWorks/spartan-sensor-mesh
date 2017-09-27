@@ -12,7 +12,7 @@ interface Props {
   store: MainStore;
 }
 
-function renderSensor(data: SensorData) {
+function selectSensor(data: SensorData) {
   switch (data.type) {
   case "DHT":
     return <ClimateWidget data={data} minTemperature={11} maxTemperature={37}/>;
@@ -21,12 +21,22 @@ function renderSensor(data: SensorData) {
   }
 }
 
+function renderSensor(data: SensorData) {
+  return (
+    <div className={styles.widgetWrapper}>
+      { selectSensor(data) }
+    </div>
+  );
+}
+
 @observer
 export class Dashboard extends preact.Component<Props, {}> {
   render() {
     return (
       <div className={styles.mainWrapper}>
-        { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.sensors.map(renderSensor) }
+        <div className={styles.displayWrapper}>
+          { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.sensors.map(renderSensor) }
+        </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
       </div>
     );
