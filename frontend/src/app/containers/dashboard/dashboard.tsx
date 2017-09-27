@@ -1,6 +1,6 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
-import { ClimateWidget } from "../../components/climate/climate";
+import { DHTSensor } from "../../components/dht/dht";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
@@ -15,7 +15,7 @@ interface Props {
 function selectSensor(data: SensorData) {
   switch (data.type) {
   case "DHT":
-    return <ClimateWidget data={data} minTemperature={11} maxTemperature={37}/>;
+    return <DHTSensor data={data} minTemperature={11} maxTemperature={37}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
