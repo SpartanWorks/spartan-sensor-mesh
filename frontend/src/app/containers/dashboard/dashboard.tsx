@@ -13,21 +13,19 @@ interface Props {
 @observer
 export class Dashboard extends preact.Component<Props, {}> {
   render() {
-    if (!this.props.store.dataLoaded) {
-      return (
-        <div className={styles.mainWrapper}>
-          <Spinner/>
-        </div>
-      );
-    } else {
-      return (
-        <div className={styles.mainWrapper}>
-          <ClimateWidget data={this.props.store.data.sensors[0]} // FIXME Render all sensors according to their type.
-                         minTemperature={11}
-                         maxTemperature={37}/>
-          <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
-        </div>
-      );
-    }
+    return (
+      <div className={styles.mainWrapper}>
+        {
+          (!this.props.store.dataLoaded) ? (
+            <Spinner/>
+          ) : (
+            <ClimateWidget data={this.props.store.data.sensors[0]} // FIXME Render all sensors according to their type.
+                           minTemperature={11}
+                           maxTemperature={37}/>
+          )
+        }
+        <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
+      </div>
+    );
   }
 }
