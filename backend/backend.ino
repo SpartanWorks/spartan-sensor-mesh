@@ -9,7 +9,6 @@
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
-const int SENSOR = 2;
 
 Device device("53n50rp455w0r0");
 APIServer server(HTTP_PORT, device, SPIFFS);
@@ -63,7 +62,8 @@ void setup(void){
     f.close();
   }
 
-  device.attach(new DHTSensor(SENSOR, DHT22));
+  device.attach(new DHTSensor(2, DHT22));
+  device.attach(new DHTSensor(0, DHT11));
   device.begin();
   readSensor(0);
   Serial.println("Device initialized");

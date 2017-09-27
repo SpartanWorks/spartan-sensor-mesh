@@ -50,8 +50,13 @@ String Device::toJSON() const {
   json += ",\"group\":\"" + this->group() + "\"";
   json += ",\"sensors\":[";
 
-  foreach<Sensor*>(list, [&json](Sensor *s) {
+  bool first = true;
+  foreach<Sensor*>(list, [&json, &first](Sensor *s) {
+    if(!first) {
+      json += ",";
+    }
     json += s->toJSON();
+    first = false;
   });
 
   json += "]}";
