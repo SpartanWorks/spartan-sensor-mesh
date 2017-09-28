@@ -1,15 +1,15 @@
 import * as preact from "preact";
 import { Main } from "./containers/main/main";
 import * as styles from "./main.css";
-import { SensorService } from "./services/sensor";
+import { DeviceService } from "./services/device";
 import { MainStore } from "./store/main";
 
 export function onLoad() {
   const mainStore = new MainStore();
 
-  const sensorService = new SensorService(window.location.protocol + "//" + window.location.host);
-  sensorService.onUpdate(mainStore.dataRetrieved);
-  sensorService.connect(5000);
+  const deviceService = new DeviceService(window.location.protocol + "//" + window.location.host);
+  deviceService.onUpdate(mainStore.dataRetrieved);
+  deviceService.connect(5000);
 
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);

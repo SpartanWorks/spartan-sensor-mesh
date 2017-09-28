@@ -16,11 +16,18 @@ export interface SensorData {
   type: string;
 }
 
-export interface UpdateCallback {
-  (arg: SensorData): void;
+export interface DeviceData {
+  model: string;
+  name: string;
+  group: string;
+  sensors: Array<SensorData>;
 }
 
-export class SensorService {
+export interface UpdateCallback {
+  (arg: DeviceData): void;
+}
+
+export class DeviceService {
   baseUrl: string;
   onUpdateCallback: UpdateCallback;
 
@@ -36,14 +43,14 @@ export class SensorService {
   }
 
   private fetchData(interval: number): Promise<void> {
-    const repeat = () => this.fetchData(interval);
+    const repeat = () => {
+      setTimeout(() => this.fetchData(interval), interval);
+    };
 
-    return fetch(this.baseUrl + "/api/sensor")
+    return fetch(this.baseUrl + "/api/data")
       .then((r) => r.json())
       .then(this.onUpdateCallback)
-      .then(() => {
-        setTimeout(repeat, interval);
-      })
+      .then(repeat)
       .catch((e) => {
         console.error({
           error: "Fetching data failed.",

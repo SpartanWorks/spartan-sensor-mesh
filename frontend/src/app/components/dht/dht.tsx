@@ -1,7 +1,7 @@
 import * as preact from "preact";
-import { SensorData } from "../../services/sensor";
+import { SensorData } from "../../services/device";
 import { Reading } from "../reading/reading";
-import * as styles from "./climate.css";
+import * as styles from "./dht.css";
 
 interface Props {
   data: SensorData;
@@ -65,7 +65,7 @@ export const Label = (props: LabelProps) => (
   </div>
 );
 
-export const ClimateWidget = (props: Props) => (
+export const DHTSensor = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
       <Reading progress={props.data.humidity.mean * 3.6}

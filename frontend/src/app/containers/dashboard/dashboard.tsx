@@ -1,8 +1,10 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
-import { ClimateWidget } from "../../components/climate/climate";
+import { DHTSensor } from "../../components/dht/dht";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
+import { UnsupportedSensor } from "../../components/unsupported/unsupported";
+import { SensorData } from "../../services/device";
 import { MainStore } from "../../store/main";
 import * as styles from "./dashboard.css";
 
@@ -10,24 +12,33 @@ interface Props {
   store: MainStore;
 }
 
+function selectSensor(data: SensorData) {
+  switch (data.type) {
+  case "DHT":
+    return <DHTSensor data={data} minTemperature={11} maxTemperature={37}/>;
+  default:
+    return <UnsupportedSensor data={data}/>;
+  }
+}
+
+function renderSensor(data: SensorData) {
+  return (
+    <div className={styles.widgetWrapper}>
+      { selectSensor(data) }
+    </div>
+  );
+}
+
 @observer
 export class Dashboard extends preact.Component<Props, {}> {
   render() {
-    if (!this.props.store.dataLoaded) {
-      return (
-        <div className={styles.mainWrapper}>
-          <Spinner/>
+    return (
+      <div className={styles.mainWrapper}>
+        <div className={styles.displayWrapper}>
+          { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.sensors.map(renderSensor) }
         </div>
-      );
-    } else {
-      return (
-        <div className={styles.mainWrapper}>
-          <ClimateWidget data={this.props.store.data}
-                         minTemperature={11}
-                         maxTemperature={37}/>
-          <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
-        </div>
-      );
-    }
+        <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
+      </div>
+    );
   }
 }

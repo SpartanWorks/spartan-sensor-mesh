@@ -1,4 +1,5 @@
 import * as preact from "preact";
+import { error } from "../../styles/error.css";
 import * as styles from "./reading.css";
 
 interface GaugeProps {
@@ -53,6 +54,6 @@ export const Reading = (props: Props) => (
     <div className={styles.label}>
       {props.children}
     </div>
-    <div title="Sensor is not responding." className={props.isError ? styles.error : styles.hidden}/>
+    <div title="Sensor is not responding." className={props.isError ? error : styles.hidden}/>
   </div>
 );

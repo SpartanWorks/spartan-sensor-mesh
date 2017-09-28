@@ -1,7 +1,7 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Sensor *s, FS &fs): ESP8266WebServer(port), sensor(s), files(fs)
-{}
+APIServer::APIServer(uint16_t port, Device &d, FS &fs): ESP8266WebServer(port), device(d), files(fs) {
+}
 
 bool waitForConnection(uint32_t timeout) {
   uint32_t i = 0;
@@ -56,9 +56,9 @@ void APIServer::handleApiConfig() {
   }
 }
 
-void APIServer::handleApiSensor() {
-  Serial.println("Serving /api/sensor");
-  this->send(200, "application/json", this->sensor->toJSON());
+void APIServer::handleApiData() {
+  Serial.println("Serving /api/data");
+  this->send(200, "application/json", this->device.toJSON());
 }
 
 void APIServer::handleWildcard() {
@@ -77,7 +77,7 @@ void APIServer::begin() {
   ESP8266WebServer::begin();
 
   this->on("/api/config",       [this]() { this->handleApiConfig(); });
-  this->on("/api/sensor",       [this]() { this->handleApiSensor(); });
+  this->on("/api/data"  ,       [this]() { this->handleApiData(); });
   this->serveStatic("/static/", this->files, "/", "max-age=86400");
   this->onNotFound(             [this]() { this->handleWildcard(); });
 }

@@ -5,21 +5,21 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
-#include "Sensor.hpp"
+#include "Device.hpp"
 
 const int WIFI_CONNECTION_TIMEOUT = 20000; // 20 seconds
 
 class APIServer: public ESP8266WebServer {
 private:
-  const Sensor *sensor;
-  FS files;
+  Device &device;
+  FS &files;
 
   void handleApiConfig();
-  void handleApiSensor();
+  void handleApiData();
   void handleWildcard();
 
 public:
-  APIServer(uint16_t port, const Sensor *s, FS &fs);
+  APIServer(uint16_t port, Device &d, FS &fs);
   void begin();
 };
 

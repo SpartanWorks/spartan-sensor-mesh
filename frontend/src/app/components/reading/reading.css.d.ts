@@ -1,7 +1,6 @@
 export const wrapper: string;
 export const gauge: string;
 export const progressBar: string;
-export const error: string;
 export const hidden: string;
 export const label: string;
 export const left: string;

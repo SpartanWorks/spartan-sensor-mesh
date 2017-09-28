@@ -1,7 +1,37 @@
+:root {
+  --spacing: 10px;
+}
+
 .mainWrapper {
   width: 100%;
   height: 100%;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
+  & .displayWrapper {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    & .widgetWrapper {
+      margin: var(--spacing);
+    }
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .mainWrapper {
+    & .displayWrapper {
+      width: 75%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
 }
