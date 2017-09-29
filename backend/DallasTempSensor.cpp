@@ -3,7 +3,7 @@
 DallasTempSensor::DallasTempSensor(uint8_t pin, uint8_t resolution):
     oneWire(OneWire(pin)),
     sensor(DallasTemperature(&this->oneWire)),
-    temperature(Reading<float>())
+    temperature(WindowedReading<float, SAMPLE_BACKLOG>())
 {
   this->sensor.setResolution(resolution);
   this->sensor.setWaitForConversion(false);

@@ -6,9 +6,11 @@
 #include "Sensor.hpp"
 #include "Reading.hpp"
 
+#define SAMPLE_BACKLOG 30
+
 class DallasTempSensor: public Sensor {
 private:
-  Reading<float> temperature;
+  WindowedReading<float, SAMPLE_BACKLOG> temperature;
   OneWire oneWire;
   DallasTemperature sensor;
 
