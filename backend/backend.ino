@@ -3,6 +3,7 @@
 #include <WiFiClient.h>
 #include "APIServer.hpp"
 #include "DHTSensor.hpp"
+#include "DallasTempSensor.hpp"
 #include "Device.hpp"
 #include <FS.h>
 
@@ -63,7 +64,7 @@ void setup(void){
   }
 
   device.attach(new DHTSensor(2, DHT22));
-  device.attach(new DHTSensor(0, DHT11));
+  device.attach(new DallasTempSensor(0, 12));
   device.begin();
   readSensor(0);
   Serial.println("Device initialized");
