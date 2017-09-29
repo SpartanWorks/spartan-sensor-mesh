@@ -10,12 +10,14 @@
 
 class DallasTempSensor: public Sensor {
 private:
-  WindowedReading<float, SAMPLE_BACKLOG> temperature;
   OneWire oneWire;
-  DallasTemperature sensor;
+  DallasTemperature sensors;
+  uint8_t nSensors = 0;
+  WindowedReading<float, SAMPLE_BACKLOG> *temperatures;
 
 public:
   DallasTempSensor(uint8_t pin, uint8_t resolution);
+  ~DallasTempSensor();
   void begin();
   void update();
   String type() const;

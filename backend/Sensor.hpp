@@ -10,6 +10,7 @@ protected:
   String sStatus = "";
 
 public:
+  virtual ~Sensor() {}
   virtual void begin() = 0;
   virtual void update() = 0;
   virtual String type() const = 0;
