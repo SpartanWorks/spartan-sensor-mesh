@@ -16,7 +16,8 @@ export const DHTSensor = (props: Props) => (
       <Gauge progress={props.data.readings.humidity.mean * 3.6}
              uncertainty={Math.sqrt(props.data.readings.humidity.variance) * 3.6}
              color="dodgerblue"
-             isError={props.data.status === "error"}>
+             isError={props.data.status === "error"}
+             errorTooltip="Sensor is not responding.">
         <Label name="Humidity"
                value={Math.round(props.data.readings.humidity.mean)}
                unit="%"
@@ -28,7 +29,8 @@ export const DHTSensor = (props: Props) => (
                 colorVal={props.data.readings.temperature.mean}
                 colorMin={props.minTemperature}
                 colorMax={props.maxTemperature}
-                isError={props.data.status === "error"}>
+                isError={props.data.status === "error"}
+                errorTooltip="Sensor is not responding.">
         <Label name="Temperature"
                value={Math.round(props.data.readings.temperature.mean)}
                unit="°C"

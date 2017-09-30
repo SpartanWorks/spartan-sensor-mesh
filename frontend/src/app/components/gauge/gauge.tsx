@@ -34,6 +34,7 @@ interface GaugeProps {
   progress: number;
   uncertainty?: number;
   isError: boolean;
+  errorTooltip: string;
   children?: Array<preact.Component<any, any>>;
 }
 
@@ -54,7 +55,7 @@ export const Gauge = (props: GaugeProps) => (
     <div className={styles.label}>
       {props.children}
     </div>
-    <div title="Sensor is not responding." className={props.isError ? error : styles.hidden}/>
+    <div title={props.errorTooltip} className={props.isError ? error : styles.hidden}/>
   </div>
 );
 

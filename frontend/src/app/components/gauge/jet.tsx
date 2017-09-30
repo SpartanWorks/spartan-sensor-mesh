@@ -45,6 +45,7 @@ interface JetGaugeProps {
   colorMax: number;
   progress: number;
   uncertainty?: number;
+  errorTooltip: string;
   isError: boolean;
   children?: Array<preact.Component<any, any>>;
 }
@@ -53,7 +54,8 @@ export const JetGauge = (props: JetGaugeProps) => (
   <Gauge progress={props.progress}
          uncertainty={props.uncertainty}
          color={jet(normalize(props.colorVal, props.colorMin, props.colorMax))}
-         isError={props.isError}>
+         isError={props.isError}
+         errorTooltip={props.errorTooltip}>
     {props.children}
   </Gauge>
 );
