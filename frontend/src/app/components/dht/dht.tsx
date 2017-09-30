@@ -1,9 +1,9 @@
 import * as preact from "preact";
 import { SensorData } from "../../services/device";
+import * as styles from "../../styles/widget.css";
 import { Gauge } from "../gauge/gauge";
 import { JetGauge } from "../gauge/jet";
 import { Label } from "../gauge/label";
-import * as styles from "../../styles/widget.css";
 
 interface Props {
   data: SensorData;

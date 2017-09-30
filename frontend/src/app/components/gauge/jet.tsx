@@ -60,4 +60,4 @@ export const JetGauge = (props: JetGaugeProps) => {
       {props.children}
     </Gauge>
   );
-}
+};
