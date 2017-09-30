@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { Reading } from "../reading/reading";
+import { Gauge } from "./gauge";
 
 function interpolate(val: number, y0: number, x0: number, y1: number, x1: number): number {
   return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
@@ -39,7 +39,7 @@ function normalize(val: number, min: number, max: number): number {
   return (clamp(val, min, max) - min) / (max - min);
 }
 
-interface Props {
+interface JetGaugeProps {
   colorVal: number;
   colorMin: number;
   colorMax: number;
@@ -49,11 +49,11 @@ interface Props {
   children?: Array<preact.Component<any, any>>;
 }
 
-export const JetReading = (props: Props) => (
-  <Reading progress={props.progress}
-           uncertainty={props.uncertainty}
-           color={jet(normalize(props.colorVal, props.colorMin, props.colorMax))}
-           isError={props.isError}>
+export const JetGauge = (props: JetGaugeProps) => (
+  <Gauge progress={props.progress}
+         uncertainty={props.uncertainty}
+         color={jet(normalize(props.colorVal, props.colorMin, props.colorMax))}
+         isError={props.isError}>
     {props.children}
-  </Reading>
+  </Gauge>
 );

@@ -1,14 +1,14 @@
 import * as preact from "preact";
 import { error } from "../../styles/error.css";
-import * as styles from "./reading.css";
+import * as styles from "./gauge.css";
 
-interface GaugeProps {
+interface LineProps {
   color: string;
   progress: number;
   stacked?: boolean;
 }
 
-const Gauge = (props: GaugeProps) => {
+const Line = (props: LineProps) => {
   const moreLess = (props.progress > 180) ? styles.progressMore : styles.progressLess;
   const leftStyle = {
     "border-color": props.color,
@@ -29,7 +29,7 @@ const Gauge = (props: GaugeProps) => {
   );
 };
 
-interface Props {
+interface GaugeProps {
   color: string;
   progress: number;
   uncertainty?: number;
@@ -37,18 +37,18 @@ interface Props {
   children?: Array<preact.Component<any, any>>;
 }
 
-export const Reading = (props: Props) => (
+export const Gauge = (props: GaugeProps) => (
   <div className={styles.wrapper + " " + styles.aliasingFix}>
     <div className={styles.shadow}/>
     {
       props.uncertainty ? (
         <div className={styles.stack}>
-          <Gauge color={props.color} progress={props.progress} stacked/>
-          <Gauge color="rgba(0, 0, 0, 0.1)" progress={Math.min(360, props.progress + props.uncertainty)} stacked/>
-          <Gauge color={props.color} progress={Math.max(0, props.progress - props.uncertainty)}/>
+          <Line color={props.color} progress={props.progress} stacked/>
+          <Line color="rgba(0, 0, 0, 0.1)" progress={Math.min(360, props.progress + props.uncertainty)} stacked/>
+          <Line color={props.color} progress={Math.max(0, props.progress - props.uncertainty)}/>
         </div>
       ) : (
-        <Gauge color={props.color} progress={props.progress}/>
+        <Line color={props.color} progress={props.progress}/>
       )
     }
     <div className={styles.label}>
