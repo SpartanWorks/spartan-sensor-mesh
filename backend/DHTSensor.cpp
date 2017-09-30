@@ -37,8 +37,9 @@ String DHTSensor::toJSON() const {
   json += ",\"status\":\"" + this->status() + "\"";
   json += ",\"errors\":" + String(this->errors());
   json += ",\"measurements\":" + String(this->measurements());
-  json += ",\"humidity\":" + this->humidity.toJSON();
+  json += ",\"readings\":{";
+  json += "\"humidity\":" + this->humidity.toJSON();
   json += ",\"temperature\":" + this->temperature.toJSON();
-  json += "}";
+  json += "}}";
   return json;
 }

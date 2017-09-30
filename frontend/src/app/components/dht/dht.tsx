@@ -43,7 +43,7 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(val, max));
 }
 
-function valueWithin(val: number, min: number, max: number): number {
+function normalize(val: number, min: number, max: number): number {
   return (clamp(val, min, max) - min) / (max - min);
 }
 
@@ -68,24 +68,24 @@ export const Label = (props: LabelProps) => (
 export const DHTSensor = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <Reading progress={props.data.humidity.mean * 3.6}
-               uncertainty={Math.sqrt(props.data.humidity.variance) * 3.6}
+      <Reading progress={props.data.readings.humidity.mean * 3.6}
+               uncertainty={Math.sqrt(props.data.readings.humidity.variance) * 3.6}
                color="dodgerblue"
                isError={props.data.status === "error"}>
       <Label label="Humidity"
-             value={Math.round(props.data.humidity.mean)}
+             value={Math.round(props.data.readings.humidity.mean)}
              unit="%"
-             tooltip={"Averaged from last " + props.data.humidity.samples + " readings."}/>
+             tooltip={"Averaged from last " + props.data.readings.humidity.samples + " readings."}/>
       </Reading>
     </div>
     <div className={styles.readingWrapper}>
       <Reading progress={360}
-               color={jet(valueWithin(props.data.temperature.mean, props.minTemperature, props.maxTemperature))}
+               color={jet(normalize(props.data.readings.temperature.mean, props.minTemperature, props.maxTemperature))}
                isError={props.data.status === "error"}>
         <Label label="Temperature"
-               value={Math.round(props.data.temperature.mean)}
+               value={Math.round(props.data.readings.temperature.mean)}
                unit="°C"
-               tooltip={"Averaged from last " + props.data.temperature.samples + " readings."}/>
+               tooltip={"Averaged from last " + props.data.readings.temperature.samples + " readings."}/>
       </Reading>
     </div>
   </div>

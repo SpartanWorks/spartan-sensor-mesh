@@ -49,11 +49,15 @@ String DallasTempSensor::toJSON() const {
   json += ",\"status\":\"" + this->status() + "\"";
   json += ",\"errors\":" + String(this->errors());
   json += ",\"measurements\":" + String(this->measurements());
+  json += ",\"readings\":{";
 
   for(uint8_t i = 0; i < this->nSensors; ++i) {
-    json += ",\"temperature" + String(i) + "\":" + this->temperatures[i].toJSON();
+    if (i > 0) {
+      json += ",";
+    }
+    json += "\"temperature" + String(i) + "\":" + this->temperatures[i].toJSON();
   }
 
-  json += "}";
+  json += "}}";
   return json;
 }
