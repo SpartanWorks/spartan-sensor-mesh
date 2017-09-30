@@ -1,0 +1,44 @@
+:root {
+  --label-color: lightgray;
+  --label-size: 20px;
+  --value-color: gray;
+  --unit-color: var(--value-color);
+  --value-size: 60px;
+  --unit-size: 40px;
+}
+
+.labelWrapper {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  & .valueWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+
+    & .value {
+      font-size: var(--value-size);
+      color: var(--value-color);
+    }
+
+    & .unit {
+      font-size: var(--unit-size);
+      color: var(--unit-color);
+    }
+  }
+
+  & .name {
+    font-size: var(--label-size);
+    color: var(--label-color);
+  }
+
+  & .dummy {
+    font-size: var(--label-size);
+    visibility: hidden;
+  }
+}

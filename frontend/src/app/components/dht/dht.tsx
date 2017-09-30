@@ -1,7 +1,8 @@
 import * as preact from "preact";
 import { SensorData } from "../../services/device";
-import { Gauge, Label } from "../gauge/gauge";
+import { Gauge } from "../gauge/gauge";
 import { JetGauge } from "../gauge/jet";
+import { Label } from "../gauge/label";
 import * as styles from "./dht.css";
 
 interface Props {

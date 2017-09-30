@@ -58,21 +58,3 @@ export const Gauge = (props: GaugeProps) => (
     <div title={props.errorTooltip} className={props.isError ? error : styles.hidden}/>
   </div>
 );
-
-interface LabelProps {
-  name: string;
-  value: number;
-  unit: string;
-  tooltip: string;
-}
-
-export const Label = (props: LabelProps) => (
-  <div className={styles.labelContent}>
-    <span className={styles.dummy}>{props.name}</span>
-    <div title={props.tooltip} className={styles.reading}>
-      <span className={styles.value}>{"" + props.value}</span>
-      <span className={styles.unit}>{props.unit}</span>
-    </div>
-    <span className={styles.labelName}>{props.name}</span>
-  </div>
-);
