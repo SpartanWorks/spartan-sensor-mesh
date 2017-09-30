@@ -1,6 +1,7 @@
 import * as preact from "preact";
 import { SensorData } from "../../services/device";
-import { Reading } from "../reading/reading";
+import { Label, Reading } from "../reading/reading";
+import { JetReading } from "../jet/jet";
 import * as styles from "./dht.css";
 
 interface Props {
@@ -9,62 +10,6 @@ interface Props {
   maxTemperature: number;
 }
 
-function interpolate(val: number, y0: number, x0: number, y1: number, x1: number): number {
-  return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
-}
-
-function jetBase(val: number): number {
-  if (val <= 0.125) {
-    return 0.0;
-  } else if (val <= 0.375) {
-    return interpolate(val, 0.0, 0.125, 1.0, 0.375);
-  } else if (val <= 0.625) {
-    return 1.0;
-  } else if (val <= 0.875) {
-    return interpolate(val, 1.0, 0.625, 0.0, 0.875);
-  } else {
-    return 0.0;
-  }
-}
-
-function hexify(val: number, padding: number): string {
-  let hex = Math.round(val * 255).toString(16);
-  while (hex.length < padding) {
-    hex = "0" + hex;
-  }
-  return hex;
-}
-
-function jet(base: number): string {
-  return "#" + hexify(jetBase(base - 0.25), 2) + hexify(jetBase(base), 2) + hexify(jetBase(base + 0.25), 2);
-}
-
-function clamp(val: number, min: number, max: number): number {
-  return Math.max(min, Math.min(val, max));
-}
-
-function normalize(val: number, min: number, max: number): number {
-  return (clamp(val, min, max) - min) / (max - min);
-}
-
-interface LabelProps {
-  label: string;
-  value: number;
-  unit: string;
-  tooltip: string;
-}
-
-export const Label = (props: LabelProps) => (
-  <div className={styles.labelWrapper}>
-    <span className={styles.dummy}>{props.label}</span>
-    <div title={props.tooltip} className={styles.reading}>
-      <span className={styles.value}>{"" + props.value}</span>
-      <span className={styles.unit}>{props.unit}</span>
-    </div>
-    <span className={styles.label}>{props.label}</span>
-  </div>
-);
-
 export const DHTSensor = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
@@ -72,21 +17,23 @@ export const DHTSensor = (props: Props) => (
                uncertainty={Math.sqrt(props.data.readings.humidity.variance) * 3.6}
                color="dodgerblue"
                isError={props.data.status === "error"}>
-      <Label label="Humidity"
-             value={Math.round(props.data.readings.humidity.mean)}
-             unit="%"
-             tooltip={"Averaged from last " + props.data.readings.humidity.samples + " readings."}/>
+        <Label name="Humidity"
+               value={Math.round(props.data.readings.humidity.mean)}
+               unit="%"
+               tooltip={"Averaged from last " + props.data.readings.humidity.samples + " readings."}/>
       </Reading>
     </div>
     <div className={styles.readingWrapper}>
-      <Reading progress={360}
-               color={jet(normalize(props.data.readings.temperature.mean, props.minTemperature, props.maxTemperature))}
+      <JetReading progress={360}
+               colorVal={props.data.readings.temperature.mean}
+               colorMin={props.minTemperature}
+               colorMax={props.maxTemperature}
                isError={props.data.status === "error"}>
-        <Label label="Temperature"
+        <Label name="Temperature"
                value={Math.round(props.data.readings.temperature.mean)}
                unit="°C"
                tooltip={"Averaged from last " + props.data.readings.temperature.samples + " readings."}/>
-      </Reading>
+      </JetReading>
     </div>
   </div>
 );
