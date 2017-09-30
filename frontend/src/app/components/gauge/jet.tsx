@@ -40,22 +40,24 @@ function normalize(val: number, min: number, max: number): number {
 }
 
 interface JetGaugeProps {
-  colorVal: number;
-  colorMin: number;
-  colorMax: number;
-  progress: number;
-  uncertainty?: number;
+  value: number;
+  variance?: number;
+  min: number;
+  max: number;
   errorTooltip: string;
   isError: boolean;
   children?: Array<preact.Component<any, any>>;
 }
 
-export const JetGauge = (props: JetGaugeProps) => (
-  <Gauge progress={props.progress}
-         uncertainty={props.uncertainty}
-         color={jet(normalize(props.colorVal, props.colorMin, props.colorMax))}
-         isError={props.isError}
-         errorTooltip={props.errorTooltip}>
-    {props.children}
-  </Gauge>
-);
+export const JetGauge = (props: JetGaugeProps) => {
+  const val = normalize(props.value, props.min, props.max);
+  return (
+    <Gauge progress={val * 360}
+           uncertainty={Math.sqrt(props.variance || 0.0) / (props.max - props.min) * 360}
+           color={jet(val)}
+           isError={props.isError}
+           errorTooltip={props.errorTooltip}>
+      {props.children}
+    </Gauge>
+  );
+}

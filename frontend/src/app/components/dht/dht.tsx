@@ -26,10 +26,10 @@ export const DHTSensor = (props: Props) => (
       </Gauge>
     </div>
     <div className={styles.readingWrapper}>
-      <JetGauge progress={360}
-                colorVal={props.data.readings.temperature.mean}
-                colorMin={props.minTemperature}
-                colorMax={props.maxTemperature}
+      <JetGauge value={props.data.readings.temperature.mean}
+                variance={props.data.readings.temperature.variance}
+                min={props.minTemperature}
+                max={props.maxTemperature}
                 isError={props.data.status === "error"}
                 errorTooltip="Sensor is not responding.">
         <Label name="Temperature"

@@ -15,10 +15,10 @@ interface ReadingProps {
 
 const Reading = (props: ReadingProps) => (
   <div className={styles.readingWrapper}>
-    <JetGauge progress={360}
-              colorVal={props.reading.mean}
-              colorMin={props.min}
-              colorMax={props.max}
+    <JetGauge value={props.reading.mean}
+              variance={props.reading.variance}
+              min={props.min}
+              max={props.max}
               isError={props.isError}
               errorTooltip={props.errorTooltip}>
       <Label name={props.name[0].toUpperCase() + props.name.substring(1)}
