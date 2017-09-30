@@ -2,7 +2,7 @@ import * as preact from "preact";
 import { SensorData, SensorReading } from "../../services/device";
 import { JetGauge } from "../gauge/jet";
 import { Label } from "../gauge/label";
-import * as styles from "./dallas.css";
+import * as styles from "../../styles/widget.css";
 
 interface ReadingProps {
   reading: SensorReading;
