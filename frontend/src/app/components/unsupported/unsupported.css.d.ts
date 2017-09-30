@@ -1,2 +1,2 @@
-export const wrapper: string;
+export const widget: string;
 export const sadPanda: string;
