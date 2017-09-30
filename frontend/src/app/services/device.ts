@@ -1,4 +1,4 @@
-export interface Reading {
+export interface SensorReading {
   value: number;
   mean: number;
   variance: number;
@@ -8,12 +8,13 @@ export interface Reading {
 }
 
 export interface SensorData {
-  humidity: Reading;
-  temperature: Reading;
+  type: string;
+  status: "ok" | "error";
   errors: number;
   measurements: number;
-  status: "ok" | "error";
-  type: string;
+  readings: {
+    [name: string]: SensorReading;
+  };
 }
 
 export interface DeviceData {

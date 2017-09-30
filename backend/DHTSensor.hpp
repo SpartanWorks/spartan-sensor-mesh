@@ -9,21 +9,15 @@
 
 class DHTSensor: public Sensor {
 private:
-  boolean error = true;
-  uint32_t nErrors = 0;
-  uint32_t nMeasurements = 0;
   WindowedReading<float, SAMPLE_BACKLOG> humidity;
   WindowedReading<float, SAMPLE_BACKLOG> temperature;
   DHT sensor;
 
 public:
-  DHTSensor(uint16_t pin, uint16_t model);
+  DHTSensor(uint8_t pin, uint8_t model);
   void begin();
   void update();
   String type() const;
-  String status() const;
-  uint32_t errors() const;
-  uint32_t measurements() const;
   String toJSON() const;
 };
 

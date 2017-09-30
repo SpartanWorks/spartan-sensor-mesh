@@ -1,0 +1,35 @@
+:root {
+  --reading-spacing-vertical: 10px;
+  --reading-spacing-horizontal: 25px;
+}
+
+.widgetWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+
+  & .readingWrapper {
+    margin: var(--reading-spacing-vertical);
+  }
+}
+
+@media only screen and (min-width: 520px) {
+  .widgetWrapper {
+    flex-direction: row;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .widgetWrapper {
+    flex-direction: row;
+    justify-content: center;
+
+    & .readingWrapper {
+      margin-top: var(--reading-spacing-vertical);
+      margin-bottom: var(--reading-spacing-vertical);
+      margin-left: var(--reading-spacing-horizontal);
+      margin-right: var(--reading-spacing-horizontal);
+    }
+  }
+}

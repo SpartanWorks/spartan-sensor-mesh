@@ -5,7 +5,7 @@
   --color: lightgray;
 }
 
-.wrapper {
+.widget {
   width: var(--widget-size);
   height: var(--widget-size);
   position: relative;
