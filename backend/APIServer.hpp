@@ -14,6 +14,7 @@ private:
   Device &device;
   FS &files;
 
+  void handleApiLogin();
   void handleApiConfig();
   void handleApiData();
   void handleWildcard();

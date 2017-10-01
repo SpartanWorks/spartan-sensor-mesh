@@ -34,8 +34,22 @@ bool connect(const String ssid, const String password) {
   return true;
 }
 
+void APIServer::handleApiLogin() {
+  Serial.println("Serving /api/config");
+
+  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+    return this->requestAuthentication();
+  }
+
+  this->send(200, "application/json", "{\"status\":\"ok}");
+}
+
 void APIServer::handleApiConfig() {
   Serial.println("Serving /api/config");
+
+  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+    this->send(401, "application/json", "{\"error\":\"Unauthorized.\"}");
+  }
 
   String ssid, pass;
 
@@ -50,9 +64,9 @@ void APIServer::handleApiConfig() {
   }
 
   if(connect(ssid, pass)) {
-    this->send(200, "text/plain", "OK!");
+    this->send(200, "application/json", "{\"status\":\"ok}");
   } else {
-    this->send(401, "text/plain", "Not authorized!");
+    this->send(403, "application/json", "{\"error\":\"Invalid credentials.\"}");
   }
 }
 
@@ -76,6 +90,7 @@ void APIServer::handleWildcard() {
 void APIServer::begin() {
   ESP8266WebServer::begin();
 
+  this->on("/api/login" ,       [this]() { this->handleApiLogin(); });
   this->on("/api/config",       [this]() { this->handleApiConfig(); });
   this->on("/api/data"  ,       [this]() { this->handleApiData(); });
   this->serveStatic("/static/", this->files, "/", "max-age=86400");
