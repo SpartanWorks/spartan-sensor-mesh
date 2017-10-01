@@ -3,6 +3,7 @@ import { SensorData } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { JetGauge } from "../gauge/jet";
 import { Label } from "../gauge/label";
+import { labelSmall } from "../gauge/label.css";
 
 interface Props {
   data: SensorData;
@@ -14,7 +15,7 @@ interface Props {
 
 export const BMPSensor = (props: Props) => (
   <div className={styles.widgetWrapper}>
-    <div className={styles.readingWrapper}>
+    <div className={styles.readingWrapper + " " + labelSmall}>
       <JetGauge value={props.data.readings.pressure.mean}
                 variance={props.data.readings.pressure.variance}
                 min={props.minPressure}
