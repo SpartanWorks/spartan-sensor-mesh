@@ -23,7 +23,7 @@ export const BMPSensor = (props: Props) => (
                 isError={props.data.status === "error"}
                 errorTooltip="Sensor is not responding.">
         <Label name="Pressure"
-               value={Math.round(props.data.readings.pressure.mean)}
+               value={Math.round(props.data.readings.pressure.mean / 100.0)}
                unit="hPa"
                tooltip={"Averaged from last " + props.data.readings.pressure.samples + " readings."}/>
       </JetGauge>
