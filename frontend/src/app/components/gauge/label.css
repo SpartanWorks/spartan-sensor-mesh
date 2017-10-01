@@ -1,6 +1,6 @@
 :root {
   --label-color: lightgray;
-  --label-size: 20px;
+  --label-size: 25px;
   --value-color: gray;
   --unit-color: var(--value-color);
   --value-size: 70px;
@@ -35,8 +35,12 @@
   }
 
   & .name {
+    max-width: 67%;
     font-size: var(--label-size);
     color: var(--label-color);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   & .dummy {
