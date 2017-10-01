@@ -1,5 +1,6 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
+import { BMPSensor } from "../../components/bmp/bmp";
 import { DallasTemperatureSensor } from "../../components/dallas/dallas";
 import { DHTSensor } from "../../components/dht/dht";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
@@ -19,6 +20,8 @@ function selectSensor(data: SensorData) {
     return <DHTSensor data={data} minTemperature={11} maxTemperature={37}/>;
   case "DallasTemperature":
     return <DallasTemperatureSensor data={data} minTemperature={11} maxTemperature={37}/>;
+  case "BMP":
+    return <BMPSensor data={data} minTemperature={11} maxTemperature={37} minPressure={980} maxPressure={1020}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
