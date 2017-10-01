@@ -1,24 +1,26 @@
-#include "DHTSensor.hpp"
+#include "BMPSensor.hpp"
 
-DHTSensor::DHTSensor(uint8_t pin, uint8_t model):
-    sensor(DHT(pin, model)),
-    humidity(WindowedReading<float, SAMPLE_BACKLOG>()),
-    temperature(WindowedReading<float, SAMPLE_BACKLOG>())
+BMPSensor::BMPSensor(uint8_t da, uint8_t cl, uint8_t addr):
+    sda(da),
+    scl(cl),
+    address(addr),
+    sensor(Adafruit_BMP280())
 {
   this->sStatus = "error";
-  this->sType = "DHT";
+  this->sType = "BMP";
 }
 
-void DHTSensor::begin() {
-  this->sensor.begin();
+void BMPSensor::begin() {
+  Wire.begin(this->sda, this->scl);
+  this->sensor.begin(this->address);
 }
 
-void DHTSensor::update() {
-  float hum = this->sensor.readHumidity();
+void BMPSensor::update() {
+  float press = this->sensor.readPressure();
   float temp = this->sensor.readTemperature();
 
-  if(!isnan(hum) && !isnan(temp)) {
-    this->humidity.add(hum);
+  if(!isnan(press) && !isnan(temp)) {
+    this->pressure.add(press);
     this->temperature.add(temp);
     this->nMeasurements++;
     this->sStatus = "ok";
@@ -28,14 +30,14 @@ void DHTSensor::update() {
   }
 }
 
-String DHTSensor::toJSON() const {
+String BMPSensor::toJSON() const {
   String json = "{";
   json += "\"type\":\"" + this->type() + "\"";
   json += ",\"status\":\"" + this->status() + "\"";
   json += ",\"errors\":" + String(this->errors());
   json += ",\"measurements\":" + String(this->measurements());
   json += ",\"readings\":{";
-  json += "\"humidity\":" + this->humidity.toJSON();
+  json += "\"pressure\":" + this->pressure.toJSON();
   json += ",\"temperature\":" + this->temperature.toJSON();
   json += "}}";
   return json;

@@ -17,7 +17,6 @@ public:
   DHTSensor(uint8_t pin, uint8_t model);
   void begin();
   void update();
-  String type() const;
   String toJSON() const;
 };
 

@@ -20,7 +20,6 @@ public:
   ~DallasTempSensor();
   void begin();
   void update();
-  String type() const;
   String toJSON() const;
 };
 

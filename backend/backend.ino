@@ -4,6 +4,7 @@
 #include "APIServer.hpp"
 #include "DHTSensor.hpp"
 #include "DallasTempSensor.hpp"
+#include "BMPSensor.hpp"
 #include "Device.hpp"
 #include <FS.h>
 
@@ -63,8 +64,10 @@ void setup(void){
     f.close();
   }
 
-  device.attach(new DHTSensor(2, DHT22));
-  device.attach(new DallasTempSensor(0, 12));
+  // device.attach(new DHTSensor(0, DHT11));
+  // device.attach(new DHTSensor(2, DHT22));
+  // device.attach(new DallasTempSensor(0, 12));
+  device.attach(new BMPSensor(2, 0, 0x76));
   device.begin();
   readSensor(0);
   Serial.println("Device initialized");

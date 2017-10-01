@@ -7,6 +7,7 @@ DallasTempSensor::DallasTempSensor(uint8_t pin, uint8_t resolution):
   this->sensors.setResolution(resolution);
   this->sensors.setWaitForConversion(false);
   this->sStatus = "error";
+  this->sType = "DallasTemperature";
 }
 
 DallasTempSensor::~DallasTempSensor() {
@@ -37,10 +38,6 @@ void DallasTempSensor::update() {
   }
 
   this->sensors.requestTemperatures();
-}
-
-String DallasTempSensor::type() const {
-  return "DallasTemperature";
 }
 
 String DallasTempSensor::toJSON() const {

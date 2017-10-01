@@ -15,6 +15,6 @@ export const Label = (props: LabelProps) => (
       <span className={styles.value}>{props.value}</span>
       <span className={styles.unit}>{props.unit}</span>
     </div>
-    <span className={styles.name}>{props.name}</span>
+    <span title={props.name} className={styles.name}>{props.name}</span>
   </div>
 );
