@@ -6,6 +6,7 @@ DHTSensor::DHTSensor(uint8_t pin, uint8_t model):
     temperature(WindowedReading<float, SAMPLE_BACKLOG>())
 {
   this->sStatus = "error";
+  this->sType = "DHT";
 }
 
 void DHTSensor::begin() {
@@ -25,10 +26,6 @@ void DHTSensor::update() {
     this->nErrors++;
     this->sStatus = "error";
   }
-}
-
-String DHTSensor::type() const {
-  return "DHT";
 }
 
 String DHTSensor::toJSON() const {
