@@ -1,7 +1,7 @@
 import { action, observable } from "mobx";
 import { DeviceData } from "../services/device";
 
-export class MainStore {
+export class DashboardStore {
   @observable
   dataLoaded = false;
 
