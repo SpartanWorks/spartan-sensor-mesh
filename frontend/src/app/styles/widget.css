@@ -1,3 +1,5 @@
+@import "app/styles/fadein.css";
+
 :root {
   --reading-spacing-vertical: 10px;
   --reading-spacing-horizontal: 25px;
@@ -37,22 +39,5 @@
       margin-left: var(--reading-spacing-horizontal);
       margin-right: var(--reading-spacing-horizontal);
     }
-  }
-}
-
-@keyframes fadeIn {
-  0% {
-    transform: scale(0.99);
-    opacity: 0.0;
-  }
-
-  60% {
-    transform: scale(1.01);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
   }
 }

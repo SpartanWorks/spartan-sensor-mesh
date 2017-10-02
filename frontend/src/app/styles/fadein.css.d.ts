@@ -1,0 +1,1 @@
+export const fadeIn: string;
