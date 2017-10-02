@@ -8,10 +8,14 @@
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  animation: fade-in 0.5s ease-in-out;
+  animation: fadeIn 0.5s normal ease-in-out;
 
   & .readingWrapper {
     margin: var(--reading-spacing-vertical);
+  }
+
+  & .readingWrapper:hover {
+    animation: grow 0.3s normal forwards ease-in-out;
   }
 }
 
@@ -35,7 +39,7 @@
   }
 }
 
-@keyframes fade-in {
+@keyframes fadeIn {
   0% {
     transform: scale(0.99);
     opacity: 0.0;
@@ -49,5 +53,15 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes grow {
+  0% {
+    transform: scale(1.0);
+  }
+
+  100% {
+    transform: scale(1.05);
   }
 }
