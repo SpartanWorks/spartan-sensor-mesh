@@ -14,7 +14,7 @@ interface Props {
   store: DashboardStore;
 }
 
-function selectSensor(data: SensorData) {
+function renderSensor(data: SensorData) {
   switch (data.type) {
   case "DHT":
     return <DHTSensor data={data} minTemperature={11} maxTemperature={37}/>;
@@ -25,14 +25,6 @@ function selectSensor(data: SensorData) {
   default:
     return <UnsupportedSensor data={data}/>;
   }
-}
-
-function renderSensor(data: SensorData) {
-  return (
-    <div className={styles.widgetWrapper}>
-      { selectSensor(data) }
-    </div>
-  );
 }
 
 @observer
