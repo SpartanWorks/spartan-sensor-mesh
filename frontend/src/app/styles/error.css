@@ -18,5 +18,16 @@
 
   visibility: visible;
   opacity: 1;
-  transition: opacity 0.5s;
+  transition: opacity 0.5s ease-in-out;
+  animation: grow 0.3s infinite alternate ease-in-out;
+}
+
+@keyframes grow {
+  from {
+    transform: scale(0.95);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
 }
