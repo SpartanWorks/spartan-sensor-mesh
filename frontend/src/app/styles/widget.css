@@ -1,3 +1,5 @@
+@import "app/styles/fadein.css";
+
 :root {
   --reading-spacing-vertical: 10px;
   --reading-spacing-horizontal: 25px;
@@ -8,10 +10,15 @@
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  animation: fade-in 0.5s ease-in-out;
+  animation: fadeIn 0.5s normal ease-in-out;
 
   & .readingWrapper {
     margin: var(--reading-spacing-vertical);
+    transition: all 0.3s ease-in-out;
+  }
+
+  & .readingWrapper:hover {
+    transform: scale(1.05);
   }
 }
 
@@ -32,22 +39,5 @@
       margin-left: var(--reading-spacing-horizontal);
       margin-right: var(--reading-spacing-horizontal);
     }
-  }
-}
-
-@keyframes fade-in {
-  0% {
-    transform: scale(0.99);
-    opacity: 0.0;
-  }
-
-  60% {
-    transform: scale(1.01);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
   }
 }

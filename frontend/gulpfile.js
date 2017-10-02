@@ -18,10 +18,12 @@ const uglify = require("gulp-uglify");
 const prod = process.env.ENV === "prod";
 
 const postcss = [ // order matters
+  require("postcss-import")({
+    path: ["./src/"]
+  }),
   require("postcss-cssnext")({
     warnForDuplicates: !prod
   }),
-  require("postcss-import"),
   require("postcss-assets")({
     loadPaths: ["./src/"]
   }),
