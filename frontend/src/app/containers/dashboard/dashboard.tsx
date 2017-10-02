@@ -7,11 +7,11 @@ import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
 import { SensorData } from "../../services/device";
-import { MainStore } from "../../store/main";
+import { DashboardStore } from "../../store/dashboard";
 import * as styles from "./dashboard.css";
 
 interface Props {
-  store: MainStore;
+  store: DashboardStore;
 }
 
 function selectSensor(data: SensorData) {
