@@ -53,21 +53,13 @@ const LoginForm = (props: LoginFormProps) => {
   );
 };
 
-function renderLoginState(store: ConfigStore) {
+function renderPage(store: ConfigStore) {
   switch (store.loginState) {
   case "logged-out":
   case "failed":
     return <LoginForm onSubmit={store.logIn}/>;
   case "success":
-    return <ConfigForm onSubmit={(ssid: string, pass: string) => {
-      fetch("/api/config?ssid=" + encodeURI(ssid) + "&pass=" + encodeURI(pass))
-        .then((response) => response.json())
-        .then(() => {
-          alert("Saved!");
-        }).catch(() => {
-          alert("Could not save the network configuration!");
-        });
-    }}/>;
+    return (store.wifiSetupState === "in-progress") ? <Spinner/> : <ConfigForm onSubmit={store.setupWifi}/>;
   default:
     return <Spinner/>;
   }
@@ -83,7 +75,7 @@ export class Config extends preact.Component<Props, any> {
     return (
       <div className={styles.mainWrapper}>
         <div className={styles.displayWrapper}>
-        { renderLoginState(this.props.store) }
+        { renderPage(this.props.store) }
         </div>
         <RedirectButton to={"/"} icon={iconChart} tooltip="Go back to sensor readings."/>
       </div>
