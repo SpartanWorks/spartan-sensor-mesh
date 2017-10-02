@@ -22,15 +22,7 @@ export class ConfigStore {
     this.loginState = "in-progress";
 
     this.config.logIn(login, password).then((resp) => {
-      if (resp.ok) {
-        this.loginSuccessful();
-      } else {
-        console.error({
-          error: "Login failed.",
-          cause: resp
-        });
-        this.loginFailed();
-      }
+      this.loginSuccessful();
     }).catch((e) => {
       console.error({
         error: "Login failed.",
@@ -54,24 +46,15 @@ export class ConfigStore {
   setupWifi(ssid: string, pass: string) {
     this.wifiSetupState = "in-progress";
 
-    this.config.setupWifi(ssid, pass)
-      .then((resp) => {
-        if (resp.ok) {
-          this.wifiSetupSuccessful();
-        } else {
-        this.wifiSetupFailed();
-          console.error({
-            error: "Could not setup WiFi.",
-            cause: resp
-          });
-        }
-      }).catch((e) => {
-        this.wifiSetupFailed();
-        console.error({
-          error: "Could not setup WiFi.",
-          cause: e
-        });
+    this.config.setupWifi(ssid, pass).then((resp) => {
+      this.wifiSetupSuccessful();
+    }).catch((e) => {
+      this.wifiSetupFailed();
+      console.error({
+        error: "Could not setup WiFi.",
+        cause: e
       });
+    });
   }
 
   @action.bound
