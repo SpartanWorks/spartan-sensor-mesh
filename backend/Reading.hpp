@@ -34,7 +34,7 @@ public:
   }
 
   virtual T variance() const {
-    return (count > 1) ? (var / (count - 1)) : ((T) 0);
+    return (count > 1) ? max(0, var / (count - 1)) : ((T) 0);
   }
 
   virtual T value() const {
@@ -120,7 +120,7 @@ public:
   }
 
   virtual T variance() const {
-    return (this->count > windowSize) ? (this->var / (windowSize - 1)) : Reading<T>::variance();
+    return (this->count > windowSize) ? max(0, this->var / (windowSize - 1)) : Reading<T>::variance();
   }
 
   virtual uint32_t samples() const {
