@@ -5,8 +5,6 @@
   --unit-color: var(--value-color);
   --value-size: 70px;
   --unit-size: calc(var(--value-size) * 0.67);
-  --value-size-small: 50px;
-  --unit-size-small: calc(var(--value-size-small) * 0.67);
 }
 
 .labelWrapper {
@@ -46,17 +44,5 @@
   & .dummy {
     font-size: var(--label-size);
     visibility: hidden;
-  }
-}
-
-.labelSmall {
-  & .valueWrapper {
-    & .value {
-      font-size: var(--value-size-small);
-    }
-
-    & .unit {
-      font-size: var(--unit-size-small);
-    }
   }
 }

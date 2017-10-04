@@ -4,4 +4,3 @@ export const value: string;
 export const unit: string;
 export const name: string;
 export const dummy: string;
-export const labelSmall: string;
