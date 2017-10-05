@@ -21,7 +21,7 @@ function renderSensor(data: SensorData) {
   case "DallasTemperature":
     return <DallasTemperatureSensor data={data} minTemperature={11} maxTemperature={37}/>;
   case "BMP":
-    return <BMPSensor data={data} minTemperature={11} maxTemperature={37} minPressure={98000} maxPressure={102000}/>;
+    return <BMPSensor data={data} minTemperature={11} maxTemperature={37} minPressure={95000} maxPressure={105000}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
