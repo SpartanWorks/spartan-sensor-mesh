@@ -1,26 +1,26 @@
 import * as preact from "preact";
-import { SensorReading } from "../../services/device";
+import { SensorData } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { Gauge } from "../gauge/gauge";
 import { Label } from "../gauge/label";
 
 interface Props {
-  reading: SensorReading;
-  name: string;
-  isError: boolean;
+  data: SensorData;
 }
 
 export const Humidity = (props: Props) => (
-  <div className={styles.readingWrapper}>
-    <Gauge progress={props.reading.mean * 3.6}
-           uncertainty={Math.sqrt(props.reading.variance) * 3.6}
-           color="dodgerblue"
-           isError={props.isError}
-           errorTooltip="Sensor is not responding.">
-      <Label name={props.name}
-             value={Math.round(props.reading.mean)}
-             unit="%"
-             tooltip={"Averaged from last " + props.reading.samples + " readings."}/>
-    </Gauge>
+  <div className={styles.widgetWrapper}>
+    <div className={styles.readingWrapper}>
+      <Gauge progress={props.data.reading.mean * 3.6}
+             uncertainty={Math.sqrt(props.data.reading.variance) * 3.6}
+             color="dodgerblue"
+             isError={props.data.status === "error"}
+             errorTooltip="Sensor is not responding.">
+        <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
+               value={Math.round(props.data.reading.mean)}
+               unit="%"
+               tooltip={"Averaged from last " + props.data.reading.samples + " readings."}/>
+      </Gauge>
+    </div>
   </div>
 );
