@@ -29,7 +29,6 @@ export const DHTSensor = (props: Props) => (
                  name="Temperature"
                  min={props.minTemperature}
                  max={props.maxTemperature}
-                 isError={props.data.status === "error"}
-                 errorTooltip="Sensor is not responding."/>
+                 isError={props.data.status === "error"}/>
   </div>
 );

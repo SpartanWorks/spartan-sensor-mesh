@@ -10,7 +10,6 @@ interface Props {
   min: number;
   max: number;
   isError: boolean;
-  errorTooltip: string;
 }
 
 export const Temperature = (props: Props) => (
@@ -20,7 +19,7 @@ export const Temperature = (props: Props) => (
               min={props.min}
               max={props.max}
               isError={props.isError}
-              errorTooltip={props.errorTooltip}>
+              errorTooltip="Sensor is not responding.">
       <Label name={props.name[0].toUpperCase() + props.name.substring(1)}
              value={Math.round(props.reading.mean)}
              unit="°C"

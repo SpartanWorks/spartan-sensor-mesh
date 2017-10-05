@@ -17,8 +17,7 @@ export const DallasTemperatureSensor = (props: Props) => (
                      name={r}
                      min={props.minTemperature}
                      max={props.maxTemperature}
-                     isError={props.data.status === "error"}
-                     errorTooltip="Sensor is not responding."/>
+                     isError={props.data.status === "error"}/>
       ))
     }
   </div>
