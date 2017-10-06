@@ -29,6 +29,6 @@ void BMPHub::update() {
 }
 
 void BMPHub::connect(Device *d) {
-  d->attach(new Sensor("BMP", "pressure", "pressure", this->pressure));
-  d->attach(new Sensor("BMP", "temperature", "temperature", this->temperature));
+  d->attach(new Sensor("BMP", "pressure", "pressure", &this->pressure));
+  d->attach(new Sensor("BMP", "temperature", "temperature", &this->temperature));
 }

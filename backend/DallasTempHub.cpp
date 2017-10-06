@@ -41,6 +41,6 @@ void DallasTempHub::update() {
 
 void DallasTempHub::connect(Device *d) {
   for(uint8_t i = 0; i < this->nSensors; ++i) {
-    d->attach(new Sensor("DallasTemperature", "temperature", "temperature" + String(i), this->temperatures[i]));
+    d->attach(new Sensor("DallasTemperature", "temperature", "temperature" + String(i), &this->temperatures[i]));
   }
 }

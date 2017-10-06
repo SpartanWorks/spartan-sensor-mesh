@@ -27,6 +27,6 @@ void DHTHub::update() {
 }
 
 void DHTHub::connect(Device *d) {
-  d->attach(new Sensor("DHT", "humidity", "pressure", this->humidity));
-  d->attach(new Sensor("DHT", "temperature", "temperature", this->temperature));
+  d->attach(new Sensor("DHT", "humidity", "pressure", &this->humidity));
+  d->attach(new Sensor("DHT", "temperature", "temperature", &this->temperature));
 }

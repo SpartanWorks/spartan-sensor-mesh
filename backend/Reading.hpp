@@ -96,7 +96,7 @@ protected:
   T window[windowSize];
   uint16_t index = 0;
 
-  void updateMean(T s) {
+  virtual void updateMean(T s) {
     if (this->count > windowSize) {
       T oldMean = this->meanS;
       this->meanS += s/windowSize - window[index]/windowSize;
@@ -113,7 +113,7 @@ public:
     }
   }
 
-  void add(T s) {
+  virtual void add(T s) {
     Reading<T>::add(s);
     window[index] = s;
     index = (index + 1) % windowSize;
