@@ -2,32 +2,28 @@
 #define __SENSOR_HPP__
 
 #include <Arduino.h>
+#include "Reading.hpp"
 
 class Sensor {
 protected:
+  String sModel = "";
+  String sType = "";
+  String sName = "";
+  String sStatus = "init";
   uint32_t nErrors = 0;
   uint32_t nMeasurements = 0;
-  String sStatus = "";
-  String sType = "";
+  Reading<float> &sReading;
 
 public:
-  virtual ~Sensor() {}
-  virtual void begin() = 0;
-  virtual void update() = 0;
-  virtual String toJSON() const = 0;
-
-  virtual String type() const {
-    return sType;
-  }
-  virtual String status() const {
-    return sStatus;
-  }
-  virtual uint32_t errors() const {
-    return nErrors;
-  }
-  virtual uint32_t measurements() const {
-    return nMeasurements;
-  }
+  Sensor(String model, String type, String name, Reading<float> &reading);
+  virtual String model() const;
+  virtual String type() const;
+  virtual String name() const;
+  virtual String status() const;
+  virtual uint32_t errors() const;
+  virtual uint32_t measurements() const;
+  virtual Reading<float> reading() const;
+  virtual String toJSON() const;
 };
 
 #endif

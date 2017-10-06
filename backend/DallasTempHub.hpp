@@ -1,14 +1,16 @@
-#ifndef __DALLAS_TEMP_SENSOR_HPP__
-#define __DALLAS_TEMP_SENSOR_HPP__
+#ifndef __DALLASTEMPHUB_HPP__
+#define __DALLASTEMPHUB_HPP__
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include "Sensor.hpp"
+#include "SensorHub.hpp"
+#include "Device.hpp"
 #include "Reading.hpp"
 
 #define SAMPLE_BACKLOG 30
 
-class DallasTempSensor: public Sensor {
+class DallasTempHub: public SensorHub {
 private:
   OneWire oneWire;
   DallasTemperature sensors;
@@ -16,11 +18,11 @@ private:
   WindowedReading<float, SAMPLE_BACKLOG> *temperatures;
 
 public:
-  DallasTempSensor(uint8_t pin, uint8_t resolution);
-  ~DallasTempSensor();
+  DallasTempHub(uint8_t pin, uint8_t resolution);
+  ~DallasTempHub();
   void begin();
   void update();
-  String toJSON() const;
+  void connect(Device *d);
 };
 
 #endif

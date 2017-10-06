@@ -15,16 +15,8 @@ void Device::attach(Sensor *s) {
   list = new List<Sensor*>(s, list);
 }
 
-void Device::begin() {
-  foreach<Sensor*>(list, [](Sensor *s) {
-    s->begin();
-  });
-}
-
-void Device::update() {
-  foreach<Sensor*>(list, [](Sensor *s) {
-    s->update();
-  });
+void Device::attach(SensorHub *s) {
+  s->connect(this);
 }
 
 String Device::model() const {

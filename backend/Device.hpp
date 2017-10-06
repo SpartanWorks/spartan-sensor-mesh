@@ -4,6 +4,7 @@
 #include <functional>
 #include <Arduino.h>
 #include "Sensor.hpp"
+#include "SensorHub.hpp"
 
 template<typename T>
 class List {
@@ -36,8 +37,7 @@ public:
   Device(String n, String p, String g);
 
   virtual void attach(Sensor *s);
-  virtual void begin();
-  virtual void update();
+  virtual void attach(SensorHub *s);
   virtual String model() const;
   virtual String name() const;
   virtual String password() const;
