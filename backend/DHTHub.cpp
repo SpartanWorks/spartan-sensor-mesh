@@ -2,8 +2,8 @@
 
 DHTHub::DHTHub(uint8_t pin, uint8_t model):
     sensor(DHT(pin, model)),
-    humidity(WindowedReading<float, SAMPLE_BACKLOG>()),
-    temperature(WindowedReading<float, SAMPLE_BACKLOG>())
+    humidity(Sensor("DHT", "humidity", "humidity", new WindowedReading<float, SAMPLE_BACKLOG>())),
+    temperature(Sensor("DHT", "temperature", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void DHTHub::begin() {
@@ -11,22 +11,11 @@ void DHTHub::begin() {
 }
 
 void DHTHub::update() {
-  float hum = this->sensor.readHumidity();
-  float temp = this->sensor.readTemperature();
-
-  if(!isnan(hum) && !isnan(temp)) {
-    this->humidity.add(hum);
-    this->temperature.add(temp);
-    // TODO Handle errors.
-    // this->nMeasurements++;
-    // this->sStatus = "ok";
-  } else {
-    // this->nErrors++;
-    // this->sStatus = "error";
-  }
+  this->humidity.add(this->sensor.readHumidity());
+  this->temperature.add(this->sensor.readTemperature());
 }
 
 void DHTHub::connect(Device *d) {
-  d->attach(new Sensor("DHT", "humidity", "pressure", &this->humidity));
-  d->attach(new Sensor("DHT", "temperature", "temperature", &this->temperature));
+  d->attach(&this->humidity);
+  d->attach(&this->temperature);
 }

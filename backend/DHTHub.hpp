@@ -11,9 +11,9 @@
 
 class DHTHub: public SensorHub {
 private:
-  WindowedReading<float, SAMPLE_BACKLOG> humidity;
-  WindowedReading<float, SAMPLE_BACKLOG> temperature;
   DHT sensor;
+  Sensor humidity;
+  Sensor temperature;
 
 public:
   DHTHub(uint8_t pin, uint8_t model);
