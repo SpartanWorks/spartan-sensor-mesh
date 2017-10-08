@@ -7,15 +7,23 @@
 #include "SensorHub.hpp"
 #include "Device.hpp"
 #include "Reading.hpp"
+#include "List.hpp"
 
 #define SAMPLE_BACKLOG 30
+
+struct Temp {
+  uint8_t index = 0;
+  Sensor *sensor = nullptr;
+
+  Temp(int i, Sensor *s): sensor(s), index(i) {}
+};
 
 class DallasTempHub: public SensorHub {
 private:
   OneWire oneWire;
   DallasTemperature sensors;
   uint8_t nSensors = 0;
-  WindowedReading<float, SAMPLE_BACKLOG> *temperatures;
+  List<Temp> *temperatures = nullptr;
 
 public:
   DallasTempHub(uint8_t pin, uint8_t resolution);

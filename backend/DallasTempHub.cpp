@@ -9,7 +9,10 @@ DallasTempHub::DallasTempHub(uint8_t pin, uint8_t resolution):
 }
 
 DallasTempHub::~DallasTempHub() {
-  if(this->temperatures != nullptr) {
+  if (this->temperatures != nullptr) {
+    foreach<Temp>(this->temperatures, [](Temp t) {
+      delete t.sensor;
+    });
     delete this->temperatures;
   }
 }
@@ -17,30 +20,28 @@ DallasTempHub::~DallasTempHub() {
 void DallasTempHub::begin() {
   this->sensors.begin();
   this->nSensors = this->sensors.getDeviceCount();
-  this->temperatures = new WindowedReading<float, SAMPLE_BACKLOG>[this->nSensors];
+  for(uint8_t i = 0; i < this->nSensors; ++i) {
+    Reading<float> *r = new WindowedReading<float, SAMPLE_BACKLOG>();
+    Sensor *s = new Sensor("DallasTemperature", "temperature", "temperature" + String(i), r);
+    this->temperatures = new List<Temp>(Temp(i, s), this->temperatures);
+  }
   this->sensors.requestTemperatures();
 }
 
 void DallasTempHub::update() {
-  for(uint8_t i = 0; i < this->nSensors; ++i) {
-    float temp = this->sensors.getTempCByIndex(i);
-
-    if(!isnan(temp) && temp != DEVICE_DISCONNECTED_C && temp != DEVICE_DISCONNECTED_RAW) {
-      this->temperatures[i].add(temp);
-      // TODO Handle errors.
-      // this->nMeasurements++;
-      // this->sStatus = "ok";
+  foreach<Temp>(this->temperatures, [this](Temp t) {
+    float temp = this->sensors.getTempCByIndex(t.index);
+    if(temp != DEVICE_DISCONNECTED_C && temp != DEVICE_DISCONNECTED_RAW) {
+      t.sensor->add(temp);
     } else {
-      // this->sStatus = "error";
-      // this->nErrors++;
+      t.sensor->add(NAN);
     }
-  }
-
+  });
   this->sensors.requestTemperatures();
 }
 
 void DallasTempHub::connect(Device *d) {
-  for(uint8_t i = 0; i < this->nSensors; ++i) {
-    d->attach(new Sensor("DallasTemperature", "temperature", "temperature" + String(i), &this->temperatures[i]));
-  }
+  foreach<Temp>(this->temperatures, [d](Temp t) {
+    d->attach(t.sensor);
+  });
 }
