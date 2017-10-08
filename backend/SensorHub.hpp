@@ -11,7 +11,7 @@ public:
   virtual ~SensorHub() {}
   virtual void begin() = 0;
   virtual void update() = 0;
-  virtual void connect(Device *d) = 0;
+  virtual void connect(Device *d) const = 0;
 };
 
 #endif

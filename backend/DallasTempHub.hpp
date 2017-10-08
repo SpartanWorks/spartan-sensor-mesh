@@ -30,7 +30,7 @@ public:
   ~DallasTempHub();
   void begin();
   void update();
-  void connect(Device *d);
+  void connect(Device *d) const;
 };
 
 #endif

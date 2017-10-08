@@ -11,7 +11,7 @@ private:
   String dName;
   String dPass;
   String dGroup;
-  List<Sensor*> *list;
+  List<const Sensor*> *list;
 
 public:
   Device(String p);
@@ -19,8 +19,8 @@ public:
   Device(String n, String p, String g);
   ~Device();
 
-  virtual void attach(Sensor *s);
-  virtual void attach(SensorHub *s);
+  virtual void attach(const Sensor *s);
+  virtual void attach(const SensorHub *s);
   virtual String model() const;
   virtual String name() const;
   virtual String password() const;

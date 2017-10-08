@@ -40,7 +40,7 @@ void DallasTempHub::update() {
   this->sensors.requestTemperatures();
 }
 
-void DallasTempHub::connect(Device *d) {
+void DallasTempHub::connect(Device *d) const {
   foreach<Temp>(this->temperatures, [d](Temp t) {
     d->attach(t.sensor);
   });

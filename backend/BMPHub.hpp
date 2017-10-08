@@ -23,7 +23,7 @@ public:
   BMPHub(uint8_t sda, uint8_t scl, uint8_t addr);
   void begin();
   void update();
-  void connect(Device *d);
+  void connect(Device *d) const;
 };
 
 #endif

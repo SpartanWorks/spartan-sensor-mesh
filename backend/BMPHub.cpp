@@ -19,7 +19,7 @@ void BMPHub::update() {
   this->temperature.add(this->sensor.readTemperature());
 }
 
-void BMPHub::connect(Device *d) {
+void BMPHub::connect(Device *d) const {
   d->attach(&this->pressure);
   d->attach(&this->temperature);
 }

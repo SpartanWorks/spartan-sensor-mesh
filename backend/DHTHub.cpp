@@ -15,7 +15,7 @@ void DHTHub::update() {
   this->temperature.add(this->sensor.readTemperature());
 }
 
-void DHTHub::connect(Device *d) {
+void DHTHub::connect(Device *d) const {
   d->attach(&this->humidity);
   d->attach(&this->temperature);
 }

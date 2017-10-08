@@ -19,7 +19,7 @@ public:
   DHTHub(uint8_t pin, uint8_t model);
   void begin();
   void update();
-  void connect(Device *d);
+  void connect(Device *d) const;
 };
 
 #endif
