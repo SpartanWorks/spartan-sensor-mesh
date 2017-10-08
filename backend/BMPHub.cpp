@@ -4,7 +4,9 @@ BMPHub::BMPHub(uint8_t da, uint8_t cl, uint8_t addr):
     sda(da),
     scl(cl),
     address(addr),
-    sensor(Adafruit_BMP280())
+    sensor(Adafruit_BMP280()),
+    pressure(Sensor("BMP", "pressure", "pressure", new WindowedReading<float, SAMPLE_BACKLOG>())),
+    temperature(Sensor("BMP", "temperature", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void BMPHub::begin() {
@@ -13,22 +15,11 @@ void BMPHub::begin() {
 }
 
 void BMPHub::update() {
-  float press = this->sensor.readPressure();
-  float temp = this->sensor.readTemperature();
-
-  if(!isnan(press) && !isnan(temp)) {
-    this->pressure.add(press);
-    this->temperature.add(temp);
-    // TODO Handle errors.
-    // this->nMeasurements++;
-    // this->sStatus = "ok";
-  } else {
-    // this->nErrors++;
-    // this->sStatus = "error";
-  }
+  this->pressure.add(this->sensor.readPressure());
+  this->temperature.add(this->sensor.readTemperature());
 }
 
 void BMPHub::connect(Device *d) {
-  d->attach(new Sensor("BMP", "pressure", "pressure", &this->pressure));
-  d->attach(new Sensor("BMP", "temperature", "temperature", &this->temperature));
+  d->attach(&this->pressure);
+  d->attach(&this->temperature);
 }

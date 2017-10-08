@@ -16,8 +16,8 @@ private:
   uint8_t sda;
   uint8_t scl;
   Adafruit_BMP280 sensor;
-  WindowedReading<float, SAMPLE_BACKLOG> pressure;
-  WindowedReading<float, SAMPLE_BACKLOG> temperature;
+  Sensor pressure;
+  Sensor temperature;
 
 public:
   BMPHub(uint8_t sda, uint8_t scl, uint8_t addr);
