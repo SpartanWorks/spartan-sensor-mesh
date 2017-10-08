@@ -17,6 +17,7 @@ public:
   Device(String p);
   Device(String n, String p);
   Device(String n, String p, String g);
+  ~Device();
 
   virtual void attach(Sensor *s);
   virtual void attach(SensorHub *s);

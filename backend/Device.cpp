@@ -11,6 +11,12 @@ Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g), lis
   dGroup = (dGroup == "") ? dName : dGroup;
 }
 
+Device::~Device() {
+  if (this->list != nullptr) {
+    delete this->list;
+  }
+}
+
 void Device::attach(Sensor *s) {
   list = new List<Sensor*>(s, list);
 }
