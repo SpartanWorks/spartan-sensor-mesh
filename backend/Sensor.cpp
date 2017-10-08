@@ -1,8 +1,14 @@
 #include "Sensor.hpp"
 
-Sensor::Sensor(String model, String type, String name, const Reading<float> *reading):
+Sensor::Sensor(String model, String type, String name, Reading<float> *reading):
     sModel(model), sType(type), sName(name), sReading(reading)
 {}
+
+Sensor::~Sensor() {
+  if (this->sReading != nullptr) {
+    delete this->sReading;
+  }
+}
 
 String Sensor::model() const {
   return sModel;
@@ -30,6 +36,17 @@ uint32_t Sensor::measurements() const {
 
 const Reading<float>* Sensor::reading() const {
   return sReading;
+}
+
+void Sensor::add(float s) {
+  if (!isnan(s)) {
+    this->sReading->add(s);
+    this->sStatus = "ok";
+    this->nMeasurements++;
+  } else {
+    this->sStatus = "error";
+    this->nErrors++;
+  }
 }
 
 String Sensor::toJSON() const {

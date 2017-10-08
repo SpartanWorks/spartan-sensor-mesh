@@ -12,10 +12,11 @@ protected:
   String sStatus = "init";
   uint32_t nErrors = 0;
   uint32_t nMeasurements = 0;
-  const Reading<float> *sReading = nullptr;
+  Reading<float> *sReading = nullptr;
 
 public:
-  Sensor(String model, String type, String name, const Reading<float> *reading);
+  Sensor(String model, String type, String name, Reading<float> *reading);
+  ~Sensor();
   virtual String model() const;
   virtual String type() const;
   virtual String name() const;
@@ -24,6 +25,7 @@ public:
   virtual uint32_t measurements() const;
   virtual const Reading<float>* reading() const;
   virtual String toJSON() const;
+  virtual void add(float s);
 };
 
 #endif
