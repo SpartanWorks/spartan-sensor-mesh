@@ -1,28 +1,10 @@
 #ifndef __DEVICE_HPP__
 #define __DEVICE_HPP__
 
-#include <functional>
 #include <Arduino.h>
 #include "Sensor.hpp"
 #include "SensorHub.hpp"
-
-template<typename T>
-class List {
-public:
-  T item;
-  List<T> *next = nullptr;
-
-  List(T i, List<T> *n): item(i), next(n) {
-  }
-};
-
-template<typename T>
-void foreach(const List<T> *i, std::function<void(T)> f) {
-  while(i != nullptr) {
-    f(i->item);
-    i = i->next;
-  }
-}
+#include "List.hpp"
 
 class Device {
 private:
