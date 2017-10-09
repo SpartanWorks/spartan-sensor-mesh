@@ -1,10 +1,10 @@
 import { observer } from "mobx-observer";
 import * as preact from "preact";
-import { BMPSensor } from "../../components/bmp/bmp";
-import { DallasTemperatureSensor } from "../../components/dallas/dallas";
-import { DHTSensor } from "../../components/dht/dht";
+import { Humidity } from "../../components/humidity/humidity";
+import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
+import { Temperature } from "../../components/temperature/temperature";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
 import { SensorData } from "../../services/device";
 import { DashboardStore } from "../../store/dashboard";
@@ -16,12 +16,12 @@ interface Props {
 
 function renderSensor(data: SensorData) {
   switch (data.type) {
-  case "DHT":
-    return <DHTSensor data={data} minTemperature={11} maxTemperature={37}/>;
-  case "DallasTemperature":
-    return <DallasTemperatureSensor data={data} minTemperature={11} maxTemperature={37}/>;
-  case "BMP":
-    return <BMPSensor data={data} minTemperature={11} maxTemperature={37} minPressure={95000} maxPressure={105000}/>;
+  case "temperature":
+    return <Temperature data={data} min={11} max={37}/>;
+  case "humidity":
+    return <Humidity data={data}/>;
+  case "pressure":
+    return <Pressure data={data} min={95000} max={105000}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }

@@ -10,15 +10,7 @@ export class DashboardStore {
     model: "UNKNOWN",
     name: "UNKNOWN",
     group: "UNKNOWN",
-    sensors: [
-      {
-        type: "UNKNOWN",
-        status: "error",
-        errors: 0,
-        measurements: 0,
-        readings: {},
-      }
-    ]
+    sensors: []
   };
 
   @action.bound

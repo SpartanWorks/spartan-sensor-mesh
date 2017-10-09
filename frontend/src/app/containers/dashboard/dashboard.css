@@ -11,19 +11,18 @@
     height: 100%;
 
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
   }
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 769px) {
   .mainWrapper {
     & .displayWrapper {
-      width: 75%;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
+      height: initial;
+      width: 66.7%;
     }
   }
 }

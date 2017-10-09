@@ -11,20 +11,18 @@ Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g), lis
   dGroup = (dGroup == "") ? dName : dGroup;
 }
 
-void Device::attach(Sensor *s) {
-  list = new List<Sensor*>(s, list);
+Device::~Device() {
+  if (this->list != nullptr) {
+    delete this->list;
+  }
 }
 
-void Device::begin() {
-  foreach<Sensor*>(list, [](Sensor *s) {
-    s->begin();
-  });
+void Device::attach(const Sensor *s) {
+  list = new List<const Sensor*>(s, list);
 }
 
-void Device::update() {
-  foreach<Sensor*>(list, [](Sensor *s) {
-    s->update();
-  });
+void Device::attach(const SensorHub *s) {
+  s->connect(this);
 }
 
 String Device::model() const {
@@ -51,7 +49,7 @@ String Device::toJSON() const {
   json += ",\"sensors\":[";
 
   bool first = true;
-  foreach<Sensor*>(list, [&json, &first](Sensor *s) {
+  foreach<const Sensor*>(list, [&json, &first](const Sensor *s) {
     if(!first) {
       json += ",";
     }

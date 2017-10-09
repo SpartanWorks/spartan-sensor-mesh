@@ -2,9 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include "APIServer.hpp"
-#include "DHTSensor.hpp"
-#include "DallasTempSensor.hpp"
-#include "BMPSensor.hpp"
+#include "BMPHub.hpp"
+#include "DHTHub.hpp"
+#include "DallasTempHub.hpp"
 #include "Device.hpp"
 #include <FS.h>
 
@@ -12,6 +12,7 @@ const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 
+BMPHub bmp(2, 0, 0x76);
 Device device("53n50rp455w0r0");
 APIServer server(HTTP_PORT, device, SPIFFS);
 
@@ -21,7 +22,8 @@ void readSensor(uint32_t currTime) {
   if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
     return;
   }
-  device.update();
+
+  bmp.update();
   lastSampleTime = currTime;
 }
 
@@ -64,11 +66,8 @@ void setup(void){
     f.close();
   }
 
-  // device.attach(new DHTSensor(0, DHT11));
-  // device.attach(new DHTSensor(2, DHT22));
-  // device.attach(new DallasTempSensor(0, 12));
-  device.attach(new BMPSensor(2, 0, 0x76));
-  device.begin();
+  bmp.begin();
+  device.attach(&bmp);
   readSensor(0);
   Serial.println("Device initialized");
 

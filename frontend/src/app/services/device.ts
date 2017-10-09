@@ -9,12 +9,12 @@ export interface SensorReading {
 
 export interface SensorData {
   type: string;
+  name: string;
+  model: string;
   status: "ok" | "error";
   errors: number;
   measurements: number;
-  readings: {
-    [name: string]: SensorReading;
-  };
+  reading: SensorReading;
 }
 
 export interface DeviceData {
