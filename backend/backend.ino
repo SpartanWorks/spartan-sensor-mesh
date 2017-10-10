@@ -1,34 +1,44 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
 #include "DHTHub.hpp"
 #include "DallasTempHub.hpp"
 #include "Device.hpp"
-#include <FS.h>
+#include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 
-BMPHub bmp(2, 0, 0x76);
+BMPHub hub(2, 0, 0x76);
+// DallasTempHub hub(2, 12);
+// DHTHub hub(2, DHT11);
+// DHTHub hub(2, DHT22);
 Device device("53n50rp455w0r0");
 APIServer server(HTTP_PORT, device, SPIFFS);
 
-void readSensor(uint32_t currTime) {
+Scheduler scheduler;
+
+void readSensor() {
   static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
+
+  uint32_t currTime = millis();
 
   if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
     return;
   }
 
-  bmp.update();
+  hub.update();
   lastSampleTime = currTime;
 }
 
-void timeoutAP(uint32_t currTime) {
+void timeoutAP() {
   static boolean apEnabled = true;
+
+  uint32_t currTime = millis();
 
   if(apEnabled && currTime > AP_TIMEOUT) {
     Serial.println("Disabling access point.");
@@ -66,9 +76,9 @@ void setup(void){
     f.close();
   }
 
-  bmp.begin();
-  device.attach(&bmp);
-  readSensor(0);
+  hub.begin();
+  device.attach(&hub);
+  readSensor();
   Serial.println("Device initialized");
 
   server.begin();
@@ -77,11 +87,16 @@ void setup(void){
   MDNS.begin(device.name().c_str());
   MDNS.addService("http", "tcp", HTTP_PORT);
   Serial.println("mDNS responder initialized");
+
+  scheduler.begin();
+  scheduler.spawn(readSensor);
+  scheduler.spawn(timeoutAP);
+  scheduler.spawn([&server]() {
+    server.handleClient();
+  });
+  Serial.println("Task scheduler initialized");
 }
 
-void loop(void){
-  uint32_t currTime = millis();
-  readSensor(currTime);
-  timeoutAP(currTime);
-  server.handleClient();
+void loop(void) {
+  scheduler.run();
 }
