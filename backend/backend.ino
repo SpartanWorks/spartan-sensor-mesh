@@ -12,33 +12,9 @@
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
+const int FOREVER = 31536000000; // 1 year
 
 Scheduler scheduler;
-
-void readSensor(SensorHub *hub) {
-  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
-
-  uint32_t currTime = millis();
-
-  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
-    return;
-  }
-
-  hub->update();
-  lastSampleTime = currTime;
-}
-
-void timeoutAP() {
-  static boolean apEnabled = true;
-
-  uint32_t currTime = millis();
-
-  if(apEnabled && currTime > AP_TIMEOUT) {
-    Serial.println("Disabling access point.");
-    WiFi.mode(WIFI_STA);
-    apEnabled = false;
-  }
-}
 
 void setup(void){
   // CONSOLE
@@ -73,9 +49,10 @@ void setup(void){
 
   hub->begin();
   device->attach(hub);
-  readSensor(hub);
-  scheduler.spawn([hub]() {
-    readSensor(hub);
+  scheduler.spawn([hub](Task *t) {
+    Serial.println("Sampling sensors.");
+    hub->update();
+    t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
 
@@ -83,7 +60,18 @@ void setup(void){
   WiFi.hostname(device->name().c_str());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(device->name().c_str(), device->password().c_str());
-  scheduler.spawn(timeoutAP);
+  scheduler.spawn([](Task *t) {
+    static boolean apEnabled = true;
+
+    if(apEnabled) {
+      apEnabled = false;
+      t->sleep(AP_TIMEOUT);
+    } else {
+      Serial.println("Disabling access point.");
+      WiFi.mode(WIFI_STA);
+      t->sleep(FOREVER); // Sleep forever after that.
+    }
+  });
 
   Serial.println("WiFi initialized:");
   Serial.print("- SSID: ");
@@ -100,7 +88,7 @@ void setup(void){
   // API
   APIServer *server = new APIServer(HTTP_PORT, device, SPIFFS);
   server->begin();
-  scheduler.spawn([server]() {
+  scheduler.spawn([server](Task *t) {
     server->handleClient();
   });
   MDNS.addService("http", "tcp", HTTP_PORT);

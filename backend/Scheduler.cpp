@@ -2,10 +2,17 @@
 
 Task::Task(Function f): fun(f) {}
 
+void Task::sleep(uint32_t time) {
+  this->runTime += time;
+}
+
 Scheduler::Scheduler() {}
 
 Scheduler::~Scheduler() {
   if (this->tasks != nullptr) {
+    foreach<Task*>(this->tasks, [](Task *t) {
+      delete t;
+    });
     delete this->tasks;
   }
 }
@@ -13,11 +20,15 @@ Scheduler::~Scheduler() {
 void Scheduler::begin() {}
 
 void Scheduler::spawn(Function f) {
-  this->tasks = new List<Task>(Task(f), this->tasks);
+  this->tasks = new List<Task*>(new Task(f), this->tasks);
 }
 
 void Scheduler::run() {
-  foreach<Task>(this->tasks, [this](Task t) {
-    t.fun();
+  foreach<Task*>(this->tasks, [](Task *t) {
+    uint32_t currTime = millis();
+    if (t->runTime < currTime) {
+      t->fun(t);
+      t->sleep(millis() - currTime);
+    }
   });
 }

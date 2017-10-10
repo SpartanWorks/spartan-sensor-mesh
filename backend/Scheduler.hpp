@@ -2,19 +2,28 @@
 #define __SCHEDULER_HPP__
 
 #include <functional>
+#include <Arduino.h>
 #include "List.hpp"
 
-typedef std::function<void(void)> Function;
+class Task;
 
-struct Task {
+typedef std::function<void(Task*)> Function;
+
+class Task {
+private:
+  uint32_t runTime = 0;
   Function fun;
 
+public:
   Task(Function f);
+  void sleep(uint32_t time);
+
+  friend class Scheduler;
 };
 
 class Scheduler {
 private:
-  List<Task> *tasks = nullptr;
+  List<Task*> *tasks = nullptr;
 
 public:
   Scheduler();
