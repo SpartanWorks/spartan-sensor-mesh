@@ -13,16 +13,9 @@ const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 
-BMPHub hub(2, 0, 0x76);
-// DallasTempHub hub(2, 12);
-// DHTHub hub(2, DHT11);
-// DHTHub hub(2, DHT22);
-Device device("53n50rp455w0r0");
-APIServer server(HTTP_PORT, device, SPIFFS);
-
 Scheduler scheduler;
 
-void readSensor() {
+void readSensor(SensorHub *hub) {
   static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
 
   uint32_t currTime = millis();
@@ -31,7 +24,7 @@ void readSensor() {
     return;
   }
 
-  hub.update();
+  hub->update();
   lastSampleTime = currTime;
 }
 
@@ -48,25 +41,20 @@ void timeoutAP() {
 }
 
 void setup(void){
+  // CONSOLE
   Serial.begin(115200);
   Serial.println("");
+  Serial.println("Serial console initialized");
 
-  WiFi.hostname(device.name().c_str());
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(device.name().c_str(), device.password().c_str());
+  // TASK SCHEDULER
+  scheduler.begin();
+  Serial.println("Task scheduler initialized");
 
-  Serial.println("WiFi initialized:");
-  Serial.print("- SSID: ");
-  Serial.println(device.name());
-  Serial.print("- Password: ");
-  Serial.println(device.password());
-  Serial.print("- IP address: ");
-  Serial.println(WiFi.softAPIP());
-
+  // FILE SYSTEM
   SPIFFS.begin();
   FSInfo info;
   SPIFFS.info(info);
-  Serial.println("FS initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
+  Serial.println("File system initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
 
   Dir dir = SPIFFS.openDir("/");
   while (dir.next()) {
@@ -76,25 +64,47 @@ void setup(void){
     f.close();
   }
 
-  hub.begin();
-  device.attach(&hub);
-  readSensor();
-  Serial.println("Device initialized");
+  // DEVICE TREE
+  BMPHub *hub = new BMPHub(2, 0, 0x76);
+  // DallasTempHub hub = new DallasTempHub(2, 12);
+  // DHTHub hub = new DHTHub(2, DHT11);
+  // DHTHub hub = new DHTHub(2, DHT22);
+  Device *device = new Device("53n50rp455w0r0");
 
-  server.begin();
-  Serial.println("API server initialized");
+  hub->begin();
+  device->attach(hub);
+  readSensor(hub);
+  scheduler.spawn([hub]() {
+    readSensor(hub);
+  });
+  Serial.println("Device tree initialized");
 
-  MDNS.begin(device.name().c_str());
-  MDNS.addService("http", "tcp", HTTP_PORT);
+  // NETWORK
+  WiFi.hostname(device->name().c_str());
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(device->name().c_str(), device->password().c_str());
+  scheduler.spawn(timeoutAP);
+
+  Serial.println("WiFi initialized:");
+  Serial.print("- SSID: ");
+  Serial.println(device->name());
+  Serial.print("- Password: ");
+  Serial.println(device->password());
+  Serial.print("- IP address: ");
+  Serial.println(WiFi.softAPIP());
+
+  // SERVICE DISCOVERY
+  MDNS.begin(device->name().c_str());
   Serial.println("mDNS responder initialized");
 
-  scheduler.begin();
-  scheduler.spawn(readSensor);
-  scheduler.spawn(timeoutAP);
-  scheduler.spawn([&server]() {
-    server.handleClient();
+  // API
+  APIServer *server = new APIServer(HTTP_PORT, device, SPIFFS);
+  server->begin();
+  scheduler.spawn([server]() {
+    server->handleClient();
   });
-  Serial.println("Task scheduler initialized");
+  MDNS.addService("http", "tcp", HTTP_PORT);
+  Serial.println("API server initialized");
 }
 
 void loop(void) {

@@ -11,7 +11,7 @@ const int WIFI_CONNECTION_TIMEOUT = 20000; // 20 seconds
 
 class APIServer: public ESP8266WebServer {
 private:
-  Device &device;
+  const Device *device = nullptr;
   FS &files;
 
   void handleOptions();
@@ -21,7 +21,7 @@ private:
   void handleWildcard();
 
 public:
-  APIServer(uint16_t port, Device &d, FS &fs);
+  APIServer(uint16_t port, const Device *d, FS &fs);
   void begin();
 };
 
