@@ -13,6 +13,7 @@ const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int FOREVER = 31536000000; // 1 year
+const int STATS_INTERVAL = 30000; // 30 seconds
 
 Scheduler scheduler;
 
@@ -24,6 +25,10 @@ void setup(void){
 
   // TASK SCHEDULER
   scheduler.begin();
+  scheduler.spawn([&scheduler](Task *t) {
+    Serial.println(scheduler.monitor());
+    t->sleep(STATS_INTERVAL);
+  });
   Serial.println("Task scheduler initialized");
 
   // FILE SYSTEM
@@ -63,7 +68,7 @@ void setup(void){
   scheduler.spawn([](Task *t) {
     static boolean apEnabled = true;
 
-    if(apEnabled) {
+    if (apEnabled) {
       apEnabled = false;
       t->sleep(AP_TIMEOUT);
     } else {

@@ -1,9 +1,13 @@
 #include "Scheduler.hpp"
 
-Task::Task(Function f): fun(f) {}
+Task::Task(uint16_t id, Function f): pid(id), fun(f) {}
 
 void Task::sleep(uint32_t time) {
   this->runTime += time;
+}
+
+String Task::toString() const {
+  return "pid: " + String(this->pid) + ", run: " + String(this->runTime) + " ms";
 }
 
 Scheduler::Scheduler() {}
@@ -19,8 +23,11 @@ Scheduler::~Scheduler() {
 
 void Scheduler::begin() {}
 
-void Scheduler::spawn(Function f) {
-  this->tasks = new List<Task*>(new Task(f), this->tasks);
+uint16_t Scheduler::spawn(Function f) {
+  uint16_t pid = this->lastPid;
+  this->tasks = new List<Task*>(new Task(pid, f), this->tasks);
+  this->lastPid++;
+  return pid;
 }
 
 void Scheduler::run() {
@@ -31,4 +38,12 @@ void Scheduler::run() {
       t->sleep(millis() - currTime);
     }
   });
+}
+
+String Scheduler::monitor() const {
+  String out = "Task monitor: (" + String(millis()) + "ms)\r\n";
+  foreach<Task*>(this->tasks, [&out](Task *t) {
+    out += t->toString() + "\r\n";
+  });
+  return out;
 }
