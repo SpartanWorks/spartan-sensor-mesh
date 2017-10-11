@@ -11,14 +11,16 @@ typedef std::function<void(Task*)> Function;
 
 class Task {
 private:
-  uint32_t runTime = 0;
+  uint32_t vTime;
+  uint32_t rTime;
   uint16_t pid;
   Function fun;
 
-public:
-  Task(uint16_t pid, Function f);
-  void sleep(uint32_t time);
   String toString() const;
+
+public:
+  Task(uint16_t pid, Function f, uint32_t init);
+  void sleep(uint32_t time);
 
   friend class Scheduler;
 };
@@ -27,6 +29,9 @@ class Scheduler {
 private:
   uint16_t lastPid = 0;
   List<Task*> *tasks = nullptr;
+
+  List<Task*> *pop();
+  void push(List<Task*> *t);
 
 public:
   Scheduler();

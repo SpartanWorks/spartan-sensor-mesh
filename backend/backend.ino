@@ -25,7 +25,7 @@ void setup(void){
 
   // TASK SCHEDULER
   scheduler.begin();
-  scheduler.spawn([&scheduler](Task *t) {
+  scheduler.spawn([](Task *t) {
     Serial.println(scheduler.monitor());
     t->sleep(STATS_INTERVAL);
   });
