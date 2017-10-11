@@ -30,8 +30,7 @@ private:
   uint16_t lastPid = 0;
   List<Task*> *tasks = nullptr;
 
-  List<Task*> *pop();
-  void push(List<Task*> *t);
+  void reschedule();
 
 public:
   Scheduler();

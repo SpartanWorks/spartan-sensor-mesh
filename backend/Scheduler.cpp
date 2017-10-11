@@ -28,27 +28,17 @@ void Scheduler::begin() {}
 
 uint16_t Scheduler::spawn(Function f) {
   uint16_t pid = this->lastPid;
-  this->push(new List<Task*>(new Task(pid, f, millis()), nullptr));
+  this->tasks = new List<Task*>(new Task(pid, f, millis()), this->tasks);
+  this->reschedule();
+
   this->lastPid++;
   return pid;
 }
 
-List<Task*> *Scheduler::pop() {
-  if (this->tasks != nullptr) {
-    List<Task*> *first = this->tasks;
-    this->tasks = first->next;
-    first->next = nullptr;
-    return first;
-  } else {
-    return nullptr;
-  }
-}
+void Scheduler::reschedule() {
+  List<Task*> *t = this->tasks;
 
-void Scheduler::push(List<Task*> *t) {
-  t->next = this->tasks;
-  this->tasks = t;
-
-  while (t->next != nullptr && t->next->item->vTime < t->item->vTime) {
+  while (t != nullptr && t->next != nullptr && t->next->item->vTime < t->item->vTime) {
     Task *n = t->next->item;
     t->next->item = t->item;
     t->item = n;
@@ -59,7 +49,7 @@ void Scheduler::push(List<Task*> *t) {
 void Scheduler::run() {
   uint32_t currTime = millis();
 
-  List<Task*> *first = this->pop();
+  List<Task*> *first = this->tasks;
   if (first == nullptr) {
     return;
   }
@@ -76,7 +66,7 @@ void Scheduler::run() {
   } while(t->rTime + delta <= currTime);
 
   t->sleep(delta);
-  this->push(first);
+  this->reschedule();
 }
 
 String Scheduler::monitor() const {
