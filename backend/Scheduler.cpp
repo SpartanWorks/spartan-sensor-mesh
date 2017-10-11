@@ -69,8 +69,13 @@ void Scheduler::run() {
     return;
   }
 
-  t->fun(t);
-  t->sleep(millis() - currTime);
+  uint32_t delta = 0;
+  do {
+    t->fun(t);
+    delta = millis() - currTime;
+  } while(t->rTime + delta <= currTime);
+
+  t->sleep(delta);
   this->push(first);
 }
 
