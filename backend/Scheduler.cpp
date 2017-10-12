@@ -1,15 +1,20 @@
 #include "Scheduler.hpp"
 
-Task::Task(uint16_t id, uint8_t p, Function f, uint32_t init): pid(id), priority(p), fun(f), rTime(init), vTime(init) {}
+Task::Task(uint16_t id, uint8_t p, Function f): pid(id), priority(p), fun(f) {}
 
-void Task::sleep(uint32_t time) {
-  this->rTime += time;
-  this->vTime += time * this->priority;
+void Task::sleep(uint32_t delta) {
+  this->state = SLEEPING;
+  this->updateTime(millis() + delta);
+}
+
+void Task::updateTime(uint32_t time) {
+  this->rTime = time;
+  this->vTime = time * this->priority;
 }
 
 String Task::toString() const {
-  return "pid: " + String(this->pid) + "," +
-      "priority: " + String(this->priority) + "," +
+  return "pid: " + String(this->pid) + ", " +
+      "priority: " + String(this->priority) + ", " +
       "real: " + String(this->rTime) + " ms, " +
       "virtual: " + String(this->vTime) + " ms";
 }
@@ -29,7 +34,7 @@ void Scheduler::begin() {}
 
 uint16_t Scheduler::spawn(uint8_t priority, Function f) {
   uint16_t pid = this->lastPid;
-  this->tasks = new List<Task*>(new Task(pid, priority, f, millis()), this->tasks);
+  this->tasks = new List<Task*>(new Task(pid, priority, f), this->tasks);
   this->reschedule();
 
   this->lastPid++;
@@ -52,20 +57,20 @@ void Scheduler::run() {
     return;
   }
 
-  uint32_t currTime = millis();
-
   Task *t = this->tasks->item;
-  if (t->rTime > currTime) {
+  if (t->rTime > millis()) {
     return;
   }
 
-  uint32_t delta = 0;
-  do {
-    t->fun(t);
-    delta = millis() - currTime;
-  } while(t->rTime + delta <= currTime);
+  t->fun(t);
 
-  t->sleep(delta);
+  switch (t->state) {
+    case RUNNING:
+      t->updateTime(millis());
+
+    case SLEEPING:
+      ; // Do nothing.
+  }
 
   this->reschedule();
 }

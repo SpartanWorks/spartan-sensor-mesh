@@ -9,18 +9,25 @@ class Task;
 
 typedef std::function<void(Task*)> Function;
 
+enum TaskState {
+  RUNNING = 0,
+  SLEEPING
+};
+
 class Task {
 private:
-  uint32_t vTime;
-  uint32_t rTime;
-  uint8_t priority;
   uint16_t pid;
+  TaskState state = RUNNING;
+  uint8_t priority;
   Function fun;
+  uint32_t vTime = 0;
+  uint32_t rTime = 0;
 
   String toString() const;
+  void updateTime(uint32_t time);
 
 public:
-  Task(uint16_t pid, uint8_t pri, Function f, uint32_t init);
+  Task(uint16_t pid, uint8_t pri, Function f);
   void sleep(uint32_t time);
 
   friend class Scheduler;
