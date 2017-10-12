@@ -17,7 +17,6 @@ enum TaskState {
 
 class Task {
 private:
-  uint16_t pid;
   TaskState state = RUNNING;
   uint8_t priority;
   Function fun;
@@ -28,7 +27,7 @@ private:
   void updateTime(uint32_t time);
 
 public:
-  Task(uint16_t pid, uint8_t pri, Function f);
+  Task(uint8_t pri, Function f);
   void sleep(uint32_t time);
   void kill();
 
@@ -37,7 +36,6 @@ public:
 
 class Scheduler {
 private:
-  uint16_t lastPid = 0;
   List<Task*> *tasks = nullptr;
 
   void reschedule();
@@ -47,7 +45,7 @@ public:
   ~Scheduler();
 
   void begin();
-  uint16_t spawn(uint8_t priority, Function f);
+  Task* spawn(uint8_t priority, Function f);
   void run();
   String monitor() const;
 };
