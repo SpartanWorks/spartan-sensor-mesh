@@ -25,7 +25,7 @@ void setup(void){
 
   // TASK SCHEDULER
   scheduler.begin();
-  scheduler.spawn([](Task *t) {
+  scheduler.spawn(127, [](Task *t) {
     Serial.println(scheduler.monitor());
     t->sleep(STATS_INTERVAL);
   });
@@ -54,7 +54,7 @@ void setup(void){
 
   hub->begin();
   device->attach(hub);
-  scheduler.spawn([hub](Task *t) {
+  scheduler.spawn(127,[hub](Task *t) {
     Serial.println("Sampling sensors.");
     hub->update();
     t->sleep(SAMPLE_INTERVAL);
@@ -65,7 +65,7 @@ void setup(void){
   WiFi.hostname(device->name().c_str());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(device->name().c_str(), device->password().c_str());
-  scheduler.spawn([](Task *t) {
+  scheduler.spawn(127, [](Task *t) {
     static boolean apEnabled = true;
 
     if (apEnabled) {
@@ -93,7 +93,7 @@ void setup(void){
   // API
   APIServer *server = new APIServer(HTTP_PORT, device, SPIFFS);
   server->begin();
-  scheduler.spawn([server](Task *t) {
+  scheduler.spawn(16, [server](Task *t) {
     server->handleClient();
   });
   MDNS.addService("http", "tcp", HTTP_PORT);
