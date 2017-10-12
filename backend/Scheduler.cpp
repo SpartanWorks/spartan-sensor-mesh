@@ -71,9 +71,11 @@ void Scheduler::run() {
   switch (t->state) {
     case RUNNING:
       t->updateTime(millis());
+      break;
 
     case SLEEPING:
       ; // Do nothing.
+      break;
 
     case KILLED:
       List<Task*> *killed = this->tasks;
@@ -81,6 +83,7 @@ void Scheduler::run() {
       killed->next = nullptr;
       delete killed->item;
       delete killed;
+      break;
   }
 
   this->reschedule();
