@@ -11,7 +11,8 @@ typedef std::function<void(Task*)> Function;
 
 enum TaskState {
   RUNNING = 0,
-  SLEEPING
+  SLEEPING,
+  KILLED
 };
 
 class Task {
@@ -29,6 +30,7 @@ private:
 public:
   Task(uint16_t pid, uint8_t pri, Function f);
   void sleep(uint32_t time);
+  void kill();
 
   friend class Scheduler;
 };

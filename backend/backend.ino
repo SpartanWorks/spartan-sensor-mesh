@@ -12,8 +12,7 @@
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
-const int FOREVER = 31536000000; // 1 year
-const int STATS_INTERVAL = 30000; // 30 seconds
+const int STATS_INTERVAL = 10000; // 10 seconds
 
 Scheduler scheduler;
 
@@ -74,7 +73,7 @@ void setup(void){
     } else {
       Serial.println("Disabling access point.");
       WiFi.mode(WIFI_STA);
-      t->sleep(FOREVER); // Sleep forever after that.
+      t->kill();
     }
   });
 

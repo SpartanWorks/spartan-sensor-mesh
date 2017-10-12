@@ -7,6 +7,10 @@ void Task::sleep(uint32_t delta) {
   this->updateTime(millis() + delta);
 }
 
+void Task::kill() {
+  this->state = KILLED;
+}
+
 void Task::updateTime(uint32_t time) {
   this->rTime = time;
   this->vTime = time * this->priority;
@@ -70,6 +74,13 @@ void Scheduler::run() {
 
     case SLEEPING:
       ; // Do nothing.
+
+    case KILLED:
+      List<Task*> *killed = this->tasks;
+      this->tasks = killed->next;
+      killed->next = nullptr;
+      delete killed->item;
+      delete killed;
   }
 
   this->reschedule();
