@@ -18,6 +18,7 @@ void Task::updateTime(uint32_t time) {
 
 String Task::toString() const {
   return "pid: 0x" + String((size_t) this, HEX) + ", " +
+      "state: " + String(this->state) + ", " +
       "priority: " + String(this->priority) + ", " +
       "real: " + String(this->rTime) + " ms, " +
       "virtual: " + String(this->vTime) + " ms";
@@ -71,7 +72,7 @@ void Scheduler::run() {
       break;
 
     case SLEEPING:
-      ; // Do nothing.
+      t->state = RUNNING;
       break;
 
     case KILLED:
