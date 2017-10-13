@@ -49,13 +49,17 @@ Task* Scheduler::spawn(uint8_t priority, Function f) {
   return pid;
 }
 
+inline void pushBack(List<Task*> *list) {
+  Task *n = list->next->item;
+  list->next->item = list->item;
+  list->item = n;
+}
+
 void Scheduler::reschedule() {
   List<Task*> *t = this->running;
 
   while (t != nullptr && t->next != nullptr && t->next->item->vTime < t->item->vTime) {
-    Task *n = t->next->item;
-    t->next->item = t->item;
-    t->item = n;
+    pushBack(t);
     t = t->next;
   }
 }
@@ -64,11 +68,16 @@ void Scheduler::rescheduleWaiting() {
   List<Task*> *t = this->waiting;
 
   while (t != nullptr && t->next != nullptr && t->next->item->rTime < t->item->rTime) {
-    Task *n = t->next->item;
-    t->next->item = t->item;
-    t->item = n;
+    pushBack(t);
     t = t->next;
   }
+}
+
+inline void moveHead(List<Task*> **from, List<Task*> **to) {
+  List<Task*> *head = *from;
+  *from = head->next;
+  head->next = *to;
+  *to = head;
 }
 
 void Scheduler::wake(uint32_t time) {
@@ -76,17 +85,14 @@ void Scheduler::wake(uint32_t time) {
     return;
   }
 
-  List<Task*> *wake = this->waiting;
+  Task *t = this->waiting->item;
 
-  if (wake->item->rTime > time) {
+  if (t->rTime > time) {
     return;
   }
 
-  wake->item->state = RUNNING;
-
-  this->waiting = this->waiting->next;
-  wake->next = this->running;
-  this->running = wake;
+  t->state = RUNNING;
+  moveHead(&this->waiting, &this->running);
 }
 
 void Scheduler::run() {
@@ -106,13 +112,9 @@ void Scheduler::run() {
       this->reschedule();
       break;
 
-    case SLEEPING: {
-        List<Task*> *sleeping = this->running;
-        this->running = sleeping->next;
-        sleeping->next = this->waiting;
-        this->waiting = sleeping;
-        this->rescheduleWaiting();
-      }
+    case SLEEPING:
+      moveHead(&this->running, &this->waiting);
+      this->rescheduleWaiting();
       break;
 
     case KILLED: {
