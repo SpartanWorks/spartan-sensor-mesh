@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, Device &d, FS &fs): ESP8266WebServer(port), device(d), files(fs) {
+APIServer::APIServer(uint16_t port, const Device *d, FS &fs): ESP8266WebServer(port), device(d), files(fs) {
 }
 
 bool waitForConnection(uint32_t timeout) {
@@ -53,7 +53,7 @@ void APIServer::handleApiLogin() {
     AUTHORIZATION_HEADER = LOWER_CASE_AUTHORIZATION_HEADER;
   }
 
-  bool authorized = this->authenticate(this->device.name().c_str(), this->device.password().c_str());
+  bool authorized = this->authenticate(this->device->name().c_str(), this->device->password().c_str());
 
   AUTHORIZATION_HEADER = original;
   return authorized ? this->send(200, "application/json", "{\"status\":\"ok\"}") : this->requestAuthentication();
@@ -62,7 +62,7 @@ void APIServer::handleApiLogin() {
 void APIServer::handleApiConfig() {
   Serial.println("Serving /api/config");
 
-  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+  if(!this->authenticate(this->device->name().c_str(), this->device->password().c_str())) {
     this->send(401, "application/json", "{\"error\":\"Unauthorized.\"}");
   }
 
@@ -87,7 +87,7 @@ void APIServer::handleApiConfig() {
 
 void APIServer::handleApiData() {
   Serial.println("Serving /api/data");
-  this->send(200, "application/json", this->device.toJSON());
+  this->send(200, "application/json", this->device->toJSON());
 }
 
 void APIServer::handleWildcard() {

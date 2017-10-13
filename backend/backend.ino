@@ -1,62 +1,40 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
 #include "DHTHub.hpp"
 #include "DallasTempHub.hpp"
 #include "Device.hpp"
-#include <FS.h>
+#include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
+const int STATS_INTERVAL = 10000; // 10 seconds
 
-BMPHub bmp(2, 0, 0x76);
-Device device("53n50rp455w0r0");
-APIServer server(HTTP_PORT, device, SPIFFS);
-
-void readSensor(uint32_t currTime) {
-  static uint32_t lastSampleTime = -SAMPLE_INTERVAL;
-
-  if((currTime - lastSampleTime) < SAMPLE_INTERVAL) {
-    return;
-  }
-
-  bmp.update();
-  lastSampleTime = currTime;
-}
-
-void timeoutAP(uint32_t currTime) {
-  static boolean apEnabled = true;
-
-  if(apEnabled && currTime > AP_TIMEOUT) {
-    Serial.println("Disabling access point.");
-    WiFi.mode(WIFI_STA);
-    apEnabled = false;
-  }
-}
+Scheduler scheduler;
 
 void setup(void){
+  // CONSOLE
   Serial.begin(115200);
   Serial.println("");
+  Serial.println("Serial console initialized");
 
-  WiFi.hostname(device.name().c_str());
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(device.name().c_str(), device.password().c_str());
+  // TASK SCHEDULER
+  scheduler.begin();
+  scheduler.spawn(125, [](Task *t) {
+    Serial.println(scheduler.monitor());
+    t->sleep(STATS_INTERVAL);
+  });
+  Serial.println("Task scheduler initialized");
 
-  Serial.println("WiFi initialized:");
-  Serial.print("- SSID: ");
-  Serial.println(device.name());
-  Serial.print("- Password: ");
-  Serial.println(device.password());
-  Serial.print("- IP address: ");
-  Serial.println(WiFi.softAPIP());
-
+  // FILE SYSTEM
   SPIFFS.begin();
   FSInfo info;
   SPIFFS.info(info);
-  Serial.println("FS initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
+  Serial.println("File system initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
 
   Dir dir = SPIFFS.openDir("/");
   while (dir.next()) {
@@ -66,22 +44,61 @@ void setup(void){
     f.close();
   }
 
-  bmp.begin();
-  device.attach(&bmp);
-  readSensor(0);
-  Serial.println("Device initialized");
+  // DEVICE TREE
+  BMPHub *hub = new BMPHub(2, 0, 0x76);
+  // DallasTempHub hub = new DallasTempHub(2, 12);
+  // DHTHub hub = new DHTHub(2, DHT11);
+  // DHTHub hub = new DHTHub(2, DHT22);
+  Device *device = new Device("53n50rp455w0r0");
 
-  server.begin();
-  Serial.println("API server initialized");
+  hub->begin();
+  device->attach(hub);
+  scheduler.spawn(115,[hub](Task *t) {
+    Serial.println("Sampling sensors.");
+    hub->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
+  Serial.println("Device tree initialized");
 
-  MDNS.begin(device.name().c_str());
-  MDNS.addService("http", "tcp", HTTP_PORT);
+  // NETWORK
+  WiFi.hostname(device->name().c_str());
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(device->name().c_str(), device->password().c_str());
+  scheduler.spawn(125, [](Task *t) {
+    static boolean apEnabled = true;
+
+    if (apEnabled) {
+      apEnabled = false;
+      t->sleep(AP_TIMEOUT);
+    } else {
+      Serial.println("Disabling access point.");
+      WiFi.mode(WIFI_STA);
+      t->kill();
+    }
+  });
+
+  Serial.println("WiFi initialized:");
+  Serial.print("- SSID: ");
+  Serial.println(device->name());
+  Serial.print("- Password: ");
+  Serial.println(device->password());
+  Serial.print("- IP address: ");
+  Serial.println(WiFi.softAPIP());
+
+  // SERVICE DISCOVERY
+  MDNS.begin(device->name().c_str());
   Serial.println("mDNS responder initialized");
+
+  // API
+  APIServer *server = new APIServer(HTTP_PORT, device, SPIFFS);
+  server->begin();
+  scheduler.spawn(110, [server](Task *t) {
+    server->handleClient();
+  });
+  MDNS.addService("http", "tcp", HTTP_PORT);
+  Serial.println("API server initialized");
 }
 
-void loop(void){
-  uint32_t currTime = millis();
-  readSensor(currTime);
-  timeoutAP(currTime);
-  server.handleClient();
+void loop(void) {
+  scheduler.run();
 }
