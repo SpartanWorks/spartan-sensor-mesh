@@ -27,11 +27,17 @@ String Task::toString() const {
 Scheduler::Scheduler() {}
 
 Scheduler::~Scheduler() {
-  if (this->tasks != nullptr) {
-    foreach<Task*>(this->tasks, [](Task *t) {
+  if (this->running != nullptr) {
+    foreach<Task*>(this->running, [](Task *t) {
       delete t;
     });
-    delete this->tasks;
+    delete this->running;
+  }
+  if (this->waiting != nullptr) {
+    foreach<Task*>(this->waiting, [](Task *t) {
+      delete t;
+    });
+    delete this->waiting;
   }
 }
 
@@ -39,12 +45,12 @@ void Scheduler::begin() {}
 
 Task* Scheduler::spawn(uint8_t priority, Function f) {
   Task *pid = new Task(priority, f);
-  this->tasks = new List<Task*>(pid, this->tasks);
+  this->running = new List<Task*>(pid, this->running);
   return pid;
 }
 
 void Scheduler::reschedule() {
-  List<Task*> *t = this->tasks;
+  List<Task*> *t = this->running;
 
   while (t != nullptr && t->next != nullptr && t->next->item->vTime < t->item->vTime) {
     Task *n = t->next->item;
@@ -54,42 +60,80 @@ void Scheduler::reschedule() {
   }
 }
 
-void Scheduler::run() {
-  if (this->tasks == nullptr) {
+void Scheduler::rescheduleWaiting() {
+  List<Task*> *t = this->waiting;
+
+  while (t != nullptr && t->next != nullptr && t->next->item->rTime < t->item->rTime) {
+    Task *n = t->next->item;
+    t->next->item = t->item;
+    t->item = n;
+    t = t->next;
+  }
+}
+
+void Scheduler::wake(uint32_t time) {
+  if (this->waiting == nullptr) {
     return;
   }
 
-  Task *t = this->tasks->item;
-  if (t->rTime > millis()) {
+  List<Task*> *wake = this->waiting;
+
+  if (wake->item->rTime > time) {
     return;
   }
+
+  wake->item->state = RUNNING;
+
+  this->waiting = this->waiting->next;
+  wake->next = this->running;
+  this->running = wake;
+}
+
+void Scheduler::run() {
+  this->wake(millis());
+
+  if (this->running == nullptr) {
+    return;
+  }
+
+  Task *t = this->running->item;
 
   t->fun(t);
 
   switch (t->state) {
     case RUNNING:
       t->updateTime(millis());
+      this->reschedule();
       break;
 
-    case SLEEPING:
-      t->state = RUNNING;
+    case SLEEPING: {
+        List<Task*> *sleeping = this->running;
+        this->running = sleeping->next;
+        sleeping->next = this->waiting;
+        this->waiting = sleeping;
+        this->rescheduleWaiting();
+      }
       break;
 
-    case KILLED:
-      List<Task*> *killed = this->tasks;
-      this->tasks = killed->next;
-      killed->next = nullptr;
-      delete killed->item;
-      delete killed;
+    case KILLED: {
+        List<Task*> *killed = this->running;
+        this->running = killed->next;
+        killed->next = nullptr;
+        delete killed->item;
+        delete killed;
+      }
       break;
   }
-
-  this->reschedule();
 }
 
 String Scheduler::monitor() const {
-  String out = "Task monitor (" + String(millis()) + "ms):\r\n";
-  foreach<Task*>(this->tasks, [&out](Task *t) {
+  String out = "Task monitor (" + String(millis()) + "ms):";
+  out += "\r\nRunning tasks:\r\n";
+  foreach<Task*>(this->running, [&out](Task *t) {
+    out += " - " + t->toString() + "\r\n";
+  });
+  out += "Waiting tasks:\r\n";
+  foreach<Task*>(this->waiting, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";
   });
   return out;

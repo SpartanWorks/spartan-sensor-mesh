@@ -36,9 +36,12 @@ public:
 
 class Scheduler {
 private:
-  List<Task*> *tasks = nullptr;
+  List<Task*> *running = nullptr;
+  List<Task*> *waiting = nullptr;
 
   void reschedule();
+  void rescheduleWaiting();
+  void wake(uint32_t time);
 
 public:
   Scheduler();
