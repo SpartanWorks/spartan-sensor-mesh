@@ -13,7 +13,7 @@ void Task::kill() {
 
 void Task::updateTime(uint32_t time) {
   this->rTime = time;
-  this->vTime = time * this->priority;
+  this->vTime = time * this->priority / MAX_PRIORITY;
 }
 
 String Task::toString() const {

@@ -15,6 +15,8 @@ enum TaskState {
   KILLED
 };
 
+const uint8_t MAX_PRIORITY = 0xFF;
+
 class Task {
 private:
   TaskState state = RUNNING;
