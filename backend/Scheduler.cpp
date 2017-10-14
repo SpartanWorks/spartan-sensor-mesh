@@ -1,17 +1,44 @@
 #include "Scheduler.hpp"
 
+uint64_t now() {
+  static uint64_t prevTime = 0;
+  static uint32_t overflows = 0;
+
+  uint64_t t = millis();
+
+  if (t < prevTime) {
+    overflows++;
+  }
+  prevTime = t;
+  return t + overflows * 0xFFFFFFFF;
+}
+
+String uint64String(uint64_t num) {
+  const char map[] = "0123456789";
+  char buf[21];
+  char *p = &buf[21];
+  *p = 0;
+
+  do {
+    *(--p) = map[num % 10];
+    num /= 10;
+  } while (num != 0);
+
+  return String(buf);
+}
+
 Task::Task(uint8_t p, Function f): priority(p), fun(f) {}
 
-void Task::sleep(uint32_t delta) {
+void Task::sleep(uint64_t ms) {
   this->state = SLEEPING;
-  this->updateTime(millis() + delta);
+  this->updateTime(now() + ms);
 }
 
 void Task::kill() {
   this->state = KILLED;
 }
 
-void Task::updateTime(uint32_t time) {
+void Task::updateTime(uint64_t time) {
   this->rTime = time;
   this->vTime = time * this->priority / MAX_PRIORITY;
 }
@@ -20,8 +47,8 @@ String Task::toString() const {
   return "pid: 0x" + String((size_t) this, HEX) + ", " +
       "state: " + String(this->state) + ", " +
       "priority: " + String(this->priority) + ", " +
-      "real: " + String(this->rTime) + " ms, " +
-      "virtual: " + String(this->vTime) + " ms";
+      "real: " + uint64String(this->rTime) + " ms, " +
+      "virtual: " + uint64String(this->vTime) + " ms";
 }
 
 Scheduler::Scheduler() {}
@@ -80,7 +107,7 @@ inline void moveHead(List<Task*> **from, List<Task*> **to) {
   *to = head;
 }
 
-void Scheduler::wake(uint32_t time) {
+void Scheduler::wake(uint64_t time) {
   if (this->waiting == nullptr) {
     return;
   }
@@ -96,7 +123,7 @@ void Scheduler::wake(uint32_t time) {
 }
 
 void Scheduler::run() {
-  this->wake(millis());
+  this->wake(now());
 
   if (this->running == nullptr) {
     return;
@@ -108,7 +135,7 @@ void Scheduler::run() {
 
   switch (t->state) {
     case RUNNING:
-      t->updateTime(millis());
+      t->updateTime(now());
       this->reschedule();
       break;
 
@@ -129,7 +156,7 @@ void Scheduler::run() {
 }
 
 String Scheduler::monitor() const {
-  String out = "Task monitor (" + String(millis()) + "ms):";
+  String out = "Task monitor (" + uint64String(now()) + "ms):";
   out += "\r\nRunning tasks:\r\n";
   foreach<Task*>(this->running, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";

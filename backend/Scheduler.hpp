@@ -22,15 +22,15 @@ private:
   TaskState state = RUNNING;
   uint8_t priority;
   Function fun;
-  uint32_t vTime = 0;
-  uint32_t rTime = 0;
+  uint64_t vTime = 0;
+  uint64_t rTime = 0;
 
   String toString() const;
-  void updateTime(uint32_t time);
+  void updateTime(uint64_t time);
 
 public:
   Task(uint8_t pri, Function f);
-  void sleep(uint32_t time);
+  void sleep(uint64_t time);
   void kill();
 
   friend class Scheduler;
@@ -43,7 +43,7 @@ private:
 
   void reschedule();
   void rescheduleWaiting();
-  void wake(uint32_t time);
+  void wake(uint64_t time);
 
 public:
   Scheduler();
