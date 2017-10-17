@@ -10,7 +10,7 @@ uint64_t now() {
     overflows++;
   }
   prevTime = t;
-  return t + overflows * 0xFFFFFFFF;
+  return t + overflows * 0x100000000ULL;
 }
 
 String uint64String(uint64_t num) {
