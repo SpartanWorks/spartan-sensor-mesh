@@ -1,8 +1,8 @@
 #include "Scheduler.hpp"
 
-Task::Task(Scheduler *s, uint8_t p, Function f): scheduler(s), priority(p), fun(f) {}
+Task::Task(Scheduler *s, Priority p, Function f): scheduler(s), priority(p), fun(f) {}
 
-void Task::sleep(uint64_t ms) {
+void Task::sleep(Timestamp ms) {
   this->state = SLEEPING;
   this->updateTime(this->scheduler->now() + ms * 1000);
 }
@@ -11,12 +11,12 @@ void Task::kill() {
   this->state = KILLED;
 }
 
-void Task::updateTime(uint64_t time) {
+void Task::updateTime(Timestamp time) {
   this->rTime = time;
   this->vTime = time * this->priority / MAX_PRIORITY;
 }
 
-String uint64String(uint64_t num) {
+String uint64String(Timestamp num) {
   const char map[] = "0123456789";
   char buf[21];
   char *p = &buf[21];
@@ -55,8 +55,8 @@ Scheduler::~Scheduler() {
   }
 }
 
-uint64_t Scheduler::now() {
-  uint64_t t = micros();
+Timestamp Scheduler::now() {
+  Timestamp t = micros();
 
   if (t < this->prevTime) {
     this->overflows++;
@@ -67,7 +67,7 @@ uint64_t Scheduler::now() {
 
 void Scheduler::begin() {}
 
-Task* Scheduler::spawn(uint8_t priority, Function f) {
+Task* Scheduler::spawn(Priority priority, Function f) {
   Task *pid = new Task(this, priority, f);
   this->running = new List<Task*>(pid, this->running);
   return pid;
@@ -104,7 +104,7 @@ inline void moveHead(List<Task*> **from, List<Task*> **to) {
   *to = head;
 }
 
-void Scheduler::wake(uint64_t time) {
+void Scheduler::wake(Timestamp time) {
   if (this->waiting == nullptr) {
     return;
   }

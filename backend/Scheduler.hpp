@@ -8,6 +8,8 @@
 class Task;
 
 typedef std::function<void(Task*)> Function;
+typedef uint8_t Priority;
+typedef uint64_t Timestamp;
 
 enum TaskState {
   RUNNING = 0,
@@ -15,7 +17,7 @@ enum TaskState {
   KILLED
 };
 
-const uint8_t MAX_PRIORITY = 0xFF;
+const Priority MAX_PRIORITY = 0xFF;
 
 class Scheduler;
 
@@ -23,17 +25,17 @@ class Task {
 private:
   Scheduler *scheduler;
   TaskState state = RUNNING;
-  uint8_t priority;
+  Priority priority;
   Function fun;
-  uint64_t vTime = 0;
-  uint64_t rTime = 0;
+  Timestamp vTime = 0;
+  Timestamp rTime = 0;
 
   String toString() const;
-  void updateTime(uint64_t time);
+  void updateTime(Timestamp time);
 
 public:
-  Task(Scheduler *s, uint8_t pri, Function f);
-  void sleep(uint64_t time);
+  Task(Scheduler *s, Priority pri, Function f);
+  void sleep(Timestamp time);
   void kill();
 
   friend class Scheduler;
@@ -41,22 +43,22 @@ public:
 
 class Scheduler {
 private:
-  uint64_t prevTime = 0;
+  Timestamp prevTime = 0;
   uint32_t overflows = 0;
   List<Task*> *running = nullptr;
   List<Task*> *waiting = nullptr;
 
   void reschedule();
   void rescheduleWaiting();
-  void wake(uint64_t time);
+  void wake(Timestamp time);
 
 public:
   Scheduler();
   ~Scheduler();
 
-  uint64_t now();
+  Timestamp now();
   void begin();
-  Task* spawn(uint8_t priority, Function f);
+  Task* spawn(Priority priority, Function f);
   void run();
   String monitor() const;
 };
