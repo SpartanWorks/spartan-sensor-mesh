@@ -1,16 +1,19 @@
 #include "Scheduler.hpp"
 
-uint64_t now() {
-  static uint64_t prevTime = 0;
-  static uint32_t overflows = 0;
+Task::Task(Scheduler *s, uint8_t p, Function f): scheduler(s), priority(p), fun(f) {}
 
-  uint64_t t = micros();
+void Task::sleep(uint64_t ms) {
+  this->state = SLEEPING;
+  this->updateTime(this->scheduler->now() + ms * 1000);
+}
 
-  if (t < prevTime) {
-    overflows++;
-  }
-  prevTime = t;
-  return t + overflows * 0x100000000ULL;
+void Task::kill() {
+  this->state = KILLED;
+}
+
+void Task::updateTime(uint64_t time) {
+  this->rTime = time;
+  this->vTime = time * this->priority / MAX_PRIORITY;
 }
 
 String uint64String(uint64_t num) {
@@ -25,22 +28,6 @@ String uint64String(uint64_t num) {
   } while (num != 0);
 
   return String(buf);
-}
-
-Task::Task(uint8_t p, Function f): priority(p), fun(f) {}
-
-void Task::sleep(uint64_t ms) {
-  this->state = SLEEPING;
-  this->updateTime(now() + ms * 1000);
-}
-
-void Task::kill() {
-  this->state = KILLED;
-}
-
-void Task::updateTime(uint64_t time) {
-  this->rTime = time;
-  this->vTime = time * this->priority / MAX_PRIORITY;
 }
 
 String Task::toString() const {
@@ -68,10 +55,20 @@ Scheduler::~Scheduler() {
   }
 }
 
+uint64_t Scheduler::now() {
+  uint64_t t = micros();
+
+  if (t < this->prevTime) {
+    this->overflows++;
+  }
+  this->prevTime = t;
+  return t + this->overflows * 0x100000000ULL;
+}
+
 void Scheduler::begin() {}
 
 Task* Scheduler::spawn(uint8_t priority, Function f) {
-  Task *pid = new Task(priority, f);
+  Task *pid = new Task(this, priority, f);
   this->running = new List<Task*>(pid, this->running);
   return pid;
 }
@@ -156,8 +153,7 @@ void Scheduler::run() {
 }
 
 String Scheduler::monitor() const {
-  String out = "Task monitor (" + uint64String(now()) + "us):";
-  out += "\r\nRunning tasks:\r\n";
+  String out = "Running tasks:\r\n";
   foreach<Task*>(this->running, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";
   });

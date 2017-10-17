@@ -17,8 +17,11 @@ enum TaskState {
 
 const uint8_t MAX_PRIORITY = 0xFF;
 
+class Scheduler;
+
 class Task {
 private:
+  Scheduler *scheduler;
   TaskState state = RUNNING;
   uint8_t priority;
   Function fun;
@@ -29,7 +32,7 @@ private:
   void updateTime(uint64_t time);
 
 public:
-  Task(uint8_t pri, Function f);
+  Task(Scheduler *s, uint8_t pri, Function f);
   void sleep(uint64_t time);
   void kill();
 
@@ -38,6 +41,8 @@ public:
 
 class Scheduler {
 private:
+  uint64_t prevTime = 0;
+  uint32_t overflows = 0;
   List<Task*> *running = nullptr;
   List<Task*> *waiting = nullptr;
 
@@ -49,6 +54,7 @@ public:
   Scheduler();
   ~Scheduler();
 
+  uint64_t now();
   void begin();
   Task* spawn(uint8_t priority, Function f);
   void run();
