@@ -4,7 +4,7 @@ uint64_t now() {
   static uint64_t prevTime = 0;
   static uint32_t overflows = 0;
 
-  uint64_t t = millis();
+  uint64_t t = micros();
 
   if (t < prevTime) {
     overflows++;
@@ -31,7 +31,7 @@ Task::Task(uint8_t p, Function f): priority(p), fun(f) {}
 
 void Task::sleep(uint64_t ms) {
   this->state = SLEEPING;
-  this->updateTime(now() + ms);
+  this->updateTime(now() + ms * 1000);
 }
 
 void Task::kill() {
@@ -47,8 +47,8 @@ String Task::toString() const {
   return "pid: 0x" + String((size_t) this, HEX) + ", " +
       "state: " + String(this->state) + ", " +
       "priority: " + String(this->priority) + ", " +
-      "real: " + uint64String(this->rTime) + " ms, " +
-      "virtual: " + uint64String(this->vTime) + " ms";
+      "real: " + uint64String(this->rTime) + " us, " +
+      "virtual: " + uint64String(this->vTime) + " us";
 }
 
 Scheduler::Scheduler() {}
@@ -156,7 +156,7 @@ void Scheduler::run() {
 }
 
 String Scheduler::monitor() const {
-  String out = "Task monitor (" + uint64String(now()) + "ms):";
+  String out = "Task monitor (" + uint64String(now()) + "us):";
   out += "\r\nRunning tasks:\r\n";
   foreach<Task*>(this->running, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";
