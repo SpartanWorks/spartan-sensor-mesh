@@ -1,27 +1,41 @@
 #include "Scheduler.hpp"
 
-Task::Task(uint8_t p, Function f): priority(p), fun(f) {}
+Task::Task(Scheduler *s, Priority p, Function f): scheduler(s), priority(p), fun(f) {}
 
-void Task::sleep(uint32_t delta) {
+void Task::sleep(Timestamp ms) {
   this->state = SLEEPING;
-  this->updateTime(millis() + delta);
+  this->updateTime(this->scheduler->now() + ms * 1000);
 }
 
 void Task::kill() {
   this->state = KILLED;
 }
 
-void Task::updateTime(uint32_t time) {
+void Task::updateTime(Timestamp time) {
   this->rTime = time;
-  this->vTime = time * this->priority;
+  this->vTime = time * this->priority / MAX_PRIORITY;
+}
+
+String uint64String(Timestamp num) {
+  const char map[] = "0123456789";
+  char buf[21];
+  char *p = &buf[21];
+  *p = 0;
+
+  do {
+    *(--p) = map[num % 10];
+    num /= 10;
+  } while (num != 0);
+
+  return String(buf);
 }
 
 String Task::toString() const {
   return "pid: 0x" + String((size_t) this, HEX) + ", " +
       "state: " + String(this->state) + ", " +
       "priority: " + String(this->priority) + ", " +
-      "real: " + String(this->rTime) + " ms, " +
-      "virtual: " + String(this->vTime) + " ms";
+      "real: " + uint64String(this->rTime) + " us, " +
+      "virtual: " + uint64String(this->vTime) + " us";
 }
 
 Scheduler::Scheduler() {}
@@ -41,10 +55,20 @@ Scheduler::~Scheduler() {
   }
 }
 
+Timestamp Scheduler::now() {
+  Timestamp t = micros();
+
+  if (t < this->prevTime) {
+    this->overflows++;
+  }
+  this->prevTime = t;
+  return t + this->overflows * 0x100000000ULL;
+}
+
 void Scheduler::begin() {}
 
-Task* Scheduler::spawn(uint8_t priority, Function f) {
-  Task *pid = new Task(priority, f);
+Task* Scheduler::spawn(Priority priority, Function f) {
+  Task *pid = new Task(this, priority, f);
   this->running = new List<Task*>(pid, this->running);
   return pid;
 }
@@ -80,7 +104,7 @@ inline void moveHead(List<Task*> **from, List<Task*> **to) {
   *to = head;
 }
 
-void Scheduler::wake(uint32_t time) {
+void Scheduler::wake(Timestamp time) {
   if (this->waiting == nullptr) {
     return;
   }
@@ -96,7 +120,7 @@ void Scheduler::wake(uint32_t time) {
 }
 
 void Scheduler::run() {
-  this->wake(millis());
+  this->wake(now());
 
   if (this->running == nullptr) {
     return;
@@ -108,7 +132,7 @@ void Scheduler::run() {
 
   switch (t->state) {
     case RUNNING:
-      t->updateTime(millis());
+      t->updateTime(now());
       this->reschedule();
       break;
 
@@ -129,8 +153,7 @@ void Scheduler::run() {
 }
 
 String Scheduler::monitor() const {
-  String out = "Task monitor (" + String(millis()) + "ms):";
-  out += "\r\nRunning tasks:\r\n";
+  String out = "Running tasks:\r\n";
   foreach<Task*>(this->running, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";
   });
