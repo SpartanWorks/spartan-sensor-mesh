@@ -13,7 +13,7 @@ void Task::kill() {
 
 void Task::updateTime(Timestamp time) {
   this->rTime = time;
-  this->vTime = time * this->priority / MAX_PRIORITY;
+  this->vTime = time * this->priority;
 }
 
 char buf[21];

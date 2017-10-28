@@ -17,8 +17,6 @@ enum TaskState {
   KILLED
 };
 
-const Priority MAX_PRIORITY = 0xFF;
-
 class Scheduler;
 
 class Task {
