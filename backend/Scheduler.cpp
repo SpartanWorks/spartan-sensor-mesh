@@ -13,12 +13,13 @@ void Task::kill() {
 
 void Task::updateTime(Timestamp time) {
   this->rTime = time;
-  this->vTime = time * this->priority / MAX_PRIORITY;
+  this->vTime = time * this->priority;
 }
+
+char buf[21];
 
 String uint64String(Timestamp num) {
   const char map[] = "0123456789";
-  char buf[21];
   char *p = &buf[21];
   *p = 0;
 
@@ -27,7 +28,7 @@ String uint64String(Timestamp num) {
     num /= 10;
   } while (num != 0);
 
-  return String(buf);
+  return String(p);
 }
 
 String Task::toString() const {
