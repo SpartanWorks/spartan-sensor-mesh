@@ -27,6 +27,7 @@ private:
   Function fun;
   Timestamp vTime = 0;
   Timestamp rTime = 0;
+  Timestamp wTime = 0;
 
   String toString() const;
   void updateTime(Timestamp time);
@@ -41,7 +42,6 @@ public:
 
 class Scheduler {
 private:
-  Timestamp currTime = 0;
   Timestamp prevTime = 0;
   uint32_t overflows = 0;
   List<Task*> *running = nullptr;
@@ -59,7 +59,7 @@ public:
   void begin();
   Task* spawn(Priority priority, Function f);
   void run();
-  String monitor() const;
+  String monitor();
 };
 
 #endif

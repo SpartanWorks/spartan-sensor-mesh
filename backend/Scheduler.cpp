@@ -4,7 +4,7 @@ Task::Task(Scheduler *s, Priority p, Function f): scheduler(s), priority(p), fun
 
 void Task::sleep(Timestamp ms) {
   this->state = SLEEPING;
-  this->updateTime(ms * 1000);
+  this->wTime = this->scheduler->now() + ms * 1000;
 }
 
 void Task::kill() {
@@ -36,12 +36,11 @@ String Task::toString() const {
       "state: " + String(this->state) + ", " +
       "priority: " + String(this->priority) + ", " +
       "real: " + uint64String(this->rTime) + " us, " +
-      "virtual: " + uint64String(this->vTime) + " us";
+      "virtual: " + uint64String(this->vTime) + " us, " +
+      "wake: " + uint64String(this->wTime) + " us";
 }
 
-Scheduler::Scheduler() {
-  this->currTime = this->now();
-}
+Scheduler::Scheduler() {}
 
 Scheduler::~Scheduler() {
   if (this->running != nullptr) {
@@ -72,7 +71,7 @@ void Scheduler::begin() {}
 
 Task* Scheduler::spawn(Priority priority, Function f) {
   Task *pid = new Task(this, priority, f);
-  pid->updateTime(this->currTime);
+  pid->updateTime(this->now());
   this->running = new List<Task*>(pid, this->running);
   return pid;
 }
@@ -95,7 +94,7 @@ void Scheduler::reschedule() {
 void Scheduler::rescheduleWaiting() {
   List<Task*> *t = this->waiting;
 
-  while (t != nullptr && t->next != nullptr && t->next->item->rTime < t->item->rTime) {
+  while (t != nullptr && t->next != nullptr && t->next->item->wTime < t->item->wTime) {
     pushBack(t);
     t = t->next;
   }
@@ -109,28 +108,27 @@ inline void moveHead(List<Task*> **from, List<Task*> **to) {
 }
 
 void Scheduler::wake(Timestamp time) {
-  while (this->waiting != nullptr && this->waiting->item->rTime < time) {
+  while (this->waiting != nullptr && this->waiting->item->wTime < time) {
     Task *t = this->waiting->item;
     t->state = RUNNING;
+    t->wTime = 0;
     moveHead(&this->waiting, &this->running);
     this->reschedule();
   }
 }
 
 void Scheduler::run() {
-  this->wake(currTime);
+  this->wake(now());
 
   if (this->running == nullptr) {
-    this->currTime = now();
     return;
   }
 
   Task *t = this->running->item;
 
-  Timestamp start = this->currTime;
+  Timestamp start = now();
   t->fun(t);
   Timestamp stop = now();
-  this->currTime = stop;
 
   switch (t->state) {
     case RUNNING:
@@ -154,8 +152,8 @@ void Scheduler::run() {
   }
 }
 
-String Scheduler::monitor() const {
-  String out = "Current time: " + uint64String(this->currTime) + " us\r\n";
+String Scheduler::monitor() {
+  String out = "Current time: " + uint64String(this->now()) + " us\r\n";
   out += "Running tasks:\r\n";
   foreach<Task*>(this->running, [&out](Task *t) {
     out += " - " + t->toString() + "\r\n";
