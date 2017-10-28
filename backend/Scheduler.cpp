@@ -12,7 +12,9 @@ void Task::kill() {
 }
 
 void Task::updateTime(Timestamp time) {
+#ifdef PROCESS_MONITOR
   this->rTime += time;
+#endif
   this->vTime += time * this->priority;
 }
 
