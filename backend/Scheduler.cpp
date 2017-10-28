@@ -69,9 +69,14 @@ Timestamp Scheduler::now() {
 
 void Scheduler::begin() {}
 
+Timestamp Scheduler::minVTime() {
+  return (this->running != nullptr) ? this->running->item->vTime : 0;
+}
+
 Task* Scheduler::spawn(Priority priority, Function f) {
   Task *pid = new Task(this, priority, f);
-  pid->updateTime(this->now());
+  pid->vTime = this->minVTime(); // Not to starve other running processes.
+
   this->running = new List<Task*>(pid, this->running);
   return pid;
 }
@@ -112,6 +117,8 @@ void Scheduler::wake(Timestamp time) {
     Task *t = this->waiting->item;
     t->state = RUNNING;
     t->wTime = 0;
+    t->vTime = this->minVTime(); // Not to starve other running processes.
+
     moveHead(&this->waiting, &this->running);
     this->reschedule();
   }
@@ -130,9 +137,10 @@ void Scheduler::run() {
   t->fun(t);
   Timestamp stop = now();
 
+  t->updateTime(stop - start);
+
   switch (t->state) {
     case RUNNING:
-      t->updateTime(stop - start);
       this->reschedule();
       break;
 

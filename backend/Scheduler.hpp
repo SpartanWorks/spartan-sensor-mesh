@@ -44,12 +44,14 @@ class Scheduler {
 private:
   Timestamp prevTime = 0;
   uint32_t overflows = 0;
+
   List<Task*> *running = nullptr;
   List<Task*> *waiting = nullptr;
 
   void reschedule();
   void rescheduleWaiting();
   void wake(Timestamp time);
+  Timestamp minVTime();
 
 public:
   Scheduler();
