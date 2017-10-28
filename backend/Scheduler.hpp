@@ -41,6 +41,7 @@ public:
 
 class Scheduler {
 private:
+  Timestamp currTime = 0;
   Timestamp prevTime = 0;
   uint32_t overflows = 0;
   List<Task*> *running = nullptr;
