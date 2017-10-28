@@ -13,8 +13,9 @@ const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int STATS_INTERVAL = 10000; // 10 seconds
+const int TIME_SLICE = 1000; // 1 ms
 
-Scheduler scheduler;
+Scheduler scheduler(TIME_SLICE);
 
 void setup(void){
   // CONSOLE

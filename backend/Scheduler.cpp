@@ -4,7 +4,7 @@ Task::Task(Scheduler *s, Priority p, Function f): scheduler(s), priority(p), fun
 
 void Task::sleep(Timestamp ms) {
   this->state = SLEEPING;
-  this->updateTime(this->scheduler->now() + ms * 1000);
+  this->wTime = this->scheduler->now() + ms * 1000;
 }
 
 void Task::kill() {
@@ -12,34 +12,15 @@ void Task::kill() {
 }
 
 void Task::updateTime(Timestamp time) {
-  this->rTime = time;
-  this->vTime = time * this->priority;
+#ifdef PROCESS_MONITOR
+  this->rTime += time;
+#endif
+  this->vTime += time * this->priority;
 }
 
-char buf[21];
+Scheduler::Scheduler(): Scheduler(0) {}
 
-String uint64String(Timestamp num) {
-  const char map[] = "0123456789";
-  char *p = &buf[21];
-  *p = 0;
-
-  do {
-    *(--p) = map[num % 10];
-    num /= 10;
-  } while (num != 0);
-
-  return String(p);
-}
-
-String Task::toString() const {
-  return "pid: 0x" + String((size_t) this, HEX) + ", " +
-      "state: " + String(this->state) + ", " +
-      "priority: " + String(this->priority) + ", " +
-      "real: " + uint64String(this->rTime) + " us, " +
-      "virtual: " + uint64String(this->vTime) + " us";
-}
-
-Scheduler::Scheduler() {}
+Scheduler::Scheduler(Timestamp slice): timeSlice(slice) {}
 
 Scheduler::~Scheduler() {
   if (this->running != nullptr) {
@@ -68,8 +49,14 @@ Timestamp Scheduler::now() {
 
 void Scheduler::begin() {}
 
+Timestamp Scheduler::minVTime() {
+  return (this->running != nullptr) ? this->running->item->vTime : 0;
+}
+
 Task* Scheduler::spawn(Priority priority, Function f) {
   Task *pid = new Task(this, priority, f);
+  pid->vTime = this->minVTime(); // Not to starve other running processes.
+
   this->running = new List<Task*>(pid, this->running);
   return pid;
 }
@@ -92,7 +79,7 @@ void Scheduler::reschedule() {
 void Scheduler::rescheduleWaiting() {
   List<Task*> *t = this->waiting;
 
-  while (t != nullptr && t->next != nullptr && t->next->item->rTime < t->item->rTime) {
+  while (t != nullptr && t->next != nullptr && t->next->item->wTime < t->item->wTime) {
     pushBack(t);
     t = t->next;
   }
@@ -106,18 +93,15 @@ inline void moveHead(List<Task*> **from, List<Task*> **to) {
 }
 
 void Scheduler::wake(Timestamp time) {
-  if (this->waiting == nullptr) {
-    return;
+  while (this->waiting != nullptr && this->waiting->item->wTime < time) {
+    Task *t = this->waiting->item;
+    t->state = RUNNING;
+    t->wTime = 0;
+    t->vTime = this->minVTime(); // Not to starve other running processes.
+
+    moveHead(&this->waiting, &this->running);
+    this->reschedule();
   }
-
-  Task *t = this->waiting->item;
-
-  if (t->rTime > time) {
-    return;
-  }
-
-  t->state = RUNNING;
-  moveHead(&this->waiting, &this->running);
 }
 
 void Scheduler::run() {
@@ -129,11 +113,17 @@ void Scheduler::run() {
 
   Task *t = this->running->item;
 
-  t->fun(t);
+  Timestamp start = now();
+  Timestamp delta = 0;
+  do {
+    t->fun(t);
+    delta = now() - start;
+  } while(t->state == RUNNING && delta < this->timeSlice);
+
+  t->updateTime(delta);
 
   switch (t->state) {
     case RUNNING:
-      t->updateTime(now());
       this->reschedule();
       break;
 
@@ -153,14 +143,58 @@ void Scheduler::run() {
   }
 }
 
-String Scheduler::monitor() const {
-  String out = "Running tasks:\r\n";
-  foreach<Task*>(this->running, [&out](Task *t) {
-    out += " - " + t->toString() + "\r\n";
-  });
-  out += "Waiting tasks:\r\n";
-  foreach<Task*>(this->waiting, [&out](Task *t) {
-    out += " - " + t->toString() + "\r\n";
-  });
+#ifdef PROCESS_MONITOR
+
+char buf[21];
+
+String uint64String(Timestamp num) {
+  const char map[] = "0123456789";
+  char *p = &buf[21];
+  *p = 0;
+
+  do {
+    *(--p) = map[num % 10];
+    num /= 10;
+  } while (num != 0);
+
+  return String(p);
+}
+
+String Scheduler::taskToString(Task *t, Timestamp delta) {
+  Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
+
+  return
+      String((size_t) t, HEX) + "\t" +
+      String(t->priority) + "\t" +
+      String(t->state) + "\t" +
+      String(((uint32_t) cpu) / 100.0f) + "\t" +
+      uint64String(t->rTime) + "\t" +
+      uint64String(t->vTime) + "\t" +
+      uint64String(t->wTime);
+}
+
+String Scheduler::monitor() {
+  Timestamp currTime = this->now();
+  Timestamp delta = currTime - this->monitorTime;
+  Timestamp total = 0;
+  this->monitorTime = currTime;
+
+  String procs = "";
+  Function f = [&procs, delta, this, &total](Task *t) {
+    procs += this->taskToString(t, delta) + "\r\n";
+    total += t->rTime - t->prevRTime;
+    t->prevRTime = t->rTime;
+  };
+
+  foreach<Task*>(this->running, f);
+  foreach<Task*>(this->waiting, f);
+
+  Timestamp cpu = (delta - total) * 10000 / delta;
+
+  String out = "PID\tPRI\tS\t%CPU\tRTIME\tVTIME\tWTIME\r\n";
+  out += "system\t0\t0\t" + String(((uint32_t) cpu) / 100.0f) + "\t" + uint64String(currTime) + "\t0\t0\r\n";
+  out += procs;
   return out;
 }
+
+#endif
