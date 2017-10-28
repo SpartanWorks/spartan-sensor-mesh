@@ -25,6 +25,9 @@ void setup(void){
   // TASK SCHEDULER
   scheduler.begin();
   scheduler.spawn(125, [](Task *t) {
+    Serial.print("Free heap memory: ");
+    Serial.print(ESP.getFreeHeap());
+    Serial.println(" B");
     Serial.println(scheduler.monitor());
     t->sleep(STATS_INTERVAL);
   });
