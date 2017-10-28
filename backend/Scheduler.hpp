@@ -50,6 +50,7 @@ private:
   Timestamp prevTime = 0;
   uint32_t overflows = 0;
 
+  Timestamp timeSlice = 0;
   List<Task*> *running = nullptr;
   List<Task*> *waiting = nullptr;
 
@@ -65,6 +66,7 @@ private:
 
 public:
   Scheduler();
+  Scheduler(Timestamp slice);
   ~Scheduler();
 
   Timestamp now();

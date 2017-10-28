@@ -16,7 +16,9 @@ void Task::updateTime(Timestamp time) {
   this->vTime += time * this->priority;
 }
 
-Scheduler::Scheduler() {}
+Scheduler::Scheduler(): Scheduler(0) {}
+
+Scheduler::Scheduler(Timestamp slice): timeSlice(slice) {}
 
 Scheduler::~Scheduler() {
   if (this->running != nullptr) {
@@ -110,10 +112,13 @@ void Scheduler::run() {
   Task *t = this->running->item;
 
   Timestamp start = now();
-  t->fun(t);
-  Timestamp stop = now();
+  Timestamp delta = 0;
+  do {
+    t->fun(t);
+    delta = now() - start;
+  } while(t->state == RUNNING && delta < this->timeSlice);
 
-  t->updateTime(stop - start);
+  t->updateTime(delta);
 
   switch (t->state) {
     case RUNNING:
