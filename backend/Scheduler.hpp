@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include "List.hpp"
 
+#define PROCESS_MONITOR
+
 class Task;
 
 typedef std::function<void(Task*)> Function;
@@ -26,10 +28,13 @@ private:
   Priority priority;
   Function fun;
   Timestamp vTime = 0;
-  Timestamp rTime = 0;
   Timestamp wTime = 0;
 
-  String toString() const;
+  #ifdef PROCESS_MONITOR
+    Timestamp prevRTime = 0;
+    Timestamp rTime = 0;
+  #endif
+
   void updateTime(Timestamp time);
 
 public:
@@ -53,6 +58,11 @@ private:
   void wake(Timestamp time);
   Timestamp minVTime();
 
+  #ifdef PROCESS_MONITOR
+    String taskToString(Task *t, Timestamp delta);
+    Timestamp monitorTime = 0;
+  #endif
+
 public:
   Scheduler();
   ~Scheduler();
@@ -61,7 +71,10 @@ public:
   void begin();
   Task* spawn(Priority priority, Function f);
   void run();
-  String monitor();
+
+  #ifdef PROCESS_MONITOR
+    String monitor();
+  #endif
 };
 
 #endif

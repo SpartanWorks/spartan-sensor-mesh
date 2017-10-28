@@ -16,30 +16,6 @@ void Task::updateTime(Timestamp time) {
   this->vTime += time * this->priority;
 }
 
-char buf[21];
-
-String uint64String(Timestamp num) {
-  const char map[] = "0123456789";
-  char *p = &buf[21];
-  *p = 0;
-
-  do {
-    *(--p) = map[num % 10];
-    num /= 10;
-  } while (num != 0);
-
-  return String(p);
-}
-
-String Task::toString() const {
-  return "pid: 0x" + String((size_t) this, HEX) + ", " +
-      "state: " + String(this->state) + ", " +
-      "priority: " + String(this->priority) + ", " +
-      "real: " + uint64String(this->rTime) + " us, " +
-      "virtual: " + uint64String(this->vTime) + " us, " +
-      "wake: " + uint64String(this->wTime) + " us";
-}
-
 Scheduler::Scheduler() {}
 
 Scheduler::~Scheduler() {
@@ -160,15 +136,58 @@ void Scheduler::run() {
   }
 }
 
+#ifdef PROCESS_MONITOR
+
+char buf[21];
+
+String uint64String(Timestamp num) {
+  const char map[] = "0123456789";
+  char *p = &buf[21];
+  *p = 0;
+
+  do {
+    *(--p) = map[num % 10];
+    num /= 10;
+  } while (num != 0);
+
+  return String(p);
+}
+
+String Scheduler::taskToString(Task *t, Timestamp delta) {
+  Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
+
+  return
+      String((size_t) t, HEX) + "\t" +
+      String(t->priority) + "\t" +
+      String(t->state) + "\t" +
+      String(((uint32_t) cpu) / 100.0f) + "\t" +
+      uint64String(t->rTime) + "\t" +
+      uint64String(t->vTime) + "\t" +
+      uint64String(t->wTime);
+}
+
 String Scheduler::monitor() {
-  String out = "Current time: " + uint64String(this->now()) + " us\r\n";
-  out += "Running tasks:\r\n";
-  foreach<Task*>(this->running, [&out](Task *t) {
-    out += " - " + t->toString() + "\r\n";
-  });
-  out += "Waiting tasks:\r\n";
-  foreach<Task*>(this->waiting, [&out](Task *t) {
-    out += " - " + t->toString() + "\r\n";
-  });
+  Timestamp currTime = this->now();
+  Timestamp delta = currTime - this->monitorTime;
+  Timestamp total = 0;
+  this->monitorTime = currTime;
+
+  String procs = "";
+  Function f = [&procs, delta, this, &total](Task *t) {
+    procs += this->taskToString(t, delta) + "\r\n";
+    total += t->rTime - t->prevRTime;
+    t->prevRTime = t->rTime;
+  };
+
+  foreach<Task*>(this->running, f);
+  foreach<Task*>(this->waiting, f);
+
+  Timestamp cpu = (delta - total) * 10000 / delta;
+
+  String out = "PID\tPRI\tS\t%CPU\tRTIME\tVTIME\tWTIME\r\n";
+  out += "system\t0\t0\t" + String(((uint32_t) cpu) / 100.0f) + "\t" + uint64String(currTime) + "\t0\t0\r\n";
+  out += procs;
   return out;
 }
+
+#endif
