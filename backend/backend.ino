@@ -4,16 +4,17 @@
 #include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
-#include "DHTHub.hpp"
 #include "DallasTempHub.hpp"
 #include "Device.hpp"
+#include "DHTHub.hpp"
+#include "HTUHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int STATS_INTERVAL = 10000; // 10 seconds
-const int TIME_SLICE = 1000; // 1 ms
+const int TIME_SLICE = 500; // 500 us
 
 Scheduler scheduler(TIME_SLICE);
 
@@ -49,17 +50,36 @@ void setup(void){
   }
 
   // DEVICE TREE
-  BMPHub *hub = new BMPHub(2, 0, 0x76);
-  // DallasTempHub hub = new DallasTempHub(2, 12);
-  // DHTHub hub = new DHTHub(2, DHT11);
-  // DHTHub hub = new DHTHub(2, DHT22);
   Device *device = new Device("53n50rp455w0r0");
 
-  hub->begin();
-  device->attach(hub);
-  scheduler.spawn(115,[hub](Task *t) {
+  BMPHub *bmp = new BMPHub(2, 0, 0x76);
+  bmp->begin();
+  device->attach(bmp);
+
+  HTUHub *htu = new HTUHub(2, 0, 0x40);
+  htu->begin();
+  device->attach(htu);
+
+  // DallasTempHub *dallas = new DallasTempHub(2, 12);
+  // dallas->begin();
+  // device->attach(dallas);
+
+  // DHTHub *dht11 = new DHTHub(2, DHT11);
+  // dht11->begin();
+  // device->attach(dht11);
+
+  // DHTHub *dht22 = new DHTHub(2, DHT22);
+  // dht22->begin();
+  // device->attach(dht22);
+
+  scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling sensors.");
-    hub->update();
+    bmp->update();
+    htu->update();
+    // dallas->update();
+    // dht11->update();
+    // dht22->update();
+
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
