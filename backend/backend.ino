@@ -4,9 +4,10 @@
 #include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
-#include "DHTHub.hpp"
 #include "DallasTempHub.hpp"
 #include "Device.hpp"
+#include "DHTHub.hpp"
+#include "HTUHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
@@ -49,17 +50,23 @@ void setup(void){
   }
 
   // DEVICE TREE
-  BMPHub *hub = new BMPHub(2, 0, 0x76);
-  // DallasTempHub hub = new DallasTempHub(2, 12);
-  // DHTHub hub = new DHTHub(2, DHT11);
-  // DHTHub hub = new DHTHub(2, DHT22);
+  BMPHub *bmp = new BMPHub(2, 0, 0x76);
+  HTUHub *htu = new HTUHub(2, 0, 0x40);
+  // DallasTempHub *dallas = new DallasTempHub(2, 12);
+  // DHTHub *dht11 = new DHTHub(2, DHT11);
+  // DHTHub *dht22 = new DHTHub(2, DHT22);
   Device *device = new Device("53n50rp455w0r0");
 
-  hub->begin();
-  device->attach(hub);
-  scheduler.spawn(115,[hub](Task *t) {
+  bmp->begin();
+  htu->begin();
+
+  device->attach(bmp);
+  device->attach(htu);
+
+  scheduler.spawn(115,[bmp, htu](Task *t) {
     Serial.println("Sampling sensors.");
-    hub->update();
+    bmp->update();
+    htu->update();
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
