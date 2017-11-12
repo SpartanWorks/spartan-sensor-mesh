@@ -50,23 +50,36 @@ void setup(void){
   }
 
   // DEVICE TREE
-  BMPHub *bmp = new BMPHub(2, 0, 0x76);
-  HTUHub *htu = new HTUHub(2, 0, 0x40);
-  // DallasTempHub *dallas = new DallasTempHub(2, 12);
-  // DHTHub *dht11 = new DHTHub(2, DHT11);
-  // DHTHub *dht22 = new DHTHub(2, DHT22);
   Device *device = new Device("53n50rp455w0r0");
 
+  BMPHub *bmp = new BMPHub(2, 0, 0x76);
   bmp->begin();
-  htu->begin();
-
   device->attach(bmp);
+
+  HTUHub *htu = new HTUHub(2, 0, 0x40);
+  htu->begin();
   device->attach(htu);
 
-  scheduler.spawn(115,[bmp, htu](Task *t) {
+  // DallasTempHub *dallas = new DallasTempHub(2, 12);
+  // dallas->begin();
+  // device->attach(dallas);
+
+  // DHTHub *dht11 = new DHTHub(2, DHT11);
+  // dht11->begin();
+  // device->attach(dht11);
+
+  // DHTHub *dht22 = new DHTHub(2, DHT22);
+  // dht22->begin();
+  // device->attach(dht22);
+
+  scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling sensors.");
     bmp->update();
     htu->update();
+    // dallas->update();
+    // dht11->update();
+    // dht22->update();
+
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
