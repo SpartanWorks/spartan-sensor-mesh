@@ -7,6 +7,10 @@
 
 #define PROCESS_MONITOR
 
+#ifdef PROCESS_MONITOR
+  #include <stdio.h>
+#endif
+
 class Task;
 
 typedef std::function<void(Task*)> Function;

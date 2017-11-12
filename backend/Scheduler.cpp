@@ -160,17 +160,24 @@ String uint64String(Timestamp num) {
   return String(p);
 }
 
+char output[160];
+
 String Scheduler::taskToString(Task *t, Timestamp delta) {
   Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
 
-  return
-      String((size_t) t, HEX) + "\t" +
-      String(t->priority) + "\t" +
-      String(t->state) + "\t" +
-      String(((uint32_t) cpu) / 100.0f) + "\t" +
-      uint64String(t->rTime) + "\t" +
-      uint64String(t->vTime) + "\t" +
-      uint64String(t->wTime);
+  sprintf(output, "%-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+          String((size_t) t, HEX).c_str(),
+          t->priority,
+          t->state,
+          String(((uint32_t) cpu) / 100.0f, 2).c_str(),
+          uint64String(t->rTime).c_str(),
+          uint64String(t->vTime).c_str(),
+          uint64String(t->wTime).c_str());
+
+  String out = "";
+  out += output;
+
+  return out;
 }
 
 String Scheduler::monitor() {
@@ -181,7 +188,7 @@ String Scheduler::monitor() {
 
   String procs = "";
   Function f = [&procs, delta, this, &total](Task *t) {
-    procs += this->taskToString(t, delta) + "\r\n";
+    procs += this->taskToString(t, delta);
     total += t->rTime - t->prevRTime;
     t->prevRTime = t->rTime;
   };
@@ -189,11 +196,29 @@ String Scheduler::monitor() {
   foreach<Task*>(this->running, f);
   foreach<Task*>(this->waiting, f);
 
-  Timestamp cpu = (delta - total) * 10000 / delta;
+  String out = "";
+  sprintf(output, "%-10s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
+          "PID",
+          "PRI",
+          "S",
+          "% CPU",
+          "RTIME",
+          "VTIME",
+          "WTIME");
+  out += output;
 
-  String out = "PID\tPRI\tS\t%CPU\tRTIME\tVTIME\tWTIME\r\n";
-  out += "system\t0\t0\t" + String(((uint32_t) cpu) / 100.0f) + "\t" + uint64String(currTime) + "\t0\t0\r\n";
+  Timestamp cpu = (delta - total) * 10000 / delta;
+  sprintf(output, "%-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+          "system",
+          0,
+          0,
+          String(((uint32_t) cpu) / 100.0f, 2).c_str(),
+          uint64String(currTime).c_str(),
+          "0",
+          "0");
+  out += output;
   out += procs;
+
   return out;
 }
 
