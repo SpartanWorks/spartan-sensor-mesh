@@ -2,7 +2,7 @@
 #define __HTUHUB_HPP__
 
 #include <Wire.h>
-#include <Adafruit_HTU21DF.h>
+#include <SparkFunHTU21D.h>
 #include "Sensor.hpp"
 #include "SensorHub.hpp"
 #include "Device.hpp"
@@ -15,7 +15,7 @@ private:
   uint8_t address;
   uint8_t sda;
   uint8_t scl;
-  Adafruit_HTU21DF sensor;
+  HTU21D sensor;
   Sensor humidity;
   Sensor temperature;
 
