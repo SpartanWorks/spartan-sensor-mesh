@@ -19,21 +19,21 @@
   opacity: 0;
   transition: opacity 1s ease-in-out;
   animation: grow 0.3s infinite alternate ease-in-out;
-}
 
-.errorTriggered {
-  opacity: 1.0;
+  &.triggered {
+    opacity: 1.0;
+  }
 }
 
 .grayOut {
   opacity: 1.0;
   filter: grayscale(0);
   transition: filter 1s ease-in-out, opacity 1s ease-in-out;;
-}
 
-.grayOutTriggered {
-  opacity: 0.5;
-  filter: grayscale(0.90);
+  &.triggered {
+    opacity: 0.5;
+    filter: grayscale(0.90);
+  }
 }
 
 @keyframes grow {
