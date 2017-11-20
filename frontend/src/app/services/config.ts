@@ -12,10 +12,10 @@ export class ConfigService {
     this.baseUrl = baseUrl;
   }
 
-  private makeHeaders() {
-    return {
-      "Authorization": "Basic " + this.credentials
-    };
+  private makeHeaders(): Headers {
+    const h = new Headers();
+    h.append("Authorization", "Basic " + this.credentials);
+    return h;
   }
 
   logIn(login: string, password: string) {
