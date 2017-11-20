@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { error } from "../../styles/error.css";
+import * as error from "../../styles/error.css";
 import * as styles from "./gauge.css";
 
 interface LineProps {
@@ -65,11 +65,13 @@ interface GaugeProps {
 
 export const Gauge = (props: GaugeProps) => (
   <div className={styles.wrapper + " " + styles.aliasingFix}>
-    <div className={styles.shadow}/>
-      {drawLines(props)}
-    <div className={styles.label}>
-      {props.children}
+    <div className={styles.container + " " + error.grayOut + " " + (props.isError ? error.triggered : "")}>
+      <div className={styles.shadow}/>
+        {drawLines(props)}
+      <div className={styles.label}>
+        {props.children}
+      </div>
     </div>
-    <div title={props.errorTooltip} className={props.isError ? error : styles.hidden}/>
+    <div title={props.errorTooltip} className={error.error + " " + (props.isError ? error.triggered : "")}/>
   </div>
 );

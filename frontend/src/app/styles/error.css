@@ -16,10 +16,24 @@
   mask: var(--error-icon) no-repeat;
   mask-size: cover;
 
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
   animation: grow 0.3s infinite alternate ease-in-out;
+
+  &.triggered {
+    opacity: 1.0;
+  }
+}
+
+.grayOut {
+  opacity: 1.0;
+  filter: grayscale(0);
+  transition: filter 1s ease-in-out, opacity 1s ease-in-out;;
+
+  &.triggered {
+    opacity: 0.5;
+    filter: grayscale(0.90);
+  }
 }
 
 @keyframes grow {
