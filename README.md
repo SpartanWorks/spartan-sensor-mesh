@@ -1,6 +1,4 @@
-# Climate Control
+# Spartan Sensor Mesh
 
-This is a spartan, web-enabled climate control unit based around an ESP8266 and DHT## sensors.
-
-<img src="./portrait.png" width="300"/>
-<img src="./landscape.png" height="300"/>
+This project uses several connected ESP8266 boards to display various sensor readings in a clean and configurable way.
+[Here's](http://idorobots.github.io/spartan-sensor-mesh/) a live demo of the UI, and [some](./landscape.png) [images](./portrait.png).
