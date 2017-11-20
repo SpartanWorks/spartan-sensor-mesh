@@ -3,6 +3,20 @@
     "model": "generic",
     "name": "Device-9d61ef",
     "sensors": [
+	{
+            "type": "temperature",
+            "model": "BMP",
+	    "name": "temperature",
+            "status": "ok",
+            "errors": 34,
+            "measurements": 3368,
+	    "reading": {
+                "mean": 27.62913,
+            	"samples": 30,
+            	"value": 26.1875,
+            	"variance": 0.08344
+            }
+        },
         {
             "type": "temperature",
 	    "model": "DallasTemperature",
@@ -11,9 +25,9 @@
             "errors": 34,
             "measurements": 3368,
             "reading": {
-                "mean": 25.62913,
+                "mean": 23.62913,
             	"samples": 30,
-            	"value": 26.1875,
+            	"value": 23.7875,
             	"variance": 2.8344
             }
         },
@@ -21,10 +35,24 @@
             "type": "temperature",
 	    "model": "DallasTemperature",
 	    "name": "temperature1",
-            "status": "error",
+            "status": "ok",
             "errors": 34,
             "measurements": 3368,
             "reading": {
+                "mean": 15.88333,
+            	"samples": 30,
+            	"value": 15.25,
+            	"variance": 0.70629
+            }
+        },
+        {
+            "type": "temperature",
+            "model": "DHT",
+	    "name": "temperature",
+            "status": "error",
+            "errors": 107,
+            "measurements": 1594,
+	    "reading": {
                 "mean": 15.88333,
             	"samples": 30,
             	"value": 15.25,
@@ -45,20 +73,6 @@
             	"variance": 175.70629
             }
         },
-	{
-            "type": "temperature",
-            "model": "BMP",
-	    "name": "temperature",
-            "status": "error",
-            "errors": 34,
-            "measurements": 3368,
-	    "reading": {
-                "mean": 27.62913,
-            	"samples": 30,
-            	"value": 26.1875,
-            	"variance": 0.08344
-            }
-        },
         {
             "type": "humidity",
             "model": "DHT",
@@ -73,18 +87,18 @@
             	"variance": 4.03974
             }
         },
-        {
-            "type": "temperature",
+	{
+            "type": "unsupported",
             "model": "DHT",
-	    "name": "temperature",
+	    "name": "humidity",
             "status": "ok",
             "errors": 107,
             "measurements": 1594,
 	    "reading": {
-                "mean": 23.29999,
+                "mean": 54.0167,
             	"samples": 30,
-            	"value": 23.3,
-            	"variance": 3.0
+            	"value": 53.9,
+            	"variance": 4.03974
             }
         }
     ]
