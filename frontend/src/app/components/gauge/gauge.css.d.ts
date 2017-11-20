@@ -1,4 +1,5 @@
 export const wrapper: string;
+export const container: string;
 export const gauge: string;
 export const progressBar: string;
 export const hidden: string;

@@ -15,54 +15,59 @@
     box-sizing: border-box;
   }
 
-  & .gauge {
+  & .container {
     width: 100%;
     height: 100%;
-    left: 0;
-    top: 0;
-    position: absolute;
 
-    & .progressBar {
+    & .gauge {
       width: 100%;
       height: 100%;
       left: 0;
       top: 0;
       position: absolute;
-      clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
 
+      & .progressBar {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        position: absolute;
+        clip: rect(0, calc(var(--gauge-size) / 2), var(--gauge-size), 0);
+
+        border-style: solid;
+        border-radius: 50%;
+      }
+    }
+
+    & .hidden {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    & .label {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: none;
+    }
+
+    & .left {
+      transition: all var(--animation-speed) ease-in-out;
+    }
+
+    & .right {
+      transition: border var(--animation-speed) ease-in-out;
+    }
+
+    & .shadow {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      border-width: var(--shadow-width);
       border-style: solid;
+      border-color: var(--shadow-color);
       border-radius: 50%;
     }
-  }
-
-  & .hidden {
-    visibility: hidden;
-    opacity: 0;
-  }
-
-  & .label {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    background: none;
-  }
-
-  & .left {
-    transition: all var(--animation-speed) ease-in-out;
-  }
-
-  & .right {
-    transition: border var(--animation-speed) ease-in-out;
-  }
-
-  & .shadow {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    border-width: var(--shadow-width);
-    border-style: solid;
-    border-color: var(--shadow-color);
-    border-radius: 50%;
   }
 }
 
