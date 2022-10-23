@@ -21,8 +21,8 @@ export const PM = (props: Props) => (
                errorTooltip="Sensor is not responding."
                pmType={props.data.type}>
         <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
-               value={Math.round(props.data.reading.mean)}
-               unit="μg/m3"
+               value={Number(props.data.reading.mean.toFixed(1))}
+               unit="μg/m³"
                tooltip={"Averaged from last " + props.data.reading.samples + " readings."}/>
       </PMGauge>
     </div>
