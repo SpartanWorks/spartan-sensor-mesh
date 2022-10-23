@@ -10,10 +10,19 @@
 
 #define SAMPLE_BACKLOG 30
 
+class PatchedSdsSensor : public SdsDustSensor {
+  HardwareSerial &serial;
+
+  public:
+  PatchedSdsSensor(HardwareSerial &hardwareSerial);
+  void writeImmediate(const Command &command);
+  void pollPm();
+};
+
 class SDSHub: public SensorHub {
 private:
   HardwareSerial &serial;
-  SdsDustSensor sensor;
+  PatchedSdsSensor sensor;
   Sensor pm25;
   Sensor pm10;
 

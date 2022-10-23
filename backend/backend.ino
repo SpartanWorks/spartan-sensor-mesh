@@ -72,6 +72,7 @@ void setup(void){
   sds->begin();
   device->attach(sds);
 
+  // Other available sensors:
   // DallasTempHub *dallas = new DallasTempHub(2, 12);
   // dallas->begin();
   // device->attach(dallas);
@@ -85,14 +86,20 @@ void setup(void){
   // device->attach(dht22);
 
   scheduler.spawn(115,[=](Task *t) {
-    Serial.println("Sampling sensors.");
-    bmp->update();
+    Serial.println("Sampling HTU hub.");
     htu->update();
-    sds->update();
-    // dallas->update();
-    // dht11->update();
-    // dht22->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
+  
+  scheduler.spawn(115,[=](Task *t) {
+    Serial.println("Sampling BPM hub.");
+    bmp->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
 
+  scheduler.spawn(115,[=](Task *t) {
+    Serial.println("Sampling SDS hub.");
+    sds->update();
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
