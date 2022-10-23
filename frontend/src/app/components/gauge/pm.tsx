@@ -19,6 +19,9 @@ function pm25Color(value: number): string {
   return "#7e0023";
 }
 
+export const PM_10 = "pm10";
+export const PM_25 = "pm2.5";
+
 interface PMGaugeProps {
   value: number;
   variance?: number;
@@ -35,7 +38,7 @@ export const PMGauge = (props: PMGaugeProps) => {
   return (
     <Gauge progress={val * 360}
            uncertainty={Math.sqrt(props.variance || 0.0) / (props.max - props.min) * 360}
-           color={props.pmType === "PM10" ? pm10Color(props.value) : pm25Color(props.value)}
+           color={props.pmType === PM_10 ? pm10Color(props.value) : pm25Color(props.value)}
            isError={props.isError}
            errorTooltip={props.errorTooltip}>
       {props.children}

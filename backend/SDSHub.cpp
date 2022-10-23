@@ -3,8 +3,8 @@
 SDSHub::SDSHub(HardwareSerial &serial):
     serial(serial),
     sensor(SdsDustSensor(serial)),
-    pm25(Sensor("SDS", "PM", "PM 2.5", new WindowedReading<float, SAMPLE_BACKLOG>())),
-    pm10(Sensor("SDS", "PM", "PM 10", new WindowedReading<float, SAMPLE_BACKLOG>()))
+    pm25(Sensor("SDS", "pm2.5", "PM 2.5", new WindowedReading<float, SAMPLE_BACKLOG>())),
+    pm10(Sensor("SDS", "pm10", "PM 10", new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void SDSHub::begin() {

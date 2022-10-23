@@ -23,7 +23,9 @@ function renderSensor(data: SensorData) {
     return <Humidity data={data}/>;
   case "pressure":
     return <Pressure data={data} min={95000} max={105000}/>;
-  case "PM":
+  case "pm2.5":
+    return <PM data={data} min={0} max={250}/>;
+  case "pm10":
     return <PM data={data} min={0} max={500}/>;
   default:
     return <UnsupportedSensor data={data}/>;

@@ -19,7 +19,7 @@ export const PM = (props: Props) => (
                max={props.max}
                isError={props.data.status === "error"}
                errorTooltip="Sensor is not responding."
-               pmType={props.data.name}>
+               pmType={props.data.type}>
         <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
                value={Math.round(props.data.reading.mean)}
                unit="μg/m3"
