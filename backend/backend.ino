@@ -9,11 +9,12 @@
 #include "Device.hpp"
 #include "DHTHub.hpp"
 #include "HTUHub.hpp"
+#include "SDSHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
-const int SAMPLE_INTERVAL = 2000; // 2 seconds
+const int SAMPLE_INTERVAL = 5000; // 2 seconds
 const int STATS_INTERVAL = 10000; // 10 seconds
 const int TIME_SLICE = 500; // 500 us
 
@@ -66,6 +67,11 @@ void setup(void){
   htu->begin();
   device->attach(htu);
 
+  HardwareSerial& sdsSerial(Serial2);
+  SDSHub *sds = new SDSHub(sdsSerial);
+  sds->begin();
+  device->attach(sds);
+
   // DallasTempHub *dallas = new DallasTempHub(2, 12);
   // dallas->begin();
   // device->attach(dallas);
@@ -82,6 +88,7 @@ void setup(void){
     Serial.println("Sampling sensors.");
     bmp->update();
     htu->update();
+    sds->update();
     // dallas->update();
     // dht11->update();
     // dht22->update();

@@ -1,6 +1,7 @@
 import { observer } from "mobx-preact";
 import * as preact from "preact";
 import { Humidity } from "../../components/humidity/humidity";
+import { PM } from "../../components/pm/pm";
 import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
@@ -22,6 +23,8 @@ function renderSensor(data: SensorData) {
     return <Humidity data={data}/>;
   case "pressure":
     return <Pressure data={data} min={95000} max={105000}/>;
+  case "PM":
+    return <PM data={data} min={0} max={500}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
