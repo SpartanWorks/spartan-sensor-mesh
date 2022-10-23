@@ -53,6 +53,6 @@
     "mobx": "^5.0.0",
     "mobx-preact": "^3.0.0",
     "preact": "^10.5.9",
-    "preact-router": "^2.5.7"
+    "preact-router": "^4.1.0"
   }
 }
