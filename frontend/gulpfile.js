@@ -142,7 +142,7 @@ gulp.task("reload", gulp.series("develop", () => {
 }));
 
 gulp.task("watch", gulp.series("develop", () => {
-  gulp.watch("./src/**/*.*", { debounceDelay: 2000 }, ["reload"]);
+  gulp.watch("./src/**/*.*", { debounceDelay: 2000 }, gulp.series("reload"));
   connect.server({
     host: "0.0.0.0",
     livereload: true,
