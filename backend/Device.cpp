@@ -7,7 +7,8 @@ Device::Device(String n, String p): Device(n, p, n) {
 }
 
 Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g), list(nullptr) {
-  dName = (dName == "") ? String("Device-") + String(ESP.getChipId(), HEX) : dName;
+  uint32_t chipId = (uint32_t)(ESP.getEfuseMac() >> 32);
+  dName = (dName == "") ? String("Device-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
 }
 

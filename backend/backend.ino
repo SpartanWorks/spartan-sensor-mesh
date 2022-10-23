@@ -1,6 +1,7 @@
-#include <ESP8266mDNS.h>
-#include <ESP8266WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFi.h>
 #include <WiFiClient.h>
+#include <SPIFFS.h>
 #include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
@@ -15,6 +16,9 @@ const int AP_TIMEOUT = 900000; // 15 minutes
 const int SAMPLE_INTERVAL = 2000; // 2 seconds
 const int STATS_INTERVAL = 10000; // 10 seconds
 const int TIME_SLICE = 500; // 500 us
+
+const int SDA_PIN = 21;
+const int SCL_PIN = 22;
 
 Scheduler scheduler(TIME_SLICE);
 
@@ -37,26 +41,28 @@ void setup(void){
 
   // FILE SYSTEM
   SPIFFS.begin();
-  FSInfo info;
-  SPIFFS.info(info);
-  Serial.println("File system initialized (" + String(info.usedBytes) + " B / " + String(info.totalBytes) + " B):");
+  Serial.println("File system initialized (" + String(SPIFFS.usedBytes()) + " B / " + String(SPIFFS.totalBytes()) + " B):");
 
-  Dir dir = SPIFFS.openDir("/");
-  while (dir.next()) {
-    Serial.print("- " + dir.fileName());
-    File f = dir.openFile("r");
-    Serial.println(" (" + String(f.size()) + " B)");
-    f.close();
+  File dir = SPIFFS.open("/");
+  if(!dir.isDirectory()) {
+    Serial.println("/ is not a directory!");
+  } else {
+    File f;
+    while (f = dir.openNextFile()) {
+      Serial.print("- " + String(f.name()));
+      Serial.println(" (" + String(f.size()) + " B)");
+      f.close();
+    }
   }
 
   // DEVICE TREE
   Device *device = new Device("53n50rp455w0r0");
 
-  BMPHub *bmp = new BMPHub(2, 0, 0x76);
+  BMPHub *bmp = new BMPHub(SDA_PIN, SCL_PIN, 0x76);
   bmp->begin();
   device->attach(bmp);
 
-  HTUHub *htu = new HTUHub(2, 0, 0x40);
+  HTUHub *htu = new HTUHub(SDA_PIN, SCL_PIN, 0x40);
   htu->begin();
   device->attach(htu);
 
@@ -86,7 +92,7 @@ void setup(void){
 
   // NETWORK
   WiFi.hostname(device->name().c_str());
-  WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_MODE_APSTA);
   WiFi.softAP(device->name().c_str(), device->password().c_str());
   scheduler.spawn(125, [](Task *t) {
     static boolean apEnabled = true;

@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Device *d, FS &fs): ESP8266WebServer(port), device(d), files(fs) {
+APIServer::APIServer(uint16_t port, const Device *d, FS &fs): WebServer(port), device(d), files(fs) {
 }
 
 bool waitForConnection(uint32_t timeout) {
@@ -34,14 +34,14 @@ bool connect(const String ssid, const String password) {
   return true;
 }
 
+const char * LOWER_CASE_AUTHORIZATION_HEADER = "authorization";
+const char *AUTHORIZATION_HEADER = "Authorization";
+
 void APIServer::handleOptions() {
   Serial.println("Serving OPTIONS");
-  this->sendHeader("Access-Control-Allow-Headers", "Authorization");
+  this->sendHeader("Access-Control-Allow-Headers", AUTHORIZATION_HEADER);
   this->send(200, "application/json", "{\"status\":\"ok}");
 }
-
-const char * LOWER_CASE_AUTHORIZATION_HEADER = "authorization";
-extern const char *AUTHORIZATION_HEADER;
 
 void APIServer::handleApiLogin() {
   Serial.println("Serving /api/login");
@@ -103,7 +103,7 @@ void APIServer::handleWildcard() {
 }
 
 void APIServer::begin() {
-  ESP8266WebServer::begin();
+  WebServer::begin();
 
   // FIXME Some browsers send lowercase authorization header.
   const char *headers[] = { LOWER_CASE_AUTHORIZATION_HEADER };
