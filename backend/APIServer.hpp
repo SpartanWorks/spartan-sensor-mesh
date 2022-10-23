@@ -8,6 +8,7 @@
 #include "Device.hpp"
 
 const int WIFI_CONNECTION_TIMEOUT = 20000; // 20 seconds
+const String WIFI_CONFIG_FILE = "/wifi_config.txt";
 
 class APIServer: public WebServer {
 private:
@@ -19,6 +20,8 @@ private:
   void handleApiConfig();
   void handleApiData();
   void handleWildcard();
+
+  void restoreWiFiConfig();
 
 public:
   APIServer(uint16_t port, const Device *d, FS &fs);

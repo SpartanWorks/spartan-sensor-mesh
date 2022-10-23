@@ -92,7 +92,7 @@ void setup(void){
 
   // NETWORK
   WiFi.hostname(device->name().c_str());
-  WiFi.mode(WIFI_MODE_APSTA);
+  WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(device->name().c_str(), device->password().c_str());
   scheduler.spawn(125, [](Task *t) {
     static boolean apEnabled = true;

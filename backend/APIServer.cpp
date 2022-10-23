@@ -25,13 +25,15 @@ bool connect(const String ssid, const String password) {
   Serial.println(ssid);
 
   WiFi.begin(ssid.c_str(), password.c_str());
-  waitForConnection(WIFI_CONNECTION_TIMEOUT);
+  bool result = waitForConnection(WIFI_CONNECTION_TIMEOUT);
 
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  return true;
+  if(result) {
+    Serial.print("Connected to ");
+    Serial.println(ssid);
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+  }
+  return result;
 }
 
 const char * LOWER_CASE_AUTHORIZATION_HEADER = "authorization";
@@ -79,6 +81,14 @@ void APIServer::handleApiConfig() {
   }
 
   if(connect(ssid, pass)) {
+    Serial.println("Saving WiFi configuration...");
+    File f = this->files.open(WIFI_CONFIG_FILE, "w");
+    f.write((const uint8_t*)ssid.c_str(), ssid.length());
+    f.write('\n');
+    f.write((const uint8_t*)pass.c_str(), pass.length());
+    f.write('\n');
+    f.close();
+    
     this->send(200, "application/json", "{\"status\":\"ok\"}");
   } else {
     this->send(403, "application/json", "{\"error\":\"Invalid credentials.\"}");
@@ -102,9 +112,27 @@ void APIServer::handleWildcard() {
   f.close();
 }
 
+void APIServer::restoreWiFiConfig() {
+  Serial.println("Reading WiFi configuration...");
+  if(!this->files.exists(WIFI_CONFIG_FILE)) {
+    Serial.println("Config unavailable.");
+  } else {
+    File f = this->files.open(WIFI_CONFIG_FILE, "r");
+
+    String ssid = f.readStringUntil('\n');
+    String pass = f.readStringUntil('\n');
+
+    connect(ssid, pass);
+
+    f.close();
+  }
+}
+
 void APIServer::begin() {
   WebServer::begin();
 
+  this->restoreWiFiConfig();
+  
   // FIXME Some browsers send lowercase authorization header.
   const char *headers[] = { LOWER_CASE_AUTHORIZATION_HEADER };
   this->collectHeaders(headers, sizeof(headers)/sizeof(headers[0]));
