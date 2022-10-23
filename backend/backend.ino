@@ -10,6 +10,7 @@
 #include "DHTHub.hpp"
 #include "HTUHub.hpp"
 #include "SDSHub.hpp"
+#include "MHZHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
@@ -20,6 +21,9 @@ const int TIME_SLICE = 500; // 500 us
 
 const int SDA_PIN = 21;
 const int SCL_PIN = 22;
+
+const int MHZ_RX = 13;
+const int MHZ_TX = 12;
 
 Scheduler scheduler(TIME_SLICE);
 
@@ -72,6 +76,10 @@ void setup(void){
   sds->begin();
   device->attach(sds);
 
+  MHZHub *mhz = new MHZHub(MHZ_RX, MHZ_TX);
+  mhz->begin();
+  device->attach(mhz);
+
   // Other available sensors:
   // DallasTempHub *dallas = new DallasTempHub(2, 12);
   // dallas->begin();
@@ -90,7 +98,7 @@ void setup(void){
     htu->update();
     t->sleep(SAMPLE_INTERVAL);
   });
-  
+
   scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling BPM hub.");
     bmp->update();
@@ -100,6 +108,12 @@ void setup(void){
   scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling SDS hub.");
     sds->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
+
+  scheduler.spawn(115,[=](Task *t) {
+    Serial.println("Sampling MHZ hub.");
+    mhz->update();
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
