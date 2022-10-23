@@ -14,8 +14,8 @@
 
 const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
-const int SAMPLE_INTERVAL = 5000; // 2 seconds
-const int STATS_INTERVAL = 10000; // 10 seconds
+const int SAMPLE_INTERVAL = 2000; // 10 seconds
+const int STATS_INTERVAL = 60000; // 60 seconds
 const int TIME_SLICE = 500; // 500 us
 
 const int SDA_PIN = 21;
