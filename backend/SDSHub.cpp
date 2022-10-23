@@ -10,12 +10,11 @@ SDSHub::SDSHub(HardwareSerial &serial):
 void SDSHub::begin() {
   this->sensor.begin();
   Serial.println(this->sensor.queryFirmwareVersion().toString());
-  this->sensor.setActiveReportingMode();
-  this->sensor.setContinuousWorkingPeriod();  
+  this->sensor.setQueryReportingMode();
 }
 
 void SDSHub::update() {
-  PmResult pm = this->sensor.readPm();
+  PmResult pm = this->sensor.queryPm();
   if (pm.isOk()) {
     this->pm25.add(pm.pm25);
     this->pm10.add(pm.pm10);
