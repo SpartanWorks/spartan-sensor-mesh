@@ -1,2 +1,6 @@
-export const mainWrapper: string;
-export const displayWrapper: string;
+declare const styles: {
+  readonly "mainWrapper": string;
+  readonly "displayWrapper": string;
+};
+export = styles;
+

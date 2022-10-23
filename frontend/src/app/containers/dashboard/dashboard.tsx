@@ -1,4 +1,4 @@
-import { observer } from "mobx-observer";
+import { observer } from "mobx-preact";
 import * as preact from "preact";
 import { Humidity } from "../../components/humidity/humidity";
 import { Pressure } from "../../components/pressure/pressure";

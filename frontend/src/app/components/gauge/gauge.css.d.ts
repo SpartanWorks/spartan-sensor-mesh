@@ -1,14 +1,18 @@
-export const wrapper: string;
-export const container: string;
-export const gauge: string;
-export const progressBar: string;
-export const label: string;
-export const left: string;
-export const right: string;
-export const shadow: string;
-export const progressLess: string;
-export const progressMore: string;
-export const stack: string;
-export const stackTop: string;
-export const stackBottom: string;
-export const aliasingFix: string;
+declare const styles: {
+  readonly "wrapper": string;
+  readonly "container": string;
+  readonly "gauge": string;
+  readonly "progressBar": string;
+  readonly "label": string;
+  readonly "left": string;
+  readonly "right": string;
+  readonly "shadow": string;
+  readonly "progressLess": string;
+  readonly "progressMore": string;
+  readonly "stack": string;
+  readonly "stackTop": string;
+  readonly "stackBottom": string;
+  readonly "aliasingFix": string;
+};
+export = styles;
+

@@ -54,13 +54,21 @@ function drawLines(props: GaugeProps) {
   }
 }
 
+function clamp(val: number, min: number, max: number): number {
+  return Math.max(min, Math.min(val, max));
+}
+
+export function normalize(val: number, min: number, max: number): number {
+  return (clamp(val, min, max) - min) / (max - min);
+}
+
 interface GaugeProps {
   color: string;
   progress: number;
   uncertainty?: number;
   isError: boolean;
   errorTooltip: string;
-  children?: Array<preact.Component<any, any>>;
+  children: any;
 }
 
 export const Gauge = (props: GaugeProps) => (

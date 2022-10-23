@@ -1,5 +1,9 @@
-export const wrapper: string;
-export const fadeIn: string;
-export const button: string;
-export const iconChart: string;
-export const iconCogs: string;
+declare const styles: {
+  readonly "wrapper": string;
+  readonly "fadeIn": string;
+  readonly "button": string;
+  readonly "iconChart": string;
+  readonly "iconCogs": string;
+};
+export = styles;
+

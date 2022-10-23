@@ -1,4 +1,8 @@
-export const error: string;
-export const grow: string;
-export const triggered: string;
-export const grayOut: string;
+declare const styles: {
+  readonly "error": string;
+  readonly "grow": string;
+  readonly "triggered": string;
+  readonly "grayOut": string;
+};
+export = styles;
+

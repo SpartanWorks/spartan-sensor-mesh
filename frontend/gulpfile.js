@@ -4,7 +4,7 @@ const browserify = require("browserify");
 const buffer = require("vinyl-buffer");
 const connect = require("gulp-connect");
 const cssModulesify = require("css-modulesify");
-const DtsCreator = require("typed-css-modules");
+const DtsCreator = require("typed-css-modules").default;
 const glob = require("glob");
 const gulp = require("gulp");
 const gutil = require("gulp-util");
@@ -18,9 +18,10 @@ const uglify = require("gulp-uglify");
 const prod = process.env.ENV === "prod";
 
 const postcss = [ // order matters
-  require("postcss-import")({
-    path: ["./src/"]
-  }),
+  // FIXME
+  // require("postcss-import")({
+  //  path: ["./src/"]
+  //}),
   require("postcss-cssnext")({
     warnForDuplicates: !prod
   }),
@@ -33,47 +34,8 @@ module.exports = {
   postcss
 };
 
-gulp.task("bundle", ["create-dirs", "style-type-definitions"], (done) => {
-  const bundle = browserify("./src/app/main.tsx", { debug: !prod })
-    .plugin(require("tsify"))
-    .plugin(cssModulesify, {
-      before: prod ? postcss.concat(require("cssnano")) : postcss,
-      global: true,
-      output: "./dist/static/main.css",
-      rootDir: __dirname,
-      generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
-    })
-    .bundle()
-    .on("error", gutil.log)
-    .pipe(source("main.js"))
-    .pipe(buffer());
-  if (prod) {
-    bundle
-      .pipe(uglify())
-      .on("error", gutil.log);
-  } else {
-    bundle
-      .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(sourcemaps.write());
-  }
-  bundle
-    .pipe(gulp.dest("./dist/static/"))
-    .on("end", done);
-});
-
-gulp.task("lint", () => {
-  gulp
-    .src(["./src/**/*.ts", "./src/**/*.tsx"])
-    .on("error", gutil.log)
-    .pipe(tslint({
-      fix: true,
-      formatter: "verbose",
-    }))
-    .pipe(tslint.report());
-});
-
 gulp.task("create-dirs", () => {
-  gulp.src("")
+  return gulp.src("./")
     .pipe(gulp.dest("./dist/static/"));
 });
 
@@ -104,43 +66,82 @@ gulp.task("style-type-definitions", (done) => {
   });
 });
 
+gulp.task("bundle", gulp.series(gulp.parallel("create-dirs", "style-type-definitions"), (done) => {
+  const bundle = browserify("./src/app/main.tsx", { debug: !prod })
+    .plugin(require("tsify"))
+    .plugin(cssModulesify, {
+      before: prod ? postcss.concat(require("cssnano")) : postcss,
+      global: true,
+      output: "./dist/static/main.css",
+      rootDir: __dirname,
+      generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
+    })
+    .bundle()
+    .on("error", gutil.log)
+    .pipe(source("main.js"))
+    .pipe(buffer());
+  if (prod) {
+    bundle
+      .pipe(uglify())
+      .on("error", gutil.log);
+  } else {
+    bundle
+      .pipe(sourcemaps.init({loadMaps: true}))
+      .pipe(sourcemaps.write());
+  }
+  return bundle
+    .pipe(gulp.dest("./dist/static/"))
+    .on("end", done);
+}));
+
+gulp.task("lint", () => {
+  return gulp
+    .src(["./src/**/*.ts", "./src/**/*.tsx"])
+    .on("error", gutil.log)
+    .pipe(tslint({
+      fix: true,
+      formatter: "verbose",
+    }))
+    .pipe(tslint.report());
+});
+
 gulp.task("html", () => {
-  gulp
+  return gulp
     .src(["./src/index.html"])
     .on("error", gutil.log)
     .pipe(gulp.dest("./dist/"));
 });
 
-gulp.task("test", ["style-type-definitions", "lint"], (done) => {
+gulp.task("test", gulp.series(gulp.parallel("style-type-definitions", "lint"), (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
   }, done).start();
-});
+}));
 
-gulp.task("test-ci", ["style-type-definitions", "lint"], (done) => {
-  new karmaServer({
+gulp.task("test-ci", gulp.series(gulp.parallel("style-type-definitions", "lint"), (done) => {
+  return new karmaServer({
     configFile: __dirname + "/karma.conf.js",
     singleRun: true,
     browsers: ["HeadlessChrome"],
   }, done).start();
-});
+}));
 
-gulp.task("test-watch", ["style-type-definitions", "lint"], (done) => {
+gulp.task("test-watch", gulp.series(gulp.parallel("style-type-definitions", "lint"), (done) => {
   new karmaServer({
     configFile: __dirname + "/karma.conf.js",
   }, done).start();
-});
+}));
 
-gulp.task("develop", ["html", "bundle"]);
+gulp.task("develop", gulp.parallel("html", "bundle"));
 
-gulp.task("reload", ["develop"], () => {
-  gulp
+gulp.task("reload", gulp.series("develop", () => {
+  return gulp
     .src("./dist/")
     .pipe(connect.reload());
-});
+}));
 
-gulp.task("watch", ["develop"], () => {
+gulp.task("watch", gulp.series("develop", () => {
   gulp.watch("./src/**/*.*", { debounceDelay: 2000 }, ["reload"]);
   connect.server({
     host: "0.0.0.0",
@@ -148,13 +149,11 @@ gulp.task("watch", ["develop"], () => {
     port: 8888,
     root: "./dist/",
   });
-});
+}));
 
-gulp.task("release", ["develop"], () => {
-  gulp
+gulp.task("release", gulp.series("develop", () => {
+  return gulp
     .src(["./dist/**/*.html", "./dist/**/*.js", "./dist/**/*.css"])
     .pipe(gzip())
     .pipe(gulp.dest("./dist/"));
-});
-
-gulp.task("default", ["develop"]);
+}));

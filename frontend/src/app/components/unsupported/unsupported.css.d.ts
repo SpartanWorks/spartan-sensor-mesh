@@ -1,2 +1,6 @@
-export const widget: string;
-export const sadPanda: string;
+declare const styles: {
+  readonly "widget": string;
+  readonly "sadPanda": string;
+};
+export = styles;
+

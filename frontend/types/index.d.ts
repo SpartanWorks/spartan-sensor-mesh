@@ -1,3 +1,5 @@
-declare module "mobx-observer" {
-  export declare function observer<C extends preact.Component>(constructor: C);
+declare module "mobx-preact" {
+  import { ComponentConstructor } from "preact";
+  type Component<P = any> = ComponentConstructor<P>;
+  export declare function observer<C extends Component>(constructor: C): C;
 }

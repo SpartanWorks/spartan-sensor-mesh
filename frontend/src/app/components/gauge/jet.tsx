@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { Gauge } from "./gauge";
+import { Gauge, normalize } from "./gauge";
 
 function interpolate(val: number, y0: number, x0: number, y1: number, x1: number): number {
   return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
@@ -31,14 +31,6 @@ function jet(base: number): string {
   return "#" + hexify(jetBase(base - 0.25), 2) + hexify(jetBase(base), 2) + hexify(jetBase(base + 0.25), 2);
 }
 
-function clamp(val: number, min: number, max: number): number {
-  return Math.max(min, Math.min(val, max));
-}
-
-function normalize(val: number, min: number, max: number): number {
-  return (clamp(val, min, max) - min) / (max - min);
-}
-
 interface JetGaugeProps {
   value: number;
   variance?: number;
@@ -46,7 +38,7 @@ interface JetGaugeProps {
   max: number;
   errorTooltip: string;
   isError: boolean;
-  children?: Array<preact.Component<any, any>>;
+  children: any;
 }
 
 export const JetGauge = (props: JetGaugeProps) => {

@@ -1,1 +1,5 @@
-export const fadeIn: string;
+declare const styles: {
+  readonly "fadeIn": string;
+};
+export = styles;
+

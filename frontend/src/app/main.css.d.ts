@@ -1,1 +1,5 @@
-export const appContainer: string;
+declare const styles: {
+  readonly "appContainer": string;
+};
+export = styles;
+

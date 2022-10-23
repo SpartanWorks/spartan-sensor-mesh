@@ -1,3 +1,7 @@
-export const widgetWrapper: string;
-export const fadeIn: string;
-export const readingWrapper: string;
+declare const styles: {
+  readonly "widgetWrapper": string;
+  readonly "fadeIn": string;
+  readonly "readingWrapper": string;
+};
+export = styles;
+

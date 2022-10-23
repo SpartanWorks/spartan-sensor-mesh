@@ -1,2 +1,6 @@
-export const spinner: string;
-export const spin: string;
+declare const styles: {
+  readonly "spinner": string;
+  readonly "spin": string;
+};
+export = styles;
+

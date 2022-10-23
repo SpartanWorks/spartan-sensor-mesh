@@ -1,4 +1,4 @@
-import { observer } from "mobx-observer";
+import { observer } from "mobx-preact";
 import * as preact from "preact";
 import { iconChart, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
