@@ -63,7 +63,6 @@ void setup(void){
   }
 
   // COMMUNICATION BUSSES
-  Wire.begin(SDA_PIN, SCL_PIN);
   HardwareSerial& sdsSerial(Serial2);
 
   // DEVICE TREE
@@ -101,6 +100,10 @@ void setup(void){
   // DHTHub *dht22 = new DHTHub(2, DHT22);
   // dht22->begin();
   // device->attach(dht22);
+
+  Wire.begin(SDA_PIN, SCL_PIN); // FIXME Needed as BMP280 library seems to override it.
+
+  // SAMPLING TASKS
 
   scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling HTU hub.");
