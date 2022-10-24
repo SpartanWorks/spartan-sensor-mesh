@@ -11,6 +11,7 @@
 #include "HTUHub.hpp"
 #include "SDSHub.hpp"
 #include "MHZHub.hpp"
+#include "CCSHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
@@ -80,6 +81,10 @@ void setup(void){
   mhz->begin();
   device->attach(mhz);
 
+  CCSHub *ccs = new CCSHub(SDA_PIN, SCL_PIN, 0x5A);
+  ccs->begin();
+  device->attach(ccs);
+
   // Other available sensors:
   // DallasTempHub *dallas = new DallasTempHub(2, 12);
   // dallas->begin();
@@ -114,6 +119,12 @@ void setup(void){
   scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling MHZ hub.");
     mhz->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
+
+  scheduler.spawn(115,[=](Task *t) {
+    Serial.println("Sampling CCS hub.");
+    ccs->update();
     t->sleep(SAMPLE_INTERVAL);
   });
   Serial.println("Device tree initialized");
