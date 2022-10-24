@@ -17,7 +17,6 @@ private:
   Adafruit_CCS811 sensor;
   Sensor eco2;
   Sensor voc;
-  Sensor temperature;
 
 public:
   CCSHub(TwoWire *i2c, uint8_t address);
