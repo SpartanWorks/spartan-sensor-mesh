@@ -8,6 +8,7 @@ import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { Temperature } from "../../components/temperature/temperature";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
+import { VOC } from "../../components/voc/voc";
 import { SensorData } from "../../services/device";
 import { DashboardStore } from "../../store/dashboard";
 import * as styles from "./dashboard.css";
@@ -30,6 +31,8 @@ function renderSensor(data: SensorData) {
     return <PM data={data} min={0} max={500}/>;
   case "co2":
     return <CO2 data={data} min={0} max={2000}/>;
+  case "voc":
+    return <VOC data={data} min={0} max={2000}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
