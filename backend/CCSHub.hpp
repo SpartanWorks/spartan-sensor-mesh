@@ -18,6 +18,7 @@ private:
   Adafruit_CCS811 sensor;
   Sensor eco2;
   Sensor voc;
+  Sensor temperature;
 
 public:
   CCSHub(uint8_t da, uint8_t cl, uint8_t address);
