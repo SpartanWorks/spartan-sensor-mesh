@@ -1,8 +1,7 @@
 #include "HTUHub.hpp"
 
-HTUHub::HTUHub(uint8_t da, uint8_t cl, uint8_t addr):
-    sda(da),
-    scl(cl),
+HTUHub::HTUHub(TwoWire *i2c, uint8_t addr):
+    i2c(i2c),
     address(addr),
     sensor(HTU21D()),
     humidity(Sensor("HTU", "humidity", "humidity", new WindowedReading<float, SAMPLE_BACKLOG>())),
@@ -10,8 +9,7 @@ HTUHub::HTUHub(uint8_t da, uint8_t cl, uint8_t addr):
 {}
 
 void HTUHub::begin() {
-  Wire.begin(this->sda, this->scl);
-  this->sensor.begin(Wire);
+  this->sensor.begin(*(this->i2c));
 }
 
 void HTUHub::update() {

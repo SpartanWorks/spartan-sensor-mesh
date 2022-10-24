@@ -1,8 +1,7 @@
 #include "CCSHub.hpp"
 
-CCSHub::CCSHub(uint8_t da, uint8_t cl, uint8_t addr):
-    sda(da),
-    scl(cl),
+CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
+    i2c(i2c),
     address(addr),
     sensor(Adafruit_CCS811()),
     eco2(Sensor("CCS", "co2", "eCO2", new WindowedReading<float, SAMPLE_BACKLOG>())),
@@ -11,8 +10,7 @@ CCSHub::CCSHub(uint8_t da, uint8_t cl, uint8_t addr):
 {}
 
 void CCSHub::begin() {
-  Wire.begin(this->sda, this->scl);
-  this->sensor.begin(this->address);
+  this->sensor.begin(this->address, this->i2c);
 
   // FIXME Do this based on HTU readings.
   this->sensor.setEnvironmentalData(40, 25);

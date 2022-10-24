@@ -1,16 +1,14 @@
 #include "BMPHub.hpp"
 
-BMPHub::BMPHub(uint8_t da, uint8_t cl, uint8_t addr):
-    sda(da),
-    scl(cl),
+BMPHub::BMPHub(TwoWire *i2c, uint8_t addr):
+    i2c(i2c),
     address(addr),
-    sensor(Adafruit_BMP280()),
+    sensor(Adafruit_BMP280(i2c)),
     pressure(Sensor("BMP", "pressure", "pressure", new WindowedReading<float, SAMPLE_BACKLOG>())),
     temperature(Sensor("BMP", "temperature", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void BMPHub::begin() {
-  Wire.begin(this->sda, this->scl);
   this->sensor.begin(this->address);
 }
 

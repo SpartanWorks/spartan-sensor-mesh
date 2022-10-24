@@ -12,15 +12,14 @@
 
 class BMPHub: public SensorHub {
 private:
+  TwoWire *i2c;
   uint8_t address;
-  uint8_t sda;
-  uint8_t scl;
   Adafruit_BMP280 sensor;
   Sensor pressure;
   Sensor temperature;
 
 public:
-  BMPHub(uint8_t sda, uint8_t scl, uint8_t addr);
+  BMPHub(TwoWire *i2c, uint8_t addr);
   void begin();
   void update();
   void connect(Device *d) const;

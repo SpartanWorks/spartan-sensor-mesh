@@ -12,15 +12,14 @@
 
 class HTUHub: public SensorHub {
 private:
+  TwoWire *i2c;
   uint8_t address;
-  uint8_t sda;
-  uint8_t scl;
   HTU21D sensor;
   Sensor humidity;
   Sensor temperature;
 
 public:
-  HTUHub(uint8_t sda, uint8_t scl, uint8_t addr);
+  HTUHub(TwoWire *i2c, uint8_t addr);
   void begin();
   void update();
   void connect(Device *d) const;

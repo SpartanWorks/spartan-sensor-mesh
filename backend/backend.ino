@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -61,18 +62,21 @@ void setup(void){
     }
   }
 
+  // COMMUNICATION BUSSES
+  Wire.begin(SDA_PIN, SCL_PIN);
+  HardwareSerial& sdsSerial(Serial2);
+
   // DEVICE TREE
   Device *device = new Device("53n50rp455w0r0");
 
-  BMPHub *bmp = new BMPHub(SDA_PIN, SCL_PIN, 0x76);
+  BMPHub *bmp = new BMPHub(&Wire, 0x76);
   bmp->begin();
   device->attach(bmp);
 
-  HTUHub *htu = new HTUHub(SDA_PIN, SCL_PIN, 0x40);
+  HTUHub *htu = new HTUHub(&Wire, 0x40);
   htu->begin();
   device->attach(htu);
 
-  HardwareSerial& sdsSerial(Serial2);
   SDSHub *sds = new SDSHub(sdsSerial);
   sds->begin();
   device->attach(sds);
@@ -81,7 +85,7 @@ void setup(void){
   mhz->begin();
   device->attach(mhz);
 
-  CCSHub *ccs = new CCSHub(SDA_PIN, SCL_PIN, 0x5A);
+  CCSHub *ccs = new CCSHub(&Wire, 0x5A);
   ccs->begin();
   device->attach(ccs);
 
