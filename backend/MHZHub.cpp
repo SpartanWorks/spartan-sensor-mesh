@@ -17,18 +17,18 @@ void MHZHub::begin() {
 
 void MHZHub::update() {
   float co2 = this->sensor.getCO2();
-  //if(this->sensor.errorCode == RESULT_OK) {
+  if(this->sensor.errorCode == RESULT_OK) {
     this->co2.add(co2);
-  //} else {
-  //  this->co2.add(NAN);
-  //}
+  } else {
+    this->co2.add(NAN);
+  }
 
   float temp = this->sensor.getTemperature();
-  //if(this->sensor.errorCode == RESULT_OK) {
+  if(this->sensor.errorCode == RESULT_OK) {
     this->temperature.add(temp);
-  //} else {
-  //  this->temperature.add(NAN);
-  //}
+  } else {
+    this->temperature.add(NAN);
+  }
 }
 
 void MHZHub::connect(Device *d) const {
