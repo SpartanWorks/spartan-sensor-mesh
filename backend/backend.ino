@@ -28,7 +28,7 @@ const int MHZ_RX = 13;
 const int MHZ_TX = 12;
 
 const int MHZ_WARMUP_TIMEOUT = 1200000; // 20 minutes
-const int CCS_WARMUP_TIMEOUT = 120000; // 2 minutes
+const int CCS_WARMUP_TIMEOUT = 1200000; // 20 minutes
 
 Scheduler scheduler(TIME_SLICE);
 
