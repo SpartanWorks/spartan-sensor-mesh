@@ -2,7 +2,7 @@
 #define __CCSHUB_HPP__
 
 #include <Wire.h>
-#include "Adafruit_CCS811.h"
+#include "SparkFunCCS811.h"
 #include "Sensor.hpp"
 #include "SensorHub.hpp"
 #include "Device.hpp"
@@ -14,7 +14,7 @@ class CCSHub: public SensorHub {
 private:
   TwoWire *i2c;
   uint8_t address;
-  Adafruit_CCS811 sensor;
+  CCS811 sensor;
   Sensor eco2;
   Sensor voc;
 
