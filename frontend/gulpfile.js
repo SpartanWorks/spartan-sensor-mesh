@@ -3,6 +3,7 @@
 const browserify = require("browserify");
 const buffer = require("vinyl-buffer");
 const connect = require("gulp-connect");
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const cssModulesify = require("css-modulesify");
 const DtsCreator = require("typed-css-modules").default;
 const glob = require("glob");
@@ -148,6 +149,19 @@ gulp.task("watch", gulp.series("develop", () => {
     livereload: true,
     port: 8888,
     root: "./dist/",
+    middleware: (connect, opt) => {
+      if(process.env.SERVER) {
+        return [
+          createProxyMiddleware("/api", {
+            target: process.env.SERVER,
+            changeOrigin: true,
+          })
+        ];
+      }
+      else {
+        return [];
+      }
+    },
   });
 }));
 
