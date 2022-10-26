@@ -27,6 +27,9 @@ const int SCL_PIN = 22;
 const int MHZ_RX = 13;
 const int MHZ_TX = 12;
 
+const int MHZ_WARMUP_TIMEOUT = 1200000; // 20 minutes
+const int CCS_WARMUP_TIMEOUT = 120000; // 2 minutes
+
 Scheduler scheduler(TIME_SLICE);
 
 void setup(void){
@@ -128,12 +131,37 @@ void setup(void){
     mhz->update();
     t->sleep(SAMPLE_INTERVAL);
   });
+  scheduler.spawn(125,[=](Task *t) {
+    static boolean mhzWarmup = true;
+
+    if (mhzWarmup) {
+      mhzWarmup = false;
+      t->sleep(MHZ_WARMUP_TIMEOUT);
+    } else {
+      Serial.println("Resetting MHZ hub after a warmup.");
+      mhz->reset();
+      t->kill();
+    }
+  });
 
   scheduler.spawn(115,[=](Task *t) {
     Serial.println("Sampling CCS hub.");
     ccs->update();
     t->sleep(SAMPLE_INTERVAL);
   });
+  scheduler.spawn(125,[=](Task *t) {
+    static boolean ccsWarmup = true;
+
+    if (ccsWarmup) {
+      ccsWarmup = false;
+      t->sleep(CCS_WARMUP_TIMEOUT);
+    } else {
+      Serial.println("Resetting CCS hub after a warmup.");
+      ccs->reset();
+      t->kill();
+    }
+  });
+
   Serial.println("Device tree initialized");
 
   // NETWORK

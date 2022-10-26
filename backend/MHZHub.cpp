@@ -8,11 +8,15 @@ MHZHub::MHZHub(uint8_t rx, uint8_t tx):
   this->serial = new SoftwareSerial(rx, tx);
 }
 
-void MHZHub::begin() {
-  this->serial->begin(MHZ_BAUDRATE);
+void MHZHub::initSensor() {
   this->sensor.begin(*(this->serial));
   this->sensor.autoCalibration(false);
   this->sensor.calibrate();
+}
+
+void MHZHub::begin() {
+  this->serial->begin(MHZ_BAUDRATE);
+  this->initSensor();
 }
 
 void MHZHub::update() {
@@ -34,4 +38,8 @@ void MHZHub::update() {
 void MHZHub::connect(Device *d) const {
   d->attach(&this->co2);
   d->attach(&this->temperature);
+}
+
+void MHZHub::reset() {
+  this->initSensor();
 }

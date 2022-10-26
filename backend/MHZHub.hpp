@@ -18,11 +18,14 @@ private:
   Sensor co2;
   Sensor temperature;
 
+  void initSensor();
+
 public:
   MHZHub(uint8_t rx, uint8_t tx);
   void begin();
   void update();
   void connect(Device *d) const;
+  void reset();
 };
 
 #endif

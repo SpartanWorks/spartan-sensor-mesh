@@ -18,11 +18,14 @@ private:
   Sensor eco2;
   Sensor voc;
 
+  void initSensor();
+
 public:
   CCSHub(TwoWire *i2c, uint8_t address);
   void begin();
   void update();
   void connect(Device *d) const;
+  void reset();
 };
 
 #endif

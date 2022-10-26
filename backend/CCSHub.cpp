@@ -8,11 +8,15 @@ CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
     voc(Sensor("CCS", "voc", "VOC", new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
-void CCSHub::begin() {
+void CCSHub::initSensor() {
   this->sensor.begin(this->address, this->i2c);
 
   // FIXME Do this based on HTU readings.
   this->sensor.setEnvironmentalData(40, 25);
+}
+
+void CCSHub::begin() {
+  this->initSensor();
 }
 
 void CCSHub::update() {
@@ -28,4 +32,8 @@ void CCSHub::update() {
 void CCSHub::connect(Device *d) const {
   d->attach(&this->eco2);
   d->attach(&this->voc);
+}
+
+void CCSHub::reset() {
+  this->initSensor();
 }
