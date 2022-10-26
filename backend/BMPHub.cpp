@@ -21,3 +21,5 @@ void BMPHub::connect(Device *d) const {
   d->attach(&this->pressure);
   d->attach(&this->temperature);
 }
+
+void compensate(SensorHub *other);

@@ -7,6 +7,7 @@
 #include "SensorHub.hpp"
 #include "Device.hpp"
 #include "Reading.hpp"
+#include "List.hpp"
 
 #define SAMPLE_BACKLOG 30
 
@@ -17,12 +18,16 @@ private:
   HTU21D sensor;
   Sensor humidity;
   Sensor temperature;
+  List<SensorHub*> *toCompensate;
 
 public:
   HTUHub(TwoWire *i2c, uint8_t addr);
+  ~HTUHub();
   void begin();
   void update();
   void connect(Device *d) const;
+
+  void compensate(SensorHub *other);
 };
 
 #endif

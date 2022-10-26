@@ -90,6 +90,7 @@ void setup(void){
   CCSHub *ccs = new CCSHub(&Wire, 0x5A);
   ccs->begin();
   device->attach(ccs);
+  htu->compensate(ccs);
 
   // Other available sensors:
   // DallasTempHub *dallas = new DallasTempHub(2, 12);

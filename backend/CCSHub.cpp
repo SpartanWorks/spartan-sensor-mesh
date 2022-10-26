@@ -10,7 +10,6 @@ CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
 
 void CCSHub::initSensor() {
   this->sensor.begin(*(this->i2c));
-  this->sensor.setEnvironmentalData(40.0, 26.0);
 }
 
 void CCSHub::begin() {
@@ -34,4 +33,8 @@ void CCSHub::connect(Device *d) const {
 
 void CCSHub::reset() {
   this->initSensor();
+}
+
+void CCSHub::setCompensationParameters(float temperature, float humidity) {
+  this->sensor.setEnvironmentalData(humidity, temperature);
 }

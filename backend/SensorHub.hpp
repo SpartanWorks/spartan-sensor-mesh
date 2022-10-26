@@ -13,6 +13,9 @@ public:
   virtual void update() = 0;
   virtual void connect(Device *d) const = 0;
   virtual void reset() {}
+
+  virtual void setCompensationParameters(float temperature, float humidity = 50.0) {}
+  virtual void compensate(SensorHub *other) {}
 };
 
 #endif

@@ -26,6 +26,8 @@ public:
   void update();
   void connect(Device *d) const;
   void reset();
+
+  void setCompensationParameters(float temperature, float humidity = 50.0);
 };
 
 #endif
