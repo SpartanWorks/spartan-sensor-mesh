@@ -13,6 +13,7 @@
 #include "SDSHub.hpp"
 #include "MHZHub.hpp"
 #include "CCSHub.hpp"
+#include "GP2YHub.hpp"
 #include "Scheduler.hpp"
 
 const int HTTP_PORT = 80;
@@ -26,6 +27,9 @@ const int SCL_PIN = 22;
 
 const int MHZ_RX = 13;
 const int MHZ_TX = 12;
+
+const int GP2Y_RX = 14;
+const int GP2Y_TX = 15;
 
 const int MHZ_WARMUP_TIMEOUT = 1200000; // 20 minutes
 const int CCS_WARMUP_TIMEOUT = 1200000; // 20 minutes
@@ -91,6 +95,10 @@ void setup(void){
   ccs->begin();
   device->attach(ccs);
   htu->compensate(ccs);
+  
+  GP2YHub *gp2y = new GP2YHub(GP2Y_RX, GP2Y_TX);
+  gp2y->begin();
+  device->attach(gp2y);
 
   // Other available sensors:
   // DallasTempHub *dallas = new DallasTempHub(2, 12);
@@ -162,7 +170,11 @@ void setup(void){
       t->kill();
     }
   });
-
+  scheduler.spawn(115,[=](Task *t) {
+    Serial.println("Sampling GP2Y hub.");
+    gp2y->update();
+    t->sleep(SAMPLE_INTERVAL);
+  });
   Serial.println("Device tree initialized");
 
   // NETWORK
