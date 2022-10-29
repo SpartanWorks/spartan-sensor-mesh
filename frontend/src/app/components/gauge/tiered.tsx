@@ -30,9 +30,9 @@ export const TieredGauge = (props: TieredGaugeProps) => {
   return (
     <ColorGauge value={props.value}
                 variance={props.variance}
-                min={tier?.min}
-                max={tier?.max}
-                color={tier?.color}
+                min={Math.min(tier.min, props.value)}
+                max={Math.max(tier.max, props.value)}
+                color={tier.color}
                 isError={props.isError}
                 errorTooltip={props.errorTooltip}>
       {props.children}
