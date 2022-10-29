@@ -30,11 +30,11 @@ export const Pressure = (props: Props) => {
                    stats: {
                      ...props.data.reading.stats,
                      mean: scaledValue,
-                     variance: props.data.reading.stats.variance/10000
+                     variance: props.data.reading.stats.variance / 10000
                    }
                  }, 0)}/>
         </JetGauge>
       </div>
     </div>
-  )
+  );
 };

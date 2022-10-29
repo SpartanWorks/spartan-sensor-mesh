@@ -1,6 +1,6 @@
 import * as preact from "preact";
-import * as styles from "./label.css";
 import { SensorData, SensorReading } from "../../services/device";
+import * as styles from "./label.css";
 
 interface LabelProps {
   name: string;
@@ -37,7 +37,7 @@ export function readingTooltip(reading: SensorReading, rounding?: number): strin
     "\nNumber of samples: " + reading.stats.samples +
     "\nMaximum: " + reading.stats.maximum.toFixed(r) +
     "\nMinimum: " + reading.stats.minimum.toFixed(r)
-  )
+  );
 }
 
 export const SensorLabel = (props: SensorLabelProps) => {

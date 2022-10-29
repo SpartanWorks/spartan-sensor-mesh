@@ -88,9 +88,15 @@ class Sensor {
   }
 
   void add(T s) {
+  if (!isnan(s)) {
     this->sReading->add(s);
     this->nMeasurements++;
+    this->setStatus("ok");
+  } else {
+    this->setError("Invalid sensor reading value.");
   }
+}
+
 };
 
 #endif
