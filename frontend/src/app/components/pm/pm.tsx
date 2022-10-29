@@ -34,8 +34,8 @@ interface Props {
 export const PM = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <TieredGauge value={props.data.reading.mean}
-                   variance={props.data.reading.variance}
+      <TieredGauge value={props.data.reading.stats.mean}
+                   variance={props.data.reading.stats.variance}
                    tiers={props.data.type === PM_10 ? PM_10_TIERS : PM_25_TIERS}
                    defaultTier={{ min: props.min, max: props.max, color: PM_DEFAULT_COLOR }}
                    isError={props.data.status === "error"}

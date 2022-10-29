@@ -12,23 +12,26 @@ interface Props {
 
 export const Pressure = (props: Props) => {
   // NOTE Scaling to hPa for more down-to-earth display.
-  const scaledValue = Math.round(props.data.reading.mean / 100.0);
+  const scaledValue = Math.round(props.data.reading.stats.mean / 100.0);
   return (
     <div className={styles.widgetWrapper}>
       <div className={styles.readingWrapper}>
-        <JetGauge value={props.data.reading.mean}
-                  variance={props.data.reading.variance}
+        <JetGauge value={props.data.reading.stats.mean}
+                  variance={props.data.reading.stats.variance}
                   min={props.min}
                   max={props.max}
                   isError={props.data.status === "error"}
                   errorTooltip={props.data.lastError}>
           <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
                  value={scaledValue}
-                 unit={"h" + props.data.unit}
+                 unit={"h" + props.data.reading.unit}
                  tooltip={readingTooltip({
                    ...props.data.reading,
-                   mean: scaledValue,
-                   variance: props.data.reading.variance/10000
+                   stats: {
+                     ...props.data.reading.stats,
+                     mean: scaledValue,
+                     variance: props.data.reading.stats.variance/10000
+                   }
                  }, 0)}/>
         </JetGauge>
       </div>

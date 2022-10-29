@@ -13,10 +13,10 @@ interface Props {
 export const VOC = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <ColorGauge value={props.data.reading.mean}
+      <ColorGauge value={props.data.reading.stats.mean}
                   min={props.min}
                   max={props.max}
-                  variance={props.data.reading.variance}
+                  variance={props.data.reading.stats.variance}
                   color="#BADD1E"
                   isError={props.data.status === "error"}
                   errorTooltip={props.data.lastError}>

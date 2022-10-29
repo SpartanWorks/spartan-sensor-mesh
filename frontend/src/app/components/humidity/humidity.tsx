@@ -11,10 +11,10 @@ interface Props {
 export const Humidity = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <ColorGauge value={props.data.reading.mean}
+      <ColorGauge value={props.data.reading.stats.mean}
                   min={0}
                   max={100}
-                  variance={props.data.reading.variance}
+                  variance={props.data.reading.stats.variance}
                   color="dodgerblue"
                   isError={props.data.status === "error"}
                   errorTooltip={props.data.lastError}>

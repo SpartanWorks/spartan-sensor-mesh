@@ -32,14 +32,19 @@ interface SensorLabelProps {
 
 export function readingTooltip(reading: SensorReading, rounding?: number): string {
   const r = (rounding ?? 1) + 2;
-  return "" + reading.mean.toFixed(r) + " ± " + Math.sqrt(reading.variance).toFixed(r) + "\nAveraged from last " + reading.samples + " samples."
+  return (
+    "Walking average: " + reading.stats.mean.toFixed(r) + " ± " + Math.sqrt(reading.stats.variance).toFixed(r) +
+    "\nNumber of samples: " + reading.stats.samples +
+    "\nMaximum: " + reading.stats.maximum.toFixed(r) +
+    "\nMinimum: " + reading.stats.minimum.toFixed(r)
+  )
 }
 
 export const SensorLabel = (props: SensorLabelProps) => {
   return (
     <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
-           value={Number(props.data.reading.mean.toFixed(props.rounding ?? 1))}
-           unit={props.data.unit}
+           value={Number(props.data.reading.stats.mean.toFixed(props.rounding ?? 1))}
+           unit={props.data.reading.unit}
            tooltip={readingTooltip(props.data.reading, props.rounding)}/>
   );
 };

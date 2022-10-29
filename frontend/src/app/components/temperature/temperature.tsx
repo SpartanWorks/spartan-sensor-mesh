@@ -13,8 +13,8 @@ interface Props {
 export const Temperature = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <JetGauge value={props.data.reading.mean}
-                variance={props.data.reading.variance}
+      <JetGauge value={props.data.reading.stats.mean}
+                variance={props.data.reading.stats.variance}
                 min={props.min}
                 max={props.max}
                 isError={props.data.status === "error"}
