@@ -4,8 +4,8 @@ CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(CCS811(addr)),
-    eco2(Sensor<float>("Equivalent CO2", "CCS", "co2", "ppm", 0, 29206, new WindowedReading<float, SAMPLE_BACKLOG>())),
-    voc(Sensor<float>("Total VOC", "CCS", "voc", "ppb", 0, 32768, new WindowedReading<float, SAMPLE_BACKLOG>()))
+    eco2(Sensor<float>("Equivalent CO2", "CCS", "co2", new WindowedReading<float, SAMPLE_BACKLOG>("ppm", 0, 29206))),
+    voc(Sensor<float>("Total VOC", "CCS", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppb", 0, 32768)))
 {}
 
 void CCSHub::initSensor() {

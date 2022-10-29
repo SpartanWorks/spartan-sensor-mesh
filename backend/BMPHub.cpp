@@ -4,8 +4,8 @@ BMPHub::BMPHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(Adafruit_BMP280(i2c)),
-    pressure(Sensor<float>("pressure", "BMP", "pressure", "Pa", 30000, 110000, new WindowedReading<float, SAMPLE_BACKLOG>())),
-    temperature(Sensor<float>("temperature", "BMP", "temperature", "°C", -40, 85, new WindowedReading<float, SAMPLE_BACKLOG>()))
+    pressure(Sensor<float>("pressure", "BMP", "pressure", new WindowedReading<float, SAMPLE_BACKLOG>("Pa", 30000, 110000))),
+    temperature(Sensor<float>("temperature", "BMP", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>("°C", -40, 85)))
 {}
 
 void BMPHub::begin() {

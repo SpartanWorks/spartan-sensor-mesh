@@ -21,8 +21,8 @@ void PatchedSdsSensor::pollPm() {
 SDSHub::SDSHub(HardwareSerial &serial):
     serial(serial),
     sensor(PatchedSdsSensor(serial)),
-    pm25(Sensor<float>("PM 2.5", "SDS", "pm2.5", "μg/m³", 0, 1000, new WindowedReading<float, SAMPLE_BACKLOG>())),
-    pm10(Sensor<float>("PM 10", "SDS", "pm10", "μg/m³", 0, 1000, new WindowedReading<float, SAMPLE_BACKLOG>()))
+    pm25(Sensor<float>("PM 2.5", "SDS", "pm2.5", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000))),
+    pm10(Sensor<float>("PM 10", "SDS", "pm10", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000)))
 {}
 
 void SDSHub::begin() {

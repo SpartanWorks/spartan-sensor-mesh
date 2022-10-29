@@ -2,8 +2,8 @@
 
 MHZHub::MHZHub(uint8_t rx, uint8_t tx):
     sensor(MHZ19()),
-    co2(Sensor<float>("CO2", "MHZ", "co2", "ppm", 0, 10000, new WindowedReading<float, SAMPLE_BACKLOG>())),
-    temperature(Sensor<float>("temperature", "MHZ", "temperature", "°C", 0, 100, new WindowedReading<float, SAMPLE_BACKLOG>()))
+    co2(Sensor<float>("CO2", "MHZ", "co2", new WindowedReading<float, SAMPLE_BACKLOG>("ppm", 0, 10000))),
+    temperature(Sensor<float>("temperature", "MHZ", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>("°C", 0, 100)))
 {
   this->serial = new SoftwareSerial(rx, tx);
 }

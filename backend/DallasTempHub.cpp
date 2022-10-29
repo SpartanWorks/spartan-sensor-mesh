@@ -21,8 +21,8 @@ void DallasTempHub::begin() {
   this->sensors.begin();
   this->nSensors = this->sensors.getDeviceCount();
   for(uint8_t i = 0; i < this->nSensors; ++i) {
-    Reading<float> *r = new WindowedReading<float, SAMPLE_BACKLOG>();
-    Sensor<float> *s = new Sensor<float>("temperature" + String(i), "DallasTemperature", "temperature", "°C", -55, 125, r);
+    Reading<float> *r = new WindowedReading<float, SAMPLE_BACKLOG>("°C", -55, 125);
+    Sensor<float> *s = new Sensor<float>("temperature" + String(i), "DallasTemperature", "temperature", r);
     this->temperatures = new List<Temp>(Temp(i, s), this->temperatures);
   }
   this->sensors.requestTemperatures();
