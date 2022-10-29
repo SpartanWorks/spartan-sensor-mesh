@@ -4,8 +4,8 @@ HTUHub::HTUHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(HTU21D()),
-    humidity(Sensor("HTU", "humidity", "humidity", new WindowedReading<float, SAMPLE_BACKLOG>())),
-    temperature(Sensor("HTU", "temperature", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>())),
+    humidity(Sensor<float>("humidity", "HTU", "humidity", "%", 0, 100, new WindowedReading<float, SAMPLE_BACKLOG>())),
+    temperature(Sensor<float>("temperature", "HTU", "temperature", "°C", -40, 125, new WindowedReading<float, SAMPLE_BACKLOG>())),
     toCompensate(nullptr)
 {}
 
@@ -22,14 +22,14 @@ void HTUHub::begin() {
 void HTUHub::update() {
   float hum = this->sensor.readHumidity();
   if (hum == ERROR_I2C_TIMEOUT || hum == ERROR_BAD_CRC) {
-    this->humidity.add(NAN);
+    this->humidity.setError(String("Could not read sensor. Response: ") + String(hum));
   } else {
     this->humidity.add(hum);
   }
 
   float temp = this->sensor.readTemperature();
   if (temp == ERROR_I2C_TIMEOUT || temp == ERROR_BAD_CRC) {
-    this->temperature.add(NAN);
+    this->temperature.setError(String("Could not read sensor. Response: ") + String(temp));
   } else {
     this->temperature.add(temp);
   }

@@ -21,8 +21,8 @@ void PatchedSdsSensor::pollPm() {
 SDSHub::SDSHub(HardwareSerial &serial):
     serial(serial),
     sensor(PatchedSdsSensor(serial)),
-    pm25(Sensor("SDS", "pm2.5", "PM 2.5", new WindowedReading<float, SAMPLE_BACKLOG>())),
-    pm10(Sensor("SDS", "pm10", "PM 10", new WindowedReading<float, SAMPLE_BACKLOG>()))
+    pm25(Sensor<float>("PM 2.5", "SDS", "pm2.5", "μg/m³", 0, 1000, new WindowedReading<float, SAMPLE_BACKLOG>())),
+    pm10(Sensor<float>("PM 10", "SDS", "pm10", "μg/m³", 0, 1000, new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void SDSHub::begin() {
@@ -38,8 +38,9 @@ void SDSHub::update() {
     this->pm25.add(pm.pm25);
     this->pm10.add(pm.pm10);
   } else {
-    this->pm25.add(NAN);
-    this->pm10.add(NAN);
+    String error = "Could not read sensor.";
+    this->pm25.setError(error);
+    this->pm10.setError(error);
   }
 }
 

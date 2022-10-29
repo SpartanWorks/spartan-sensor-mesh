@@ -2,8 +2,8 @@
 
 MHZHub::MHZHub(uint8_t rx, uint8_t tx):
     sensor(MHZ19()),
-    co2(Sensor("MHZ", "co2", "CO2", new WindowedReading<float, SAMPLE_BACKLOG>())),
-    temperature(Sensor("MHZ", "temperature", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>()))
+    co2(Sensor<float>("CO2", "MHZ", "co2", "ppm", 0, 10000, new WindowedReading<float, SAMPLE_BACKLOG>())),
+    temperature(Sensor<float>("temperature", "MHZ", "temperature", "°C", 0, 100, new WindowedReading<float, SAMPLE_BACKLOG>()))
 {
   this->serial = new SoftwareSerial(rx, tx);
 }
@@ -24,14 +24,14 @@ void MHZHub::update() {
   if(this->sensor.errorCode == RESULT_OK) {
     this->co2.add(co2);
   } else {
-    this->co2.add(NAN);
+    this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
   }
 
   float temp = this->sensor.getTemperature();
   if(this->sensor.errorCode == RESULT_OK) {
     this->temperature.add(temp);
   } else {
-    this->temperature.add(NAN);
+    this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
   }
 }
 

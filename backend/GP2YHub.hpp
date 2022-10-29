@@ -13,8 +13,9 @@
 #define RESET 0x0
 #define MEASURE 0x1
 #define MEASURE_RAW 0x2
+#define MEASURE_RAW_ONGOING 0x3
 
-#define SAMPLING 10
+#define N_SAMPLES 20
 
 #define SAMPLE_BACKLOG 30
 #define GP2Y_BAUDRATE 9600
@@ -22,13 +23,14 @@
 class GP2YHub: public SensorHub {
 private:
   SoftwareSerial *serial;
-  Sensor pm;
+  Sensor<float> pm;
 
   uint16_t readValue = 0;
-  float offset = -0.05;
-  float factor = 0.172;
+  float offset = -0.293; // These two here calibrated against SSD011.
+  float factor = 0.701;
   float rawScale = 3.3/1024; // 3.3 ADC rail & 10-bit resolution.
   bool read();
+  float baseline = 0.0;
   float getPM();
 
 public:

@@ -8,6 +8,7 @@
 #include "Device.hpp"
 #include "Reading.hpp"
 
+#define INIT_TIME 200
 #define SAMPLE_BACKLOG 30
 
 class CCSHub: public SensorHub {
@@ -15,8 +16,8 @@ private:
   TwoWire *i2c;
   uint8_t address;
   CCS811 sensor;
-  Sensor eco2;
-  Sensor voc;
+  Sensor<float> eco2;
+  Sensor<float> voc;
 
   void initSensor();
 

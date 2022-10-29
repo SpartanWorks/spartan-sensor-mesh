@@ -13,9 +13,9 @@
 
 struct Temp {
   uint8_t index = 0;
-  Sensor *sensor = nullptr;
+  Sensor<float> *sensor = nullptr;
 
-  Temp(int i, Sensor *s): sensor(s), index(i) {}
+  Temp(int i, Sensor<float> *s): sensor(s), index(i) {}
 };
 
 class DallasTempHub: public SensorHub {

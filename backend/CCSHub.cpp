@@ -4,12 +4,28 @@ CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(CCS811(addr)),
-    eco2(Sensor("CCS", "co2", "eCO2", new WindowedReading<float, SAMPLE_BACKLOG>())),
-    voc(Sensor("CCS", "voc", "VOC", new WindowedReading<float, SAMPLE_BACKLOG>()))
+    eco2(Sensor<float>("Equivalent CO2", "CCS", "co2", "ppm", 0, 29206, new WindowedReading<float, SAMPLE_BACKLOG>())),
+    voc(Sensor<float>("Total VOC", "CCS", "voc", "ppb", 0, 32768, new WindowedReading<float, SAMPLE_BACKLOG>()))
 {}
 
 void CCSHub::initSensor() {
   this->sensor.begin(*(this->i2c));
+
+  this->eco2.setStatus("init");
+  this->voc.setStatus("init");
+
+  uint32_t t0 = millis();
+  uint32_t t1 = t0;
+  while(!this->sensor.dataAvailable(), (t1 - t0) < INIT_TIME) {
+    delay(10);
+    t1 = millis();
+  }
+
+  if(!this->sensor.dataAvailable()) {
+    String error = String("Sensor initialization took more than ") + String(INIT_TIME) + "ms.";
+    this->eco2.setError(error);
+    this->voc.setError(error);
+  }
 }
 
 void CCSHub::begin() {
@@ -17,12 +33,22 @@ void CCSHub::begin() {
 }
 
 void CCSHub::update() {
-  if(this->sensor.dataAvailable() && this->sensor.readAlgorithmResults() == CCS811::CCS811_Stat_SUCCESS) {
+  if(!this->sensor.dataAvailable()) {
+    String error = "Sensor is not available.";
+    this->eco2.setError(error);
+    this->voc.setError(error);
+    return;
+  }
+
+  CCS811::CCS811_Status_e result = this->sensor.readAlgorithmResults();
+
+  if(result == CCS811::CCS811_Stat_SUCCESS) {
     this->eco2.add(this->sensor.getCO2());
     this->voc.add(this->sensor.getTVOC());
   } else {
-    this->eco2.add(NAN);
-    this->voc.add(NAN);
+    String error = String("Could not read sensor. Response:  ") + String(result);
+    this->eco2.setError(error);
+    this->voc.setError(error);
   }
 }
 

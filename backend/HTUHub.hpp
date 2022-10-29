@@ -16,8 +16,8 @@ private:
   TwoWire *i2c;
   uint8_t address;
   HTU21D sensor;
-  Sensor humidity;
-  Sensor temperature;
+  Sensor<float> humidity;
+  Sensor<float> temperature;
   List<SensorHub*> *toCompensate;
 
 public:

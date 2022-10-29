@@ -12,8 +12,8 @@
 class DHTHub: public SensorHub {
 private:
   DHT sensor;
-  Sensor humidity;
-  Sensor temperature;
+  Sensor<float> humidity;
+  Sensor<float> temperature;
 
 public:
   DHTHub(uint8_t pin, uint8_t model);

@@ -18,8 +18,8 @@ Device::~Device() {
   }
 }
 
-void Device::attach(const Sensor *s) {
-  list = new List<const Sensor*>(s, list);
+void Device::attach(const Sensor<float> *s) {
+  list = new List<const Sensor<float>*>(s, list);
 }
 
 void Device::attach(const SensorHub *s) {
@@ -50,7 +50,7 @@ String Device::toJSON() const {
   json += ",\"sensors\":[";
 
   bool first = true;
-  foreach<const Sensor*>(list, [&json, &first](const Sensor *s) {
+  foreach<const Sensor<float>*>(list, [&json, &first](const Sensor<float> *s) {
     if(!first) {
       json += ",";
     }
