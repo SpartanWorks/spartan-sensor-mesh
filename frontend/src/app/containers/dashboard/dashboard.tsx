@@ -44,8 +44,8 @@ function combineSensors(a: SensorData, b: SensorData): SensorData[] {
   }
 
   const total = a.reading.stats.variance + b.reading.stats.variance;
-  const aWeight = 1 - a.reading.stats.variance / total;
-  const bWeight = 1 - b.reading.stats.variance / total;
+  const aWeight = total === 0 ? 0 : (1 - a.reading.stats.variance / total);
+  const bWeight = total === 0 ? 0 : (1 - b.reading.stats.variance / total);
 
   return [
     {
