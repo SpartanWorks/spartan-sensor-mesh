@@ -27,17 +27,21 @@ void MHZHub::update() {
     this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
   }
 
+#ifdef MHZ_TEMP_SENSOR
   float temp = this->sensor.getTemperature();
   if(this->sensor.errorCode == RESULT_OK) {
     this->temperature.add(temp);
   } else {
     this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
   }
+#endif
 }
 
 void MHZHub::connect(Device *d) const {
   d->attach(&this->co2);
+#ifdef MHZ_TEMP_SENSOR
   d->attach(&this->temperature);
+#endif
 }
 
 void MHZHub::reset() {
