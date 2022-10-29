@@ -2,7 +2,7 @@ import * as preact from "preact";
 import { SensorData } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { ColorGauge } from "../gauge/color";
-import { Label } from "../gauge/label";
+import { SensorLabel } from "../gauge/label";
 
 interface Props {
   data: SensorData;
@@ -19,11 +19,8 @@ export const CO2 = (props: Props) => (
                   variance={props.data.reading.variance}
                   color="#616075"
                   isError={props.data.status === "error"}
-                  errorTooltip="Sensor is not responding.">
-        <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
-               value={Math.round(props.data.reading.mean)}
-               unit="ppm"
-               tooltip={"Averaged from last " + props.data.reading.samples + " readings."}/>
+                  errorTooltip={props.data.lastError}>
+        <SensorLabel data={props.data} rounding={0} />
       </ColorGauge>
     </div>
   </div>

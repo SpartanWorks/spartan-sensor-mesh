@@ -7,12 +7,20 @@ export interface SensorReading {
   minimum?: number;
 }
 
+export interface SensorRange {
+  min: number;
+  max: number;
+}
+
 export interface SensorData {
   type: string;
   name: string;
   model: string;
-  status: "ok" | "error";
+  status: string;
+  unit: string;
+  range: SensorRange;
   errors: number;
+  lastError: string;
   measurements: number;
   reading: SensorReading;
 }

@@ -1,7 +1,7 @@
 import * as preact from "preact";
 import { SensorData } from "../../services/device";
 import * as styles from "../../styles/widget.css";
-import { Label } from "../gauge/label";
+import { SensorLabel } from "../gauge/label";
 import { Tier, TieredGauge } from "../gauge/tiered";
 
 export const PM_10 = "pm10";
@@ -39,11 +39,8 @@ export const PM = (props: Props) => (
                    tiers={props.data.type === PM_10 ? PM_10_TIERS : PM_25_TIERS}
                    defaultTier={{ min: props.min, max: props.max, color: PM_DEFAULT_COLOR }}
                    isError={props.data.status === "error"}
-                   errorTooltip="Sensor is not responding.">
-        <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
-               value={Number(props.data.reading.mean.toFixed(1))}
-               unit="μg/m³"
-               tooltip={"Averaged from last " + props.data.reading.samples + " readings."}/>
+                   errorTooltip={props.data.lastError}>
+        <SensorLabel data={props.data}/>
       </TieredGauge>
     </div>
   </div>
