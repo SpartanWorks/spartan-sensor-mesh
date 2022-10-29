@@ -29,6 +29,7 @@ class Task {
 private:
   Scheduler *scheduler;
   TaskState state = RUNNING;
+  String name = "";
   Priority priority;
   Function fun;
   Timestamp vTime = 0;
@@ -42,7 +43,7 @@ private:
   void updateTime(Timestamp time);
 
 public:
-  Task(Scheduler *s, Priority pri, Function f);
+  Task(Scheduler *s, String name, Priority pri, Function f);
   void sleep(Timestamp time);
   void kill();
 
@@ -76,6 +77,7 @@ public:
   Timestamp now();
   void begin();
   Task* spawn(Priority priority, Function f);
+  Task* spawn(String name, Priority priority, Function f);
   void run();
 
   #ifdef PROCESS_MONITOR

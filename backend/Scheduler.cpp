@@ -1,6 +1,6 @@
 #include "Scheduler.hpp"
 
-Task::Task(Scheduler *s, Priority p, Function f): scheduler(s), priority(p), fun(f) {}
+Task::Task(Scheduler *s, String n, Priority p, Function f): scheduler(s), name(n), priority(p), fun(f) {}
 
 void Task::sleep(Timestamp ms) {
   this->state = SLEEPING;
@@ -54,7 +54,11 @@ Timestamp Scheduler::minVTime() {
 }
 
 Task* Scheduler::spawn(Priority priority, Function f) {
-  Task *pid = new Task(this, priority, f);
+  return this->spawn(String("-"), priority, f);
+}
+
+Task* Scheduler::spawn(String name, Priority priority, Function f) {
+  Task *pid = new Task(this, name, priority, f);
   pid->vTime = this->minVTime(); // Not to starve other running processes.
 
   this->running = new List<Task*>(pid, this->running);
@@ -160,13 +164,14 @@ String uint64String(Timestamp num) {
   return String(p);
 }
 
-char output[160];
+char output[255];
 
 String Scheduler::taskToString(Task *t, Timestamp delta) {
   Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
 
-  sprintf(output, "%-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
           String((size_t) t, HEX).c_str(),
+          t->name.c_str(),
           t->priority,
           t->state,
           String(((uint32_t) cpu) / 100.0f, 2).c_str(),
@@ -197,8 +202,9 @@ String Scheduler::monitor() {
   foreach<Task*>(this->waiting, f);
 
   String out = "";
-  sprintf(output, "%-10s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-10s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
           "PID",
+          "NAME",
           "PRI",
           "S",
           "% CPU",
@@ -208,7 +214,8 @@ String Scheduler::monitor() {
   out += output;
 
   Timestamp cpu = (delta - total) * 10000 / delta;
-  sprintf(output, "%-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+          "-",
           "system",
           0,
           0,

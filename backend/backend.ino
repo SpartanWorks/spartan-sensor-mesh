@@ -117,30 +117,30 @@ void setup(void){
 
   // SAMPLING TASKS
 
-  scheduler.spawn(115,[=](Task *t) {
+  scheduler.spawn("sample HTU", 115,[=](Task *t) {
     Serial.println("Sampling HTU hub.");
     htu->update();
     t->sleep(SAMPLE_INTERVAL);
   });
 
-  scheduler.spawn(115,[=](Task *t) {
-    Serial.println("Sampling BPM hub.");
+  scheduler.spawn("sample BMP", 115,[=](Task *t) {
+    Serial.println("Sampling BMP hub.");
     bmp->update();
     t->sleep(SAMPLE_INTERVAL);
   });
 
-  scheduler.spawn(115,[=](Task *t) {
+  scheduler.spawn("sample SDS", 115,[=](Task *t) {
     Serial.println("Sampling SDS hub.");
     sds->update();
     t->sleep(SAMPLE_INTERVAL);
   });
 
-  scheduler.spawn(115,[=](Task *t) {
+  scheduler.spawn("sample MHZ", 115,[=](Task *t) {
     Serial.println("Sampling MHZ hub.");
     mhz->update();
     t->sleep(SAMPLE_INTERVAL);
   });
-  scheduler.spawn(125,[=](Task *t) {
+  scheduler.spawn("reset MHZ", 125,[=](Task *t) {
     static boolean mhzWarmup = true;
 
     if (mhzWarmup) {
@@ -153,12 +153,12 @@ void setup(void){
     }
   });
 
-  scheduler.spawn(115,[=](Task *t) {
+  scheduler.spawn("sample CCS", 115,[=](Task *t) {
     Serial.println("Sampling CCS hub.");
     ccs->update();
     t->sleep(SAMPLE_INTERVAL);
   });
-  scheduler.spawn(125,[=](Task *t) {
+  scheduler.spawn("reset CCS", 125,[=](Task *t) {
     static boolean ccsWarmup = true;
 
     if (ccsWarmup) {
@@ -170,7 +170,7 @@ void setup(void){
       t->kill();
     }
   });
-  scheduler.spawn(115,[=](Task *t) {
+  scheduler.spawn("sample GP2Y", 115,[=](Task *t) {
     Serial.println("Sampling GP2Y hub.");
     gp2y->update();
     t->sleep(SAMPLE_INTERVAL);
@@ -181,7 +181,7 @@ void setup(void){
   WiFi.hostname(device->name().c_str());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(device->name().c_str(), device->password().c_str());
-  scheduler.spawn(125, [](Task *t) {
+  scheduler.spawn("disable AP", 125, [](Task *t) {
     static boolean apEnabled = true;
 
     if (apEnabled) {
@@ -209,7 +209,7 @@ void setup(void){
   // API
   APIServer *server = new APIServer(HTTP_PORT, device, SPIFFS);
   server->begin();
-  scheduler.spawn(110, [server](Task *t) {
+  scheduler.spawn("handle API", 110, [server](Task *t) {
     server->handleClient();
   });
   MDNS.addService("http", "tcp", HTTP_PORT);
