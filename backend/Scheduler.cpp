@@ -169,7 +169,7 @@ char output[255];
 String Scheduler::taskToString(Task *t, Timestamp delta) {
   Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
 
-  sprintf(output, "%-10s %-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
           String((size_t) t, HEX).c_str(),
           t->name.c_str(),
           t->priority,
@@ -202,7 +202,7 @@ String Scheduler::monitor() {
   foreach<Task*>(this->waiting, f);
 
   String out = "";
-  sprintf(output, "%-10s %-10s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-20s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
           "PID",
           "NAME",
           "PRI",
@@ -214,7 +214,7 @@ String Scheduler::monitor() {
   out += output;
 
   Timestamp cpu = (delta - total) * 10000 / delta;
-  sprintf(output, "%-10s %-10s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  sprintf(output, "%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
           "-",
           "system",
           0,
