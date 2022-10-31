@@ -14,7 +14,7 @@ void System::begin() {
   sched.begin();
   Serial.println("Scheduler initialized");
 
-  sched.spawn(125, [&](Task *t) {
+  sched.spawn("system monitor", 125, [&](Task *t) {
     Serial.print("Free heap memory: ");
     Serial.print(ESP.getFreeHeap());
     Serial.println(" B");
