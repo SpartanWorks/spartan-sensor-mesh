@@ -2,6 +2,7 @@
 #define __DEVICE_HPP__
 
 #include <Arduino.h>
+#include <Arduino_JSON.h>
 #include "Sensor.hpp"
 #include "SensorHub.hpp"
 #include "List.hpp"
@@ -25,6 +26,7 @@ public:
   virtual String name() const;
   virtual String password() const;
   virtual String group() const;
+  virtual JSONVar toJSONVar() const;
   virtual String toJSON() const;
 };
 

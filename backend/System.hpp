@@ -2,8 +2,6 @@
 #define __SYSTEM_HPP__
 
 #include <Arduino.h>
-#include <SPIFFS.h>
-#include <FS.h>
 #include "Scheduler.hpp"
 #include "Device.hpp"
 #include "Sensor.hpp"

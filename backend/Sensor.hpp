@@ -2,6 +2,7 @@
 #define __SENSOR_HPP__
 
 #include <Arduino.h>
+#include <Arduino_JSON.h>
 #include "Reading.hpp"
 
 template<typename T>
@@ -73,18 +74,25 @@ class Sensor {
     return this->sReading;
   }
 
-  String toJSON() const {
-    String json = "{";
-    json += "\"model\":\"" + this->model() + "\"";
-    json += ",\"type\":\"" + this->type() + "\"";
-    json += ",\"name\":\"" + this->name() + "\"";
-    json += ",\"status\":\"" + this->status() + "\"";
-    json += ",\"errors\":" + String(this->errors());
-    json += ",\"lastError\":\"" + this->lastError() + "\"";
-    json += ",\"measurements\":" + String(this->measurements());
-    json += ",\"reading\":" + this->reading()->toJSON();
-    json += "}";
+  JSONVar toJSONVar() const {
+    JSONVar json;
+
+    json["model"] = this->model();
+    json["type"] = this->type();
+    json["name"] = this->name();
+    json["status"] = this->status();
+    json["errors"] = (unsigned long) this->errors();
+    json["lastError"] = this->lastError();
+    json["measurements"] = (unsigned long) this->measurements();
+
+    JSONVar reading = this->reading()->toJSONVar();
+    json["reading"] = reading;
+
     return json;
+  }
+
+  String toJSON() const {
+    return JSON.stringify(this->toJSONVar());
   }
 
   void add(T s) {

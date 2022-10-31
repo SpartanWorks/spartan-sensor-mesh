@@ -2,6 +2,8 @@
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <SPIFFS.h>
+#include <FS.h>
 #include "APIServer.hpp"
 #include "BMPHub.hpp"
 #include "DallasTempHub.hpp"
@@ -14,10 +16,10 @@
 #include "GP2YHub.hpp"
 #include "System.hpp"
 
-const int HTTP_PORT = 80;
-const int AP_TIMEOUT = 900000; // 15 minutes
 const int TIME_SLICE = 500; // 500 us
 const String PASSWORD = "53n50rp455w0r0"; // WiFi AP & Device config password.
+
+System ssn(PASSWORD, TIME_SLICE);
 
 const int SDA_PIN = 21;
 const int SCL_PIN = 22;
@@ -28,12 +30,29 @@ const int MHZ_TX = 12;
 const int GP2Y_RX = 14;
 const int GP2Y_TX = 15;
 
-System ssn(PASSWORD, TIME_SLICE);
+const int HTTP_PORT = 80;
+const int AP_TIMEOUT = 900000; // 15 minutes
 
 void setup(void){
   // SYSTEM
   ssn.begin();
   Serial.println("System initialized");
+
+  // FILE SYSTEM
+  SPIFFS.begin();
+  Serial.println("File system initialized (" + String(SPIFFS.usedBytes()) + " B / " + String(SPIFFS.totalBytes()) + " B):");
+
+  File dir = SPIFFS.open("/");
+  if(!dir.isDirectory()) {
+    Serial.println("/ is not a directory!");
+  } else {
+    File f;
+    while (f = dir.openNextFile()) {
+      Serial.print("- " + String(f.name()));
+      Serial.println(" (" + String(f.size()) + " B)");
+      f.close();
+    }
+  }
 
   // COMMUNICATION BUSSES
   HardwareSerial& sdsSerial(Serial2);

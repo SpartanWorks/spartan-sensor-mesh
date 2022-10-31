@@ -42,22 +42,26 @@ String Device::group() const {
   return this->dGroup;
 }
 
-String Device::toJSON() const {
-  String json = "{";
-  json += "\"model\":\"" + this->model() + "\"";
-  json += ",\"name\":\"" + this->name() + "\"";
-  json += ",\"group\":\"" + this->group() + "\"";
-  json += ",\"sensors\":[";
+JSONVar Device::toJSONVar() const {
+  JSONVar json;
+  json["model"] = this->model();
+  json["name"] = this->name();
+  json["group"] = this->group();
 
-  bool first = true;
-  foreach<const Sensor<float>*>(list, [&json, &first](const Sensor<float> *s) {
-    if(!first) {
-      json += ",";
-    }
-    json += s->toJSON();
-    first = false;
+  JSONVar sensors;
+  uint16_t i = 0;
+
+  foreach<const Sensor<float>*>(list, [&sensors, &i](const Sensor<float> *s) {
+    JSONVar sensor = s->toJSONVar();
+    sensors[i] = sensor;
+    i++;
   });
 
-  json += "]}";
+  json["sensors"] = sensors;
+
   return json;
+}
+
+String Device::toJSON() const {
+  return JSON.stringify(this->toJSONVar());
 }

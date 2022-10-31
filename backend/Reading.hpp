@@ -2,6 +2,7 @@
 #define __READING_HPP__
 
 #include <Arduino.h>
+#include <Arduino_JSON.h>
 
 #define DIGITS 5
 
@@ -66,21 +67,29 @@ public:
     return count;
   }
 
-  virtual String toJSON() const {
-    String json = "{";
-    json += "\"value\":" + String(this->value(), DIGITS);
-    json += ",\"unit\":\"" + this->unit() + "\"";
-    json += ",\"stats\":{";
-      json += ",\"mean\":" + String(this->mean(), DIGITS);
-      json += ",\"variance\":" + String(this->variance(), DIGITS);
-      json += ",\"samples\":" + String(this->samples());
-    json += "}";
-    json += ",\"range\":{";
-      json += "\"minimum\":" + String(this->rangeMin(), DIGITS);
-      json += ",\"maximum\":" + String(this->rangeMax(), DIGITS);
-    json += "}";
-    return json + "}";
+  virtual JSONVar toJSONVar() const {
+    JSONVar json;
+    json["value"] = this->value();
+    json["unit"] = this->unit();
+
+    JSONVar stats;
+    stats["mean"] = this->mean();
+    stats["variance"] = this->variance();
+    stats["samples"] = (unsigned long) this->samples();
+    json["stats"] = stats;
+
+    JSONVar range;
+    range["minimum"] = this->rangeMin();
+    range["maximum"] = this->rangeMax();
+    json["range"] = range;
+
+    return json;
   }
+
+  virtual String toJSON() const {
+    return JSON.stringify(this->toJSONVar());
+  }
+
 };
 
 template<typename T>
@@ -108,22 +117,25 @@ public:
     return maxS;
   }
 
-  virtual String toJSON() const {
-    String json = "{";
-    json += "\"value\":" + String(this->value(), DIGITS);
-    json += ",\"unit\":\"" + this->unit() + "\"";
-    json += ",\"stats\":{";
-      json += "\"mean\":" + String(this->mean(), DIGITS);
-      json += ",\"variance\":" + String(this->variance(), DIGITS);
-      json += ",\"samples\":" + String(this->samples());
-      json += ",\"minimum\":" + String(this->minimum(), DIGITS);
-      json += ",\"maximum\":" + String(this->maximum(), DIGITS);
-    json += "}";
-    json += ",\"range\":{";
-      json += "\"minimum\":" + String(this->rangeMin(), DIGITS);
-      json += ",\"maximum\":" + String(this->rangeMax(), DIGITS);
-    json += "}";
-    return json + "}";
+  virtual JSONVar toJSONVar() const {
+    JSONVar json;
+    json["value"] = this->value();
+    json["unit"] = this->unit();
+
+    JSONVar stats;
+    stats["mean"] = this->mean();
+    stats["variance"] = this->variance();
+    stats["samples"] = (unsigned long) this->samples();
+    stats["minimum"] = this->minimum();
+    stats["maximum"] = this->maximum();
+    json["stats"] = stats;
+
+    JSONVar range;
+    range["minimum"] = this->rangeMin();
+    range["maximum"] = this->rangeMax();
+    json["range"] = range;
+
+    return json;
   }
 };
 

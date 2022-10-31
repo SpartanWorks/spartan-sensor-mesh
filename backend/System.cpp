@@ -21,22 +21,6 @@ void System::begin() {
     Serial.println(sched.monitor());
     t->sleep(STATS_INTERVAL);
   });
-
-  // FILE SYSTEM
-  SPIFFS.begin();
-  Serial.println("File system initialized (" + String(SPIFFS.usedBytes()) + " B / " + String(SPIFFS.totalBytes()) + " B):");
-
-  File dir = SPIFFS.open("/");
-  if(!dir.isDirectory()) {
-    Serial.println("/ is not a directory!");
-  } else {
-    File f;
-    while (f = dir.openNextFile()) {
-      Serial.print("- " + String(f.name()));
-      Serial.println(" (" + String(f.size()) + " B)");
-      f.close();
-    }
-  }
 }
 
 void System::run() {
