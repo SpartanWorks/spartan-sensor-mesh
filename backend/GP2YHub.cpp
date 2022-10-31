@@ -1,14 +1,23 @@
 #include "GP2YHub.hpp"
 
 GP2YHub::GP2YHub(uint8_t rx, uint8_t tx):
-    pm(Sensor<float>("Total PM", "GP2Y", "pm10", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 600)))
+    pm(Sensor<float>("Total PM", "GP2Y", "pm10", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 600))),
+    raw(Sensor<float>("Raw value", "GP2Y", "adc", new WindowedReading<float, SAMPLE_BACKLOG>("counts", 0, 1024)))
 {
   this->serial = new SoftwareSerial(rx, tx);
 }
 
-void GP2YHub::begin() {
+void GP2YHub::begin(System &system) {
   this->serial->begin(GP2Y_BAUDRATE);
   this->read();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample GP2Y", 115,[=](Task *t) {
+    Serial.println("Sampling GP2Y hub.");
+    this->update();
+    t->sleep(GP2Y_SAMPLE_INTERVAL);
+  });
 }
 
 float GP2YHub::getPM() {
@@ -76,8 +85,15 @@ void GP2YHub::update() {
     this->pm.add(this->getPM());
   }
   // NOTE read() already handles setting the error.
+
+#ifdef GP2Y_RAW_READING
+  this->raw.add(this->readValue);
+#endif
 }
 
 void GP2YHub::connect(Device *d) const {
   d->attach(&this->pm);
+#ifdef GP2Y_RAW_READING
+  d->attach(&this->raw);
+#endif
 }

@@ -6,8 +6,16 @@ DHTHub::DHTHub(uint8_t pin, uint8_t model):
     temperature(Sensor<float>("temperature", "DHT", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>("°C", 0, 50)))
 {}
 
-void DHTHub::begin() {
+void DHTHub::begin(System &system) {
   this->sensor.begin();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample DHT", 115,[=](Task *t) {
+    Serial.println("Sampling DHT hub.");
+    this->update();
+    t->sleep(DHT_SAMPLE_INTERVAL);
+  });
 }
 
 void DHTHub::update() {

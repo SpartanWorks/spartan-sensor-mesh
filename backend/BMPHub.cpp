@@ -8,8 +8,16 @@ BMPHub::BMPHub(TwoWire *i2c, uint8_t addr):
     temperature(Sensor<float>("temperature", "BMP", "temperature", new WindowedReading<float, SAMPLE_BACKLOG>("°C", -40, 85)))
 {}
 
-void BMPHub::begin() {
+void BMPHub::begin(System &system) {
   this->sensor.begin(this->address);
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample BMP", 115,[=](Task *t) {
+    Serial.println("Sampling BMP hub.");
+    this->update();
+    t->sleep(BMP_SAMPLE_INTERVAL);
+  });
 }
 
 void BMPHub::update() {

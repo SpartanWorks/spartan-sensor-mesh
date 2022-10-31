@@ -14,9 +14,30 @@ void MHZHub::initSensor() {
   this->sensor.calibrate();
 }
 
-void MHZHub::begin() {
+void MHZHub::begin(System &system) {
   this->serial->begin(MHZ_BAUDRATE);
   this->initSensor();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample MHZ", 115,[=](Task *t) {
+    Serial.println("Sampling MHZ hub.");
+    this->update();
+    t->sleep(MHZ_SAMPLE_INTERVAL);
+  });
+
+  system.scheduler().spawn("reset MHZ", 125,[=](Task *t) {
+    static boolean mhzWarmup = true;
+
+    if (mhzWarmup) {
+      mhzWarmup = false;
+      t->sleep(MHZ_WARMUP_TIMEOUT);
+    } else {
+      Serial.println("Resetting MHZ hub after a warmup.");
+      this->reset();
+      t->kill();
+    }
+  });
 }
 
 void MHZHub::update() {

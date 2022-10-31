@@ -25,10 +25,17 @@ SDSHub::SDSHub(HardwareSerial &serial):
     pm10(Sensor<float>("PM 10", "SDS", "pm10", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000)))
 {}
 
-void SDSHub::begin() {
+void SDSHub::begin(System &system) {
   this->sensor.begin();
-  Serial.println(this->sensor.queryFirmwareVersion().toString());
   this->sensor.setQueryReportingMode();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample SDS", 115,[=](Task *t) {
+    Serial.println("Sampling SDS hub.");
+    this->update();
+    t->sleep(SDS_SAMPLE_INTERVAL);
+  });
 }
 
 void SDSHub::update() {

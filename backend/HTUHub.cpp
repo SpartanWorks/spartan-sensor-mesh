@@ -15,8 +15,16 @@ HTUHub::~HTUHub() {
   }
 }
 
-void HTUHub::begin() {
+void HTUHub::begin(System &system) {
   this->sensor.begin(*(this->i2c));
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample HTU", 115,[=](Task *t) {
+    Serial.println("Sampling HTU hub.");
+    this->update();
+    t->sleep(HTU_SAMPLE_INTERVAL);
+  });
 }
 
 void HTUHub::update() {

@@ -17,7 +17,7 @@ DallasTempHub::~DallasTempHub() {
   }
 }
 
-void DallasTempHub::begin() {
+void DallasTempHub::begin(System &system) {
   this->sensors.begin();
   this->nSensors = this->sensors.getDeviceCount();
   for(uint8_t i = 0; i < this->nSensors; ++i) {
@@ -26,6 +26,14 @@ void DallasTempHub::begin() {
     this->temperatures = new List<Temp>(Temp(i, s), this->temperatures);
   }
   this->sensors.requestTemperatures();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample Dallas", 115,[=](Task *t) {
+    Serial.println("Sampling Dallas hub.");
+    this->update();
+    t->sleep(DALLAS_SAMPLE_INTERVAL);
+  });
 }
 
 void DallasTempHub::update() {
