@@ -9,15 +9,17 @@
 
 class Device {
 private:
+  String dModel;
   String dName;
   String dPass;
   String dGroup;
   List<const Sensor<float>*> *list; // FIXME Could use Sensor<any> here.
 
 public:
-  Device(String p);
-  Device(String n, String p);
-  Device(String n, String p, String g);
+  Device();
+  Device(String m, String p);
+  Device(String m, String n, String p);
+  Device(String m, String g, String n, String p);
   ~Device();
 
   virtual void attach(const Sensor<float> *s);

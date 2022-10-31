@@ -2,6 +2,7 @@
 #define __SYSTEM_HPP__
 
 #include <Arduino.h>
+#include <Arduino_JSON.h>
 #include "Scheduler.hpp"
 #include "Device.hpp"
 #include "Sensor.hpp"
@@ -17,9 +18,10 @@ class System {
   Device dev;
 
  public:
-  System(String password, Timestamp slice);
+  System(Timestamp slice);
 
   void begin();
+  bool loadConfig(JSONVar& config);
   void run();
 
   Scheduler& scheduler();

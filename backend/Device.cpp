@@ -1,12 +1,15 @@
 #include "Device.hpp"
 
-Device::Device(String p): Device("", p, "") {
+Device::Device(): Device("", "", "", "")
+{}
+
+Device::Device(String m, String p): Device(m, "", "", p)
+{}
+
+Device::Device(String m, String n, String p): Device(m, n, n, p) {
 }
 
-Device::Device(String n, String p): Device(n, p, n) {
-}
-
-Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g), list(nullptr) {
+Device::Device(String m, String n, String p, String g): dModel(m), dName(n), dPass(p), dGroup(g), list(nullptr) {
   uint32_t chipId = (uint32_t)(ESP.getEfuseMac() >> 32);
   dName = (dName == "") ? String("Device-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
@@ -27,7 +30,7 @@ void Device::attach(const SensorHub *s) {
 }
 
 String Device::model() const {
-  return "generic";
+  return this->dModel;
 }
 
 String Device::name() const {
