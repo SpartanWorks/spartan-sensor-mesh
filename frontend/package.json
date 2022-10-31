@@ -8,7 +8,7 @@
     "build:watch": "ENV=dev gulp watch",
     "build:release": "ENV=prod gulp release",
     "clean": "rimraf coverage dist node_modules package-lock.json",
-    "postbuild:release": "cp dist/*.gz dist/static/*.gz ../backend/data/",
+    "postbuild:release": "cp dist/*.gz dist/static/*.gz ../backend/data/static/",
     "prebuild": "npm run test",
     "prebuild:release": "npm run test",
     "pretest": "gulp lint",

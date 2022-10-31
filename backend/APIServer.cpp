@@ -88,7 +88,7 @@ void APIServer::handleApiConfig() {
     f.write((const uint8_t*)pass.c_str(), pass.length());
     f.write('\n');
     f.close();
-    
+
     this->send(200, "application/json", "{\"status\":\"ok\"}");
   } else {
     this->send(403, "application/json", "{\"error\":\"Invalid credentials.\"}");
@@ -102,7 +102,7 @@ void APIServer::handleApiData() {
 
 void APIServer::handleWildcard() {
   Serial.println("Serving *");
-  File f = this->files.open("/index.html.gz", "r");
+  File f = this->files.open("/static/index.html.gz", "r");
 
   if(!f) {
     this->send(500, "application/json", "{\"error\":\"Internal server error.\"}");
@@ -132,15 +132,15 @@ void APIServer::begin() {
   WebServer::begin();
 
   this->restoreWiFiConfig();
-  
+
   // FIXME Some browsers send lowercase authorization header.
   const char *headers[] = { LOWER_CASE_AUTHORIZATION_HEADER };
   this->collectHeaders(headers, sizeof(headers)/sizeof(headers[0]));
 
   this->on("/api/login" , HTTP_OPTIONS, [this]() { this->handleOptions(); });
-  this->on("/api/login" , HTTP_GET,     [this]() { this->handleApiLogin(); });
+  this->on("/api/login",  HTTP_GET,     [this]() { this->handleApiLogin(); });
   this->on("/api/config",               [this]() { this->handleApiConfig(); });
-  this->on("/api/data"  ,               [this]() { this->handleApiData(); });
+  this->on("/api/data",                 [this]() { this->handleApiData(); });
   this->onNotFound(                     [this]() { this->handleWildcard(); });
-  this->serveStatic("/static/",         this->files, "/", "max-age=86400");
+  this->serveStatic("/static/",         this->files, "/static/", "max-age=86400");
 }
