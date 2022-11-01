@@ -1,10 +1,12 @@
 #ifndef __APISERVER_HPP__
 #define __APISERVER_HPP__
 
+#include <Arduino_JSON.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <FS.h>
+#include <ESPmDNS.h>
 #include "Device.hpp"
 
 const int WIFI_CONNECTION_TIMEOUT = 20000; // 20 seconds
@@ -18,6 +20,7 @@ private:
   void handleOptions();
   void handleApiLogin();
   void handleApiConfig();
+  void handleApiMesh();
   void handleApiData();
   void handleWildcard();
 

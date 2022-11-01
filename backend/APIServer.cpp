@@ -100,6 +100,25 @@ void APIServer::handleApiData() {
   this->send(200, "application/json", this->device->toJSON());
 }
 
+void APIServer::handleApiMesh() {
+  Serial.println("Serving /api/mesh");
+  JSONVar mesh;
+
+  uint16_t n = MDNS.queryService("ssn", "tcp");
+
+  for (uint16_t i = 0; i < n; i++) {
+    JSONVar ssn;
+
+    ssn["hostname"] = MDNS.hostname(i);
+    ssn["id"] = MDNS.IP(i);
+    ssn["port"] = MDNS.port(i);
+
+    mesh[i] = ssn;
+  }
+
+  this->send(200, "application/json", JSON.stringify(mesh));
+}
+
 void APIServer::handleWildcard() {
   Serial.println("Serving *");
   File f = this->files.open("/static/index.html.gz", "r");
@@ -140,6 +159,7 @@ void APIServer::begin() {
   this->on("/api/login" , HTTP_OPTIONS, [this]() { this->handleOptions(); });
   this->on("/api/login",  HTTP_GET,     [this]() { this->handleApiLogin(); });
   this->on("/api/config",               [this]() { this->handleApiConfig(); });
+  this->on("/api/mesh",   HTTP_GET,     [this]() { this->handleApiMesh(); });
   this->on("/api/data",                 [this]() { this->handleApiData(); });
   this->onNotFound(                     [this]() { this->handleWildcard(); });
   this->serveStatic("/static/",         this->files, "/static/", "max-age=86400");

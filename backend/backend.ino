@@ -78,6 +78,7 @@ void setup(void){
 
   // SERVICE DISCOVERY
   MDNS.begin(ssn.device().name().c_str());
+  MDNS.addService("ssn", "tcp", HTTP_PORT);
   Serial.println("mDNS responder initialized");
 
   // API
@@ -86,6 +87,7 @@ void setup(void){
   ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
     server->handleClient();
   });
+
   MDNS.addService("http", "tcp", HTTP_PORT);
   Serial.println("API server initialized");
 }
