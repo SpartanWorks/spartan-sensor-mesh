@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Device *d, FS &fs): WebServer(port), device(d), files(fs) {
+APIServer::APIServer(const Device *d, FS &fs): WebServer(SSN_PORT), device(d), files(fs) {
 }
 
 bool waitForConnection(uint32_t timeout) {
@@ -93,16 +93,28 @@ void APIServer::handleApiMesh() {
   Serial.println("Serving /api/mesh");
   JSONVar mesh;
 
-  uint16_t n = MDNS.queryService("ssn", "tcp");
+  JSONVar self;
 
-  for (uint16_t i = 0; i < n; i++) {
+  self["hostname"] = this->device->name();
+  self["ip"] = WiFi.localIP().toString();
+  self["port"] = SSN_PORT;
+
+  mesh[0] = self;
+
+  uint16_t i = 0;
+  while(true) {
+    String hostname = MDNS.hostname(i);
+
+    if(hostname == "") break;
+
     JSONVar ssn;
 
-    ssn["hostname"] = MDNS.hostname(i);
+    ssn["hostname"] = hostname;
     ssn["id"] = MDNS.IP(i).toString();
     ssn["port"] = MDNS.port(i);
 
-    mesh[i] = ssn;
+    mesh[i + 1] = ssn;
+    i++;
   }
 
   this->send(200, APPLICATION_JSON, JSON.stringify(mesh));

@@ -9,6 +9,8 @@
 #include <ESPmDNS.h>
 #include "Device.hpp"
 
+#define SSN_PORT 80
+
 #define WIFI_CONNECTION_TIMEOUT 20000 // 20 seconds
 
 #define WIFI_CONFIG_FILE "/wifi_config.txt"
@@ -39,7 +41,7 @@ private:
   void restoreWiFiConfig();
 
 public:
-  APIServer(uint16_t port, const Device *d, FS &fs);
+  APIServer(const Device *d, FS &fs);
   void begin();
 };
 

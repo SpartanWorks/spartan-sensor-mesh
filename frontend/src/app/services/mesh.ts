@@ -38,11 +38,7 @@ export class MeshService {
       .then((r) => r.json())
       .then((nodes: MeshNode[]) => {
         this.nodes = nodes;
-        this.devices = nodes.map((n) => {
-          const deviceUrl = "http://" + n.ip + ":" + n.port;
-          return new DeviceService(deviceUrl);
-        });
-        this.devices.push(new DeviceService(this.baseUrl));
+        this.devices = nodes.map((n) => new DeviceService("http://" + n.ip + ":" + n.port));
       })
       .then(repeat)
       .catch((e) => {

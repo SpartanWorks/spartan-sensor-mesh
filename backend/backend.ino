@@ -16,8 +16,9 @@ System ssn(TIME_SLICE);
 const int SDA_PIN = 21;
 const int SCL_PIN = 22;
 
-const int HTTP_PORT = 80;
 const int AP_TIMEOUT = 900000; // 15 minutes
+
+const int SERVICE_QUERY_INTERVAL = 300000; // 5 minutes
 
 void setup(void){
   // SYSTEM
@@ -78,17 +79,22 @@ void setup(void){
 
   // SERVICE DISCOVERY
   MDNS.begin(ssn.device().name().c_str());
-  MDNS.addService("ssn", "tcp", HTTP_PORT);
+  MDNS.addService("ssn", "tcp", SSN_PORT);
+  ssn.scheduler().spawn("scan SSN services", 125, [](Task *t) {
+      Serial.println("Querying for SSN services via mDNS.");
+      MDNS.queryService("ssn", "tcp");
+      t->sleep(SERVICE_QUERY_INTERVAL);
+  });
   Serial.println("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(HTTP_PORT, &ssn.device(), SPIFFS);
+  APIServer *server = new APIServer(&ssn.device(), SPIFFS);
   server->begin();
   ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
     server->handleClient();
   });
 
-  MDNS.addService("http", "tcp", HTTP_PORT);
+  MDNS.addService("http", "tcp", SSN_PORT);
   Serial.println("API server initialized");
 }
 

@@ -15,7 +15,7 @@ export function onLoad() {
   const configStore = new ConfigStore(configService);
 
   meshService.onUpdate(dashboardStore.meshDataRetrieved);
-  meshService.connect(60000, 5000);
+  meshService.connect(5000, 2000);
 
   const container = document.createElement("div");
   container.classList.add(styles.appContainer);
