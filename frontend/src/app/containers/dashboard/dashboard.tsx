@@ -106,11 +106,15 @@ function renderSensors(device: DeviceData) {
     return groups;
   }, new Map<string, SensorData[]>());
 
-  return Array.from(grouped.values())
-              .map(reduceSensors)
-              .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
-              .sort((a, b) => (a.type > b.type ? 1 : -1))
-              .map(renderSensor);
+  const recombined = Array.from(grouped.values())
+    .map(reduceSensors)
+    .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
+    .sort((a, b) => (a.type > b.type ? 1 : -1));
+  return (
+    <span className={styles.deviceWrapper}>
+      { recombined.map(renderSensor) }
+    </span>
+  );
 }
 
 @observer

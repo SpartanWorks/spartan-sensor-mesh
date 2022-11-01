@@ -1,6 +1,7 @@
 @import "app/styles/fadein.css";
 
 :root {
+  --annimation-speed: 0.2s;
   --reading-spacing-vertical: 10px;
   --reading-spacing-horizontal: 25px;
 }
@@ -9,7 +10,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: fadeIn 0.5s normal ease-in-out;
+  animation: fadeIn 2.5s normal ease-in-out;
 
   & .readingWrapper {
     margin: var(--reading-spacing-vertical);
