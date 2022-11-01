@@ -1,5 +1,6 @@
 :root {
   --device-panel-color: #ddd;
+  --device-panel-radius: 50px;
 }
 
 .mainWrapper {
@@ -29,21 +30,21 @@
       border-style: solid;
       border-width: 1px;
       border-color: var(--device-panel-color);
-      border-radius: 50px;
+      border-radius: var(--device-panel-radius);
 
+      background-color: #fff;
       position: relative;
 
-      margin-top: 10px;
-      margin-bottom: 10px;
+      margin-top: 40px;
+      margin-bottom: 5px;
     }
 
     & .deviceWrapper .deviceTag {
-      color: var(--device-panel-color);
       position: absolute;
       font-size: 2em;
-      bottom: 100px;
-      left: -100px;
-      transform: rotate(-90deg);
+      top: -45px;
+      left: var(--device-panel-radius);
+      color: var(--device-panel-color);
     }
   }
 }
