@@ -56,7 +56,7 @@ export class DeviceService {
   }
 
   fetchData(): Promise<DeviceData> {
-    return fetch(this.baseUrl + "/api/data").then(r => r.json());
+    return fetch(this.baseUrl + "/api/data").then((r) => r.json());
   }
 
   private fetchInterval(interval: number): Promise<void> {

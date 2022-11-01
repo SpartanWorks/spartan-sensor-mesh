@@ -38,9 +38,9 @@ export class MeshService {
       .then((r) => r.json())
       .then((nodes: MeshNode[]) => {
         this.nodes = nodes;
-        this.devices = nodes.map(n => {
+        this.devices = nodes.map((n) => {
           const deviceUrl = "http://" + n.ip + ":" + n.port;
-          return new DeviceService(deviceUrl)
+          return new DeviceService(deviceUrl);
         });
         this.devices.push(new DeviceService(this.baseUrl));
       })
@@ -59,7 +59,7 @@ export class MeshService {
       setTimeout(() => this.fetchAll(interval), interval);
     };
 
-    return Promise.all(this.devices.map(d => d.fetchData()))
+    return Promise.all(this.devices.map((d) => d.fetchData()))
       .then(this.onUpdateCallback)
       .then(repeat)
       .catch((e) => {
