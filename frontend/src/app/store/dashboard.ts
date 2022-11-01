@@ -6,15 +6,16 @@ export class DashboardStore {
   dataLoaded = false;
 
   @observable
-  data: DeviceData = {
-    model: "UNKNOWN",
-    name: "UNKNOWN",
-    group: "UNKNOWN",
-    sensors: []
-  };
+  data: DeviceData[] = [];
 
   @action.bound
   dataRetrieved(data: DeviceData) {
+    this.dataLoaded = true;
+    this.data = [data];
+  }
+
+  @action.bound
+  meshDataRetrieved(data: DeviceData[]) {
     this.dataLoaded = true;
     this.data = data;
   }

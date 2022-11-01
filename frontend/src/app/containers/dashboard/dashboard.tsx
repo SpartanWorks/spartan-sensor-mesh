@@ -119,7 +119,7 @@ export class Dashboard extends preact.Component<Props, {}> {
     return (
       <div className={styles.mainWrapper}>
         <div className={styles.displayWrapper}>
-          { !this.props.store.dataLoaded ? <Spinner/> : renderSensors(this.props.store.data) }
+          { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.map(renderSensors) }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
       </div>
