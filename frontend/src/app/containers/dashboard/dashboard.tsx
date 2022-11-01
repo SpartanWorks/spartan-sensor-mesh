@@ -95,8 +95,9 @@ function reduceSensors(group: SensorData[]): SensorData[] {
 }
 
 function renderSensors(device: DeviceData) {
-  const all = device.sensors;
-  const grouped = all.reduce((groups, s) => {
+  const deviceTag = device.group + " / " + device.name;
+
+  const grouped = device.sensors.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
       groups.get(group)?.push(s);
@@ -106,11 +107,17 @@ function renderSensors(device: DeviceData) {
     return groups;
   }, new Map<string, SensorData[]>());
 
-  return Array.from(grouped.values())
-              .map(reduceSensors)
-              .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
-              .sort((a, b) => (a.type > b.type ? 1 : -1))
-              .map(renderSensor);
+  const recombined = Array.from(grouped.values())
+    .map(reduceSensors)
+    .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
+    .sort((a, b) => (a.type > b.type ? 1 : -1));
+
+  return (
+    <div className={styles.deviceWrapper}>
+      <div className={styles.deviceTag}>{ deviceTag }</div>
+      { recombined.map(renderSensor) }
+    </div>
+  );
 }
 
 @observer
@@ -119,7 +126,7 @@ export class Dashboard extends preact.Component<Props, {}> {
     return (
       <div className={styles.mainWrapper}>
         <div className={styles.displayWrapper}>
-          { !this.props.store.dataLoaded ? <Spinner/> : renderSensors(this.props.store.data) }
+          { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.map(renderSensors) }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
       </div>

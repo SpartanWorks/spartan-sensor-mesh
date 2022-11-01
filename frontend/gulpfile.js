@@ -19,10 +19,9 @@ const uglify = require("gulp-uglify");
 const prod = process.env.ENV === "prod";
 
 const postcss = [ // order matters
-  // FIXME
-  // require("postcss-import")({
-  //  path: ["./src/"]
-  //}),
+  require("postcss-import")({
+    path: ["./src/"]
+    }),
   require("postcss-cssnext")({
     warnForDuplicates: !prod
   }),

@@ -52,16 +52,19 @@ export class DeviceService {
    }
 
   connect(interval: number) {
-    this.fetchData(interval);
+    this.fetchInterval(interval);
   }
 
-  private fetchData(interval: number): Promise<void> {
+  fetchData(): Promise<DeviceData> {
+    return fetch(this.baseUrl + "/api/data").then((r) => r.json());
+  }
+
+  private fetchInterval(interval: number): Promise<void> {
     const repeat = () => {
-      setTimeout(() => this.fetchData(interval), interval);
+      setTimeout(() => this.fetchInterval(interval), interval);
     };
 
-    return fetch(this.baseUrl + "/api/data")
-      .then((r) => r.json())
+    return this.fetchData()
       .then(this.onUpdateCallback)
       .then(repeat)
       .catch((e) => {

@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(uint16_t port, const Device *d, FS &fs): WebServer(port), device(d), files(fs) {
+APIServer::APIServer(const Device *d, FS &fs): WebServer(SSN_PORT), device(d), files(fs) {
 }
 
 bool waitForConnection(uint32_t timeout) {
@@ -36,36 +36,26 @@ bool connect(const String ssid, const String password) {
   return result;
 }
 
-const char * LOWER_CASE_AUTHORIZATION_HEADER = "authorization";
-const char *AUTHORIZATION_HEADER = "Authorization";
-
 void APIServer::handleOptions() {
   Serial.println("Serving OPTIONS");
-  this->sendHeader("Access-Control-Allow-Headers", AUTHORIZATION_HEADER);
-  this->send(200, "application/json", "{\"status\":\"ok}");
+  this->sendHeader(ALLOWED_HEADER, AUTHORIZATION_HEADER);
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
+  this->send(200, APPLICATION_JSON, STATUS_OK);
 }
 
 void APIServer::handleApiLogin() {
   Serial.println("Serving /api/login");
 
-  // FIXME Some browsers send lowercase authorization header.
-  const char *original = AUTHORIZATION_HEADER;
-
-  if(!this->hasHeader(original)) {
-    AUTHORIZATION_HEADER = LOWER_CASE_AUTHORIZATION_HEADER;
-  }
-
   bool authorized = this->authenticate(this->device->name().c_str(), this->device->password().c_str());
 
-  AUTHORIZATION_HEADER = original;
-  return authorized ? this->send(200, "application/json", "{\"status\":\"ok\"}") : this->requestAuthentication();
+  return authorized ? this->send(200, APPLICATION_JSON, STATUS_OK) : this->requestAuthentication();
 }
 
 void APIServer::handleApiConfig() {
   Serial.println("Serving /api/config");
 
   if(!this->authenticate(this->device->name().c_str(), this->device->password().c_str())) {
-    this->send(401, "application/json", "{\"error\":\"Unauthorized.\"}");
+    this->send(401, APPLICATION_JSON, UNAUTHORIZED);
   }
 
   String ssid, pass;
@@ -89,15 +79,48 @@ void APIServer::handleApiConfig() {
     f.write('\n');
     f.close();
 
-    this->send(200, "application/json", "{\"status\":\"ok\"}");
+    this->send(200, APPLICATION_JSON, STATUS_OK);
   } else {
-    this->send(403, "application/json", "{\"error\":\"Invalid credentials.\"}");
+    this->send(403, APPLICATION_JSON, INVALID_CREDENTIALS);
   }
 }
 
 void APIServer::handleApiData() {
   Serial.println("Serving /api/data");
-  this->send(200, "application/json", this->device->toJSON());
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
+  this->send(200, APPLICATION_JSON, this->device->toJSON());
+}
+
+void APIServer::handleApiMesh() {
+  Serial.println("Serving /api/mesh");
+  JSONVar mesh;
+
+  JSONVar self;
+
+  self["hostname"] = this->device->name();
+  self["ip"] = WiFi.localIP().toString();
+  self["port"] = SSN_PORT;
+
+  mesh[0] = self;
+
+  uint16_t i = 0;
+  while(true) {
+    String hostname = MDNS.hostname(i);
+
+    if(hostname == "") break;
+
+    JSONVar ssn;
+
+    ssn["hostname"] = hostname;
+    ssn["id"] = MDNS.IP(i).toString();
+    ssn["port"] = MDNS.port(i);
+
+    mesh[i + 1] = ssn;
+    i++;
+  }
+
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
+  this->send(200, APPLICATION_JSON, JSON.stringify(mesh));
 }
 
 void APIServer::handleWildcard() {
@@ -105,10 +128,10 @@ void APIServer::handleWildcard() {
   File f = this->files.open("/static/index.html.gz", "r");
 
   if(!f) {
-    this->send(500, "application/json", "{\"error\":\"Internal server error.\"}");
+    this->send(500, APPLICATION_JSON, INTERNAL_SERVER_ERROR);
   }
 
-  this->streamFile(f, "text/html");
+  this->streamFile(f, TEXT_HTML);
   f.close();
 }
 
@@ -133,13 +156,10 @@ void APIServer::begin() {
 
   this->restoreWiFiConfig();
 
-  // FIXME Some browsers send lowercase authorization header.
-  const char *headers[] = { LOWER_CASE_AUTHORIZATION_HEADER };
-  this->collectHeaders(headers, sizeof(headers)/sizeof(headers[0]));
-
   this->on("/api/login" , HTTP_OPTIONS, [this]() { this->handleOptions(); });
   this->on("/api/login",  HTTP_GET,     [this]() { this->handleApiLogin(); });
   this->on("/api/config",               [this]() { this->handleApiConfig(); });
+  this->on("/api/mesh",   HTTP_GET,     [this]() { this->handleApiMesh(); });
   this->on("/api/data",                 [this]() { this->handleApiData(); });
   this->onNotFound(                     [this]() { this->handleWildcard(); });
   this->serveStatic("/static/",         this->files, "/static/", "max-age=86400");
