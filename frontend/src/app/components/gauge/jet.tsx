@@ -42,10 +42,12 @@ interface JetGaugeProps {
 }
 
 export const JetGauge = (props: JetGaugeProps) => {
-  const val = normalize(props.value, props.min, props.max);
+  const max = Math.max(props.max, props.value);
+  const min = Math.min(props.min, props.value);
+  const val = normalize(props.value, min, max);
   return (
     <Gauge progress={val * 360}
-           uncertainty={Math.sqrt(props.variance || 0.0) / (props.max - props.min) * 360}
+           uncertainty={Math.sqrt(props.variance || 0.0) / (max - min) * 360}
            color={jet(val)}
            isError={props.isError}
            errorTooltip={props.errorTooltip}>

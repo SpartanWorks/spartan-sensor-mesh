@@ -3,19 +3,16 @@
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "Sensor.hpp"
-#include "SensorHub.hpp"
-#include "Device.hpp"
-#include "Reading.hpp"
-#include "List.hpp"
+#include "System.hpp"
 
+#define DALLAS_SAMPLE_INTERVAL 5000
 #define SAMPLE_BACKLOG 30
 
 struct Temp {
   uint8_t index = 0;
-  Sensor *sensor = nullptr;
+  Sensor<float> *sensor = nullptr;
 
-  Temp(int i, Sensor *s): sensor(s), index(i) {}
+  Temp(int i, Sensor<float> *s): sensor(s), index(i) {}
 };
 
 class DallasTempHub: public SensorHub {
@@ -28,7 +25,7 @@ private:
 public:
   DallasTempHub(uint8_t pin, uint8_t resolution);
   ~DallasTempHub();
-  void begin();
+  void begin(System &system);
   void update();
   void connect(Device *d) const;
 };

@@ -3,26 +3,26 @@
 
 #include "SoftwareSerial.h"
 #include "MHZ19.h"
-#include "Sensor.hpp"
-#include "SensorHub.hpp"
-#include "Device.hpp"
-#include "Reading.hpp"
+#include "System.hpp"
 
-#define SAMPLE_BACKLOG 30
 #define MHZ_BAUDRATE 9600
+
+#define MHZ_WARMUP_TIMEOUT 1200000 // 20 minutes
+#define MHZ_SAMPLE_INTERVAL 2000
+#define SAMPLE_BACKLOG 30
 
 class MHZHub: public SensorHub {
 private:
   SoftwareSerial *serial;
   MHZ19 sensor;
-  Sensor co2;
-  Sensor temperature;
+  Sensor<float> co2;
+  Sensor<float> temperature;
 
   void initSensor();
 
 public:
   MHZHub(uint8_t rx, uint8_t tx);
-  void begin();
+  void begin(System &system);
   void update();
   void connect(Device *d) const;
   void reset();

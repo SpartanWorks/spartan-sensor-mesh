@@ -1,4 +1,5 @@
 import * as preact from "preact";
+import { SensorData, SensorReading } from "../../services/device";
 import * as styles from "./label.css";
 
 interface LabelProps {
@@ -21,5 +22,29 @@ export const Label = (props: LabelProps) => {
       </div>
       <span title={props.name} className={styles.name}>{props.name}</span>
     </div>
+  );
+};
+
+interface SensorLabelProps {
+  data: SensorData;
+  rounding?: number;
+}
+
+export function readingTooltip(reading: SensorReading, rounding?: number): string {
+  const r = (rounding ?? 1) + 2;
+  return (
+    "Walking average: " + reading.stats.mean.toFixed(r) + " ± " + Math.sqrt(reading.stats.variance).toFixed(r) +
+    "\nNumber of samples: " + reading.stats.samples +
+    "\nMaximum: " + reading.stats.maximum.toFixed(r) +
+    "\nMinimum: " + reading.stats.minimum.toFixed(r)
+  );
+}
+
+export const SensorLabel = (props: SensorLabelProps) => {
+  return (
+    <Label name={props.data.name[0].toUpperCase() + props.data.name.substring(1)}
+           value={Number(props.data.reading.stats.mean.toFixed(props.rounding ?? 1))}
+           unit={props.data.reading.unit}
+           tooltip={readingTooltip(props.data.reading, props.rounding)}/>
   );
 };

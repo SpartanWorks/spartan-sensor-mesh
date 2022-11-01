@@ -1,12 +1,15 @@
 #include "Device.hpp"
 
-Device::Device(String p): Device("", p, "") {
+Device::Device(): Device("", "", "", "")
+{}
+
+Device::Device(String m, String p): Device(m, "", "", p)
+{}
+
+Device::Device(String m, String n, String p): Device(m, n, n, p) {
 }
 
-Device::Device(String n, String p): Device(n, p, n) {
-}
-
-Device::Device(String n, String p, String g): dName(n), dPass(p), dGroup(g), list(nullptr) {
+Device::Device(String m, String n, String p, String g): dModel(m), dName(n), dPass(p), dGroup(g), list(nullptr) {
   uint32_t chipId = (uint32_t)(ESP.getEfuseMac() >> 32);
   dName = (dName == "") ? String("Device-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
@@ -18,8 +21,8 @@ Device::~Device() {
   }
 }
 
-void Device::attach(const Sensor *s) {
-  list = new List<const Sensor*>(s, list);
+void Device::attach(const Sensor<float> *s) {
+  list = new List<const Sensor<float>*>(s, list);
 }
 
 void Device::attach(const SensorHub *s) {
@@ -27,7 +30,7 @@ void Device::attach(const SensorHub *s) {
 }
 
 String Device::model() const {
-  return "generic";
+  return this->dModel;
 }
 
 String Device::name() const {
@@ -42,22 +45,26 @@ String Device::group() const {
   return this->dGroup;
 }
 
-String Device::toJSON() const {
-  String json = "{";
-  json += "\"model\":\"" + this->model() + "\"";
-  json += ",\"name\":\"" + this->name() + "\"";
-  json += ",\"group\":\"" + this->group() + "\"";
-  json += ",\"sensors\":[";
+JSONVar Device::toJSONVar() const {
+  JSONVar json;
+  json["model"] = this->model();
+  json["name"] = this->name();
+  json["group"] = this->group();
 
-  bool first = true;
-  foreach<const Sensor*>(list, [&json, &first](const Sensor *s) {
-    if(!first) {
-      json += ",";
-    }
-    json += s->toJSON();
-    first = false;
+  JSONVar sensors;
+  uint16_t i = 0;
+
+  foreach<const Sensor<float>*>(list, [&sensors, &i](const Sensor<float> *s) {
+    JSONVar sensor = s->toJSONVar();
+    sensors[i] = sensor;
+    i++;
   });
 
-  json += "]}";
+  json["sensors"] = sensors;
+
   return json;
+}
+
+String Device::toJSON() const {
+  return JSON.stringify(this->toJSONVar());
 }

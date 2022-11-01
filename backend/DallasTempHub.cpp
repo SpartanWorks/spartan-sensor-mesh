@@ -17,15 +17,23 @@ DallasTempHub::~DallasTempHub() {
   }
 }
 
-void DallasTempHub::begin() {
+void DallasTempHub::begin(System &system) {
   this->sensors.begin();
   this->nSensors = this->sensors.getDeviceCount();
   for(uint8_t i = 0; i < this->nSensors; ++i) {
-    Reading<float> *r = new WindowedReading<float, SAMPLE_BACKLOG>();
-    Sensor *s = new Sensor("DallasTemperature", "temperature", "temperature" + String(i), r);
+    Reading<float> *r = new WindowedReading<float, SAMPLE_BACKLOG>("°C", -55, 125);
+    Sensor<float> *s = new Sensor<float>("temperature" + String(i), "DallasTemperature", "temperature", r);
     this->temperatures = new List<Temp>(Temp(i, s), this->temperatures);
   }
   this->sensors.requestTemperatures();
+
+  system.device().attach(this);
+
+  system.scheduler().spawn("sample Dallas", 115,[=](Task *t) {
+    Serial.println("Sampling Dallas hub.");
+    this->update();
+    t->sleep(DALLAS_SAMPLE_INTERVAL);
+  });
 }
 
 void DallasTempHub::update() {
@@ -34,7 +42,7 @@ void DallasTempHub::update() {
     if(temp != DEVICE_DISCONNECTED_C && temp != DEVICE_DISCONNECTED_RAW) {
       t.sensor->add(temp);
     } else {
-      t.sensor->add(NAN);
+      t.sensor->setError(String("Could not read sensor. Response: ") + String(temp));
     }
   });
   this->sensors.requestTemperatures();

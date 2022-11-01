@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 #include "SdsDustSensor.h"
-#include "Sensor.hpp"
-#include "SensorHub.hpp"
-#include "Device.hpp"
-#include "Reading.hpp"
+#include "System.hpp"
 
+#define SDS_SAMPLE_INTERVAL 1000
 #define SAMPLE_BACKLOG 30
 
 class PatchedSdsSensor : public SdsDustSensor {
@@ -23,12 +21,12 @@ class SDSHub: public SensorHub {
 private:
   HardwareSerial &serial;
   PatchedSdsSensor sensor;
-  Sensor pm25;
-  Sensor pm10;
+  Sensor<float> pm25;
+  Sensor<float> pm10;
 
 public:
   SDSHub(HardwareSerial &serial);
-  void begin();
+  void begin(System &system);
   void update();
   void connect(Device *d) const;
 };

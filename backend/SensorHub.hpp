@@ -5,11 +5,12 @@
 #include "Sensor.hpp"
 
 class Device;
+class System;
 
 class SensorHub {
 public:
   virtual ~SensorHub() {}
-  virtual void begin() = 0;
+  virtual void begin(System &system) = 0;
   virtual void update() = 0;
   virtual void connect(Device *d) const = 0;
   virtual void reset() {}

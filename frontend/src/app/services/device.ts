@@ -1,18 +1,30 @@
-export interface SensorReading {
-  value: number;
+export interface SensorReadingStats {
   mean: number;
   variance: number;
   samples: number;
-  maximum?: number;
-  minimum?: number;
+  maximum: number;
+  minimum: number;
+}
+
+export interface SensorReadingRange {
+  minimum: number;
+  maximum: number;
+}
+
+export interface SensorReading {
+  unit: string;
+  value: number;
+  range: SensorReadingRange;
+  stats: SensorReadingStats;
 }
 
 export interface SensorData {
   type: string;
   name: string;
   model: string;
-  status: "ok" | "error";
+  status: string;
   errors: number;
+  lastError: string;
   measurements: number;
   reading: SensorReading;
 }
