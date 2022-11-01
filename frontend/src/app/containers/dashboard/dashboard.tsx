@@ -95,8 +95,9 @@ function reduceSensors(group: SensorData[]): SensorData[] {
 }
 
 function renderSensors(device: DeviceData) {
-  const all = device.sensors;
-  const grouped = all.reduce((groups, s) => {
+  const deviceTag = device.group + " / " + device.name;
+
+  const grouped = device.sensors.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
       groups.get(group)?.push(s);
@@ -110,10 +111,12 @@ function renderSensors(device: DeviceData) {
     .map(reduceSensors)
     .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
     .sort((a, b) => (a.type > b.type ? 1 : -1));
+
   return (
-    <span className={styles.deviceWrapper}>
+    <div className={styles.deviceWrapper}>
+      <div className={styles.deviceTag}>{ deviceTag }</div>
       { recombined.map(renderSensor) }
-    </span>
+    </div>
   );
 }
 

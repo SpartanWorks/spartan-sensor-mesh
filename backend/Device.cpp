@@ -9,9 +9,9 @@ Device::Device(String m, String p): Device(m, "", "", p)
 Device::Device(String m, String n, String p): Device(m, n, n, p) {
 }
 
-Device::Device(String m, String n, String p, String g): dModel(m), dName(n), dPass(p), dGroup(g), list(nullptr) {
+Device::Device(String m, String g, String n, String p): dModel(m), dName(n), dPass(p), dGroup(g), list(nullptr) {
   uint32_t chipId = (uint32_t)(ESP.getEfuseMac() >> 32);
-  dName = (dName == "") ? String("Device-") + String(chipId, HEX) : dName;
+  dName = (dName == "") ? String("SSN-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
 }
 
