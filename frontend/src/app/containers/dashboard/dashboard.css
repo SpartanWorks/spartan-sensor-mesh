@@ -1,5 +1,5 @@
 :root {
-  --device-panel-color: #eee;
+  --device-panel-color: #ddd;
 }
 
 .mainWrapper {
@@ -32,14 +32,18 @@
       border-radius: 50px;
 
       position: relative;
+
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     & .deviceWrapper .deviceTag {
       color: var(--device-panel-color);
       position: absolute;
       font-size: 2em;
-      top: -50px;
-      left: 50px;
+      bottom: 100px;
+      left: -100px;
+      transform: rotate(-90deg);
     }
   }
 }
@@ -49,7 +53,7 @@
     width: 100%;
 
     & .displayWrapper {
-      width: 66.7%;
+      width: 80%;
     }
   }
 }
