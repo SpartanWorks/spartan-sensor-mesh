@@ -25,6 +25,10 @@
 
 #define LOWER_CASE_AUTHORIZATION_HEADER "authorization"
 #define AUTHORIZATION_HEADER "Authorization"
+#define ALLOWED_HEADER "Access-Control-Allow-Headers"
+#define CORS_HEADER "Access-Control-Allow-Origin"
+
+#define ALLOWED_ORIGIN "*"
 
 class APIServer: public WebServer {
 private:

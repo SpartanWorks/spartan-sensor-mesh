@@ -38,7 +38,8 @@ bool connect(const String ssid, const String password) {
 
 void APIServer::handleOptions() {
   Serial.println("Serving OPTIONS");
-  this->sendHeader("Access-Control-Allow-Headers", AUTHORIZATION_HEADER);
+  this->sendHeader(ALLOWED_HEADER, AUTHORIZATION_HEADER);
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->send(200, APPLICATION_JSON, STATUS_OK);
 }
 
@@ -86,6 +87,7 @@ void APIServer::handleApiConfig() {
 
 void APIServer::handleApiData() {
   Serial.println("Serving /api/data");
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->send(200, APPLICATION_JSON, this->device->toJSON());
 }
 
@@ -117,6 +119,7 @@ void APIServer::handleApiMesh() {
     i++;
   }
 
+  this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->send(200, APPLICATION_JSON, JSON.stringify(mesh));
 }
 
