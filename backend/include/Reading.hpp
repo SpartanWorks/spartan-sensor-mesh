@@ -12,13 +12,13 @@
 template<typename T>
 class Reading {
 protected:
-  String sUnit = "";
-  T rMin = (T) 0;
-  T rMax = (T) 0;
-  T var = (T) 0;
-  T last = (T) 0;
-  T meanS = (T) 0;
-  uint32_t count = 0;
+  String sUnit;
+  T rMin;
+  T rMax;
+  T var;
+  T last;
+  T meanS;
+  uint32_t count;
 
   virtual void updateMean(T s) {
     T delta = s - meanS;
@@ -30,8 +30,14 @@ public:
   Reading(String unit, T rMin, T rMax):
       sUnit(unit),
       rMin(rMin),
-      rMax(rMax)
+      rMax(rMax),
+      var((T) 0),
+      last((T) 0),
+      meanS((T) 0),
+      count(0)
   {}
+
+  virtual ~Reading() {}
 
   virtual void add(T s) {
     last = s;
@@ -95,12 +101,14 @@ public:
 template<typename T>
 class MinMaxReading: public Reading<T> {
 protected:
-  T minS = (T) 0;
-  T maxS = (T) 0;
+  T minS;
+  T maxS;
 
 public:
   MinMaxReading(String unit, T rMin, T rMax):
-      Reading<T>(unit, rMin, rMax)
+      Reading<T>(unit, rMin, rMax),
+      minS((T) 0),
+      maxS((T) 0)
   {}
 
   virtual void add(T s) {
@@ -143,7 +151,7 @@ template<typename T, uint16_t windowSize>
 class WindowedReading: public MinMaxReading<T> {
 protected:
   T window[windowSize];
-  uint16_t index = 0;
+  uint16_t index;
 
   virtual void updateMean(T s) {
     if (this->count > windowSize) {
@@ -157,7 +165,8 @@ protected:
 
 public:
   WindowedReading(String unit, T rMin, T rMax):
-      MinMaxReading<T>(unit, rMin, rMax)
+      MinMaxReading<T>(unit, rMin, rMax),
+      index(0)
   {
     for(uint16_t i = 0; i < windowSize; ++i) {
       window[i] = (T) 0;

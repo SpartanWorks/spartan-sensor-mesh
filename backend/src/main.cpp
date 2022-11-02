@@ -1,9 +1,30 @@
 #include <Arduino.h>
-#include <Arduino_JSON.h>
-#include <ESPmDNS.h>
+
+#ifdef ESP8266
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+
+#define FSImplementation SPIFFS // FIXME Deprecated, replace with LittleFS.
+
+const int SDA_PIN = 4;
+const int SCL_PIN = 5;
+#endif
+
+#ifdef ESP32
 #include <WiFi.h>
-#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
 #include <SPIFFS.h>
+
+#define FSImplementation SPIFFS
+
+const int SDA_PIN = 21;
+const int SCL_PIN = 22;
+#endif
+
+#include <Arduino_JSON.h>
+#include <WiFiClient.h>
 #include <FS.h>
 #include <Wire.h>
 #include "APIServer.hpp"
@@ -12,9 +33,6 @@
 const int TIME_SLICE = 500; // 500 us
 
 System ssn(TIME_SLICE);
-
-const int SDA_PIN = 21;
-const int SCL_PIN = 22;
 
 const int AP_TIMEOUT = 900000; // 15 minutes
 
@@ -26,10 +44,22 @@ void setup(void){
   Serial.println("System initialized");
 
   // FILE SYSTEM
-  SPIFFS.begin();
-  Serial.println("File system initialized (" + String(SPIFFS.usedBytes()) + " B / " + String(SPIFFS.totalBytes()) + " B):");
+  FSImplementation.begin();
+  uint32_t usedBytes = 0;
+  uint32_t totalBytes = 0;
+#ifdef ESP32
+  usedBytes = FSImplementation.usedBytes();
+  totalBytes = FSImplementation.totalBytes();
+#endif
+#ifdef ESP8266
+  FSInfo info;
+  FSImplementation.info(info);
+  usedBytes = info.usedBytes;
+  totalBytes = info.totalBytes;
+#endif
+  Serial.println("File system initialized (" + String(usedBytes) + " B / " + String(totalBytes) + " B):");
 
-  File dir = SPIFFS.open("/");
+  File dir = FSImplementation.open("/", "r");
   if(!dir.isDirectory()) {
     Serial.println("/ is not a directory!");
   } else {
@@ -41,8 +71,8 @@ void setup(void){
     }
   }
 
-  if(SPIFFS.exists("/device_config.json")) {
-    File configFile = SPIFFS.open("/device_config.json", "r");
+  if(FSImplementation.exists("/device_config.json")) {
+    File configFile = FSImplementation.open("/device_config.json", "r");
     JSONVar config = JSON.parse(configFile.readString());
     ssn.loadConfig(config);
     configFile.close();
@@ -85,10 +115,15 @@ void setup(void){
       MDNS.queryService("ssn", "tcp");
       t->sleep(SERVICE_QUERY_INTERVAL);
   });
+#ifdef ESP8266
+  ssn.scheduler().spawn("handle mDNS", 125, [](Task *t) {
+    MDNS.update();
+  });
+#endif
   Serial.println("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(&ssn.device(), SPIFFS);
+  APIServer *server = new APIServer(&ssn.device(), FSImplementation);
   server->begin();
   ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
     server->handleClient();

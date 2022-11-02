@@ -15,6 +15,7 @@ const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
 const tslint = require("gulp-tslint");
 const uglify = require("gulp-uglify");
+const shakeify = require("common-shakeify");
 
 const prod = process.env.ENV === "prod";
 
@@ -76,6 +77,7 @@ gulp.task("bundle", gulp.series(gulp.parallel("create-dirs", "style-type-definit
       rootDir: __dirname,
       generateScopedName: prod ? cssModulesify.generateShortName : cssModulesify.generateLongName,
     })
+    .plugin(shakeify)
     .bundle()
     .on("error", gutil.log)
     .pipe(source("main.js"))

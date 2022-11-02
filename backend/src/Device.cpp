@@ -10,7 +10,14 @@ Device::Device(String m, String n, String p): Device(m, n, n, p) {
 }
 
 Device::Device(String m, String g, String n, String p): dModel(m), dName(n), dPass(p), dGroup(g), list(nullptr) {
+#ifdef ESP32
   uint32_t chipId = (uint32_t)(ESP.getEfuseMac() >> 32);
+#endif
+
+#ifdef ESP8266
+  uint32_t chipId = (uint32_t)ESP.getChipId();
+#endif
+
   dName = (dName == "") ? String("SSN-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
 }

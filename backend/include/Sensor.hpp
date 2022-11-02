@@ -8,25 +8,29 @@
 template<typename T>
 class Sensor {
  protected:
-  String sModel = "";
-  String sType = "";
-  String sName = "";
-  String sStatus = "init";
-  uint32_t nErrors = 0;
-  String sLastError = "";
-  uint32_t nMeasurements = 0;
-  Reading<T> *sReading = nullptr;
+  String sModel;
+  String sType;
+  String sName;
+  String sStatus;
+  uint32_t nErrors;
+  String sLastError;
+  uint32_t nMeasurements;
+  Reading<T> *sReading;
 
  public:
 
   Sensor(String name, String model, String type, Reading<T> *reading):
-      sName(name),
       sModel(model),
       sType(type),
+      sName(name),
+      sStatus("init"),
+      nErrors(0),
+      sLastError(""),
+      nMeasurements(0),
       sReading(reading)
   {}
 
-  ~Sensor() {
+  virtual ~Sensor() {
     if (this->sReading != nullptr) {
       delete this->sReading;
     }

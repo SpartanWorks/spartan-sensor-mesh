@@ -1,8 +1,8 @@
 #include "SDSHub.hpp"
 
 PatchedSdsSensor::PatchedSdsSensor(HardwareSerial &serial):
-  serial(serial),
-  SdsDustSensor(serial, RETRY_DELAY_MS_DEFAULT, MAX_RETRIES_NOT_AVAILABLE_DEFAULT)
+  SdsDustSensor(serial, RETRY_DELAY_MS_DEFAULT, MAX_RETRIES_NOT_AVAILABLE_DEFAULT),
+  serial(serial)
 {}
 
 void PatchedSdsSensor::writeImmediate(const Command &command) {

@@ -55,7 +55,6 @@ bool GP2YHub::read() {
     return false;
   }
 
-  uint32_t t0 = millis();
   spin = N_SAMPLES + 5;
   while(this->serial->available() < 2 && spin > 0) {
     delay(10); // How long it takes for a single measurement.
@@ -65,7 +64,6 @@ bool GP2YHub::read() {
     this->pm.setError(String("Waited longer than ") + String((N_SAMPLES + 5) * 10) + "ms for data.");
     return false;
   }
-  uint32_t t1 = millis();
 
   uint8_t low = this->serial->read();
   uint8_t high = this->serial->read();
