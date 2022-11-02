@@ -90,22 +90,26 @@ bool System::loadConfig(JSONVar &config) {
 
         SDSHub *sds;
         switch((int) conn["number"]) {
+#ifdef ESP32
           case 2: {
             HardwareSerial& sdsSerial(Serial2);
             sds = new SDSHub(sdsSerial);
           }
-            break;
+          break;
+#endif
+
           case 1: {
             HardwareSerial& sdsSerial(Serial1);
             sds = new SDSHub(sdsSerial);
           }
-            break;
+          break;
+
           case 0:
           default: {
             HardwareSerial& sdsSerial(Serial);
             sds = new SDSHub(sdsSerial);
           }
-            break;
+          break;
         }
 
         sds->begin(*this);

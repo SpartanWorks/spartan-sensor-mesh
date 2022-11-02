@@ -1,9 +1,26 @@
 #include <Arduino.h>
-#include <Arduino_JSON.h>
-#include <ESPmDNS.h>
+
+#ifdef ESP8266
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+
+const int SDA_PIN = 4;
+const int SCL_PIN = 5;
+#endif
+
+#ifdef ESP32
 #include <WiFi.h>
-#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
 #include <SPIFFS.h>
+
+const int SDA_PIN = 21;
+const int SCL_PIN = 22;
+#endif
+
+#include <Arduino_JSON.h>
+#include <WiFiClient.h>
 #include <FS.h>
 #include <Wire.h>
 #include "APIServer.hpp"
@@ -12,9 +29,6 @@
 const int TIME_SLICE = 500; // 500 us
 
 System ssn(TIME_SLICE);
-
-const int SDA_PIN = 21;
-const int SCL_PIN = 22;
 
 const int AP_TIMEOUT = 900000; // 15 minutes
 
@@ -27,9 +41,21 @@ void setup(void){
 
   // FILE SYSTEM
   SPIFFS.begin();
-  Serial.println("File system initialized (" + String(SPIFFS.usedBytes()) + " B / " + String(SPIFFS.totalBytes()) + " B):");
+  uint32_t usedBytes = 0;
+  uint32_t totalBytes = 0;
+#ifdef ESP32
+  usedBytes = SPIFFS.usedBytes();
+  totalBytes = SPIFFS.totalBytes();
+#endif
+#ifdef ESP8266
+  FSInfo info;
+  SPIFFS.info(info);
+  usedBytes = info.usedBytes;
+  totalBytes = info.totalBytes;
+#endif
+  Serial.println("File system initialized (" + String(usedBytes) + " B / " + String(totalBytes) + " B):");
 
-  File dir = SPIFFS.open("/");
+  File dir = SPIFFS.open("/", "r");
   if(!dir.isDirectory()) {
     Serial.println("/ is not a directory!");
   } else {
