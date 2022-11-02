@@ -8,7 +8,8 @@ const cssModulesify = require("css-modulesify");
 const DtsCreator = require("typed-css-modules").default;
 const glob = require("glob");
 const gulp = require("gulp");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
+const colors = require("ansi-colors");
 const gzip = require("gulp-gzip");
 const karmaServer = require("karma").Server;
 const source = require("vinyl-source-stream");
@@ -56,12 +57,12 @@ gulp.task("style-type-definitions", (done) => {
           .create(f)
           .then((content) => content.writeFile())
           .then((content) => {
-            console.log("Wrote " + gutil.colors.green(content.outputFilePath));
+            console.log("Wrote " + colors.green(content.outputFilePath));
             content.messageList.forEach((message) => {
-              console.warn(gutil.colors.yellow("[Warn] " + message));
+              console.warn(colors.yellow("[Warn] " + message));
             });
           })
-          .catch((reason) => console.error(gutil.colors.red("[Error] " + reason)));
+          .catch((reason) => console.error(colors.red("[Error] " + reason)));
       }))
       .then(() => done());
   });
@@ -79,13 +80,13 @@ gulp.task("bundle", gulp.series(gulp.parallel("create-dirs", "style-type-definit
     })
     .plugin(shakeify)
     .bundle()
-    .on("error", gutil.log)
+    .on("error", log)
     .pipe(source("main.js"))
     .pipe(buffer());
   if (prod) {
     bundle
       .pipe(uglify())
-      .on("error", gutil.log);
+      .on("error", log);
   } else {
     bundle
       .pipe(sourcemaps.init({loadMaps: true}))
@@ -99,7 +100,7 @@ gulp.task("bundle", gulp.series(gulp.parallel("create-dirs", "style-type-definit
 gulp.task("lint", () => {
   return gulp
     .src(["./src/**/*.ts", "./src/**/*.tsx"])
-    .on("error", gutil.log)
+    .on("error", log)
     .pipe(tslint({
       fix: true,
       formatter: "verbose",
@@ -110,7 +111,7 @@ gulp.task("lint", () => {
 gulp.task("html", () => {
   return gulp
     .src(["./src/index.html"])
-    .on("error", gutil.log)
+    .on("error", log)
     .pipe(gulp.dest("./dist/"));
 });
 
