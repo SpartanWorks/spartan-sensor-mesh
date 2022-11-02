@@ -94,9 +94,11 @@ function reduceSensors(group: SensorData[]): SensorData[] {
   }
 }
 
-function renderSensors(device: DeviceData) {
-  const deviceTag = device.group + " / " + device.name;
+function deviceTag(device: DeviceData): string {
+  return device.group + " / " + device.name;
+}
 
+function renderSensors(device: DeviceData) {
   const grouped = device.sensors.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
@@ -114,7 +116,7 @@ function renderSensors(device: DeviceData) {
 
   return (
     <div className={styles.deviceWrapper}>
-      <div className={styles.deviceTag}>{ deviceTag }</div>
+      <div className={styles.deviceTag}>{ deviceTag(device) }</div>
       { recombined.map(renderSensor) }
     </div>
   );
@@ -126,7 +128,11 @@ export class Dashboard extends preact.Component<Props, {}> {
     return (
       <div className={styles.mainWrapper}>
         <div className={styles.displayWrapper}>
-          { !this.props.store.dataLoaded ? <Spinner/> : this.props.store.data.map(renderSensors) }
+          {
+            !this.props.store.dataLoaded
+            ? <Spinner/>
+            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderSensors)
+          }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
       </div>
