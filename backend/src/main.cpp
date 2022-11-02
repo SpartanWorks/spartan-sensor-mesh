@@ -5,6 +5,8 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+#define FSImplementation SPIFFS // FIXME Deprecated, replace with LittleFS.
+
 const int SDA_PIN = 4;
 const int SCL_PIN = 5;
 #endif
@@ -14,6 +16,8 @@ const int SCL_PIN = 5;
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
+
+#define FSImplementation SPIFFS
 
 const int SDA_PIN = 21;
 const int SCL_PIN = 22;
@@ -40,22 +44,22 @@ void setup(void){
   Serial.println("System initialized");
 
   // FILE SYSTEM
-  SPIFFS.begin();
+  FSImplementation.begin();
   uint32_t usedBytes = 0;
   uint32_t totalBytes = 0;
 #ifdef ESP32
-  usedBytes = SPIFFS.usedBytes();
-  totalBytes = SPIFFS.totalBytes();
+  usedBytes = FSImplementation.usedBytes();
+  totalBytes = FSImplementation.totalBytes();
 #endif
 #ifdef ESP8266
   FSInfo info;
-  SPIFFS.info(info);
+  FSImplementation.info(info);
   usedBytes = info.usedBytes;
   totalBytes = info.totalBytes;
 #endif
   Serial.println("File system initialized (" + String(usedBytes) + " B / " + String(totalBytes) + " B):");
 
-  File dir = SPIFFS.open("/", "r");
+  File dir = FSImplementation.open("/", "r");
   if(!dir.isDirectory()) {
     Serial.println("/ is not a directory!");
   } else {
@@ -67,8 +71,8 @@ void setup(void){
     }
   }
 
-  if(SPIFFS.exists("/device_config.json")) {
-    File configFile = SPIFFS.open("/device_config.json", "r");
+  if(FSImplementation.exists("/device_config.json")) {
+    File configFile = FSImplementation.open("/device_config.json", "r");
     JSONVar config = JSON.parse(configFile.readString());
     ssn.loadConfig(config);
     configFile.close();
@@ -111,10 +115,15 @@ void setup(void){
       MDNS.queryService("ssn", "tcp");
       t->sleep(SERVICE_QUERY_INTERVAL);
   });
+#ifdef ESP8266
+  ssn.scheduler().spawn("handle mDNS", 125, [](Task *t) {
+    MDNS.update();
+  });
+#endif
   Serial.println("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(&ssn.device(), SPIFFS);
+  APIServer *server = new APIServer(&ssn.device(), FSImplementation);
   server->begin();
   ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
     server->handleClient();

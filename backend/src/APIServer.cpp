@@ -112,7 +112,7 @@ void APIServer::handleApiMesh() {
     JSONVar ssn;
 
     ssn["hostname"] = hostname;
-    ssn["id"] = MDNS.IP(i).toString();
+    ssn["ip"] = MDNS.IP(i).toString();
     ssn["port"] = MDNS.port(i);
 
     mesh[i + 1] = ssn;
