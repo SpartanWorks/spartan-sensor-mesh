@@ -9,10 +9,10 @@
 #define SAMPLE_BACKLOG 30
 
 struct Temp {
-  uint8_t index = 0;
-  Sensor<float> *sensor = nullptr;
+  uint8_t index;
+  Sensor<float> *sensor;
 
-  Temp(int i, Sensor<float> *s): sensor(s), index(i) {}
+  Temp(int i, Sensor<float> *s): index(i), sensor(s) {}
 };
 
 class DallasTempHub: public SensorHub {
