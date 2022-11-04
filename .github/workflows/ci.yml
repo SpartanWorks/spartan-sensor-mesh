@@ -1,0 +1,86 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name Checkout code
+
+      - name: Check which part is affected
+        id: source-affected
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+    outputs:
+      backendAffected: ${{ steps.source-affected.outputs.backend }}
+      frontendAffected: ${{ steps.source-affected.outputs.frontend }}
+
+  ci-fe:
+    needs: setup
+    if: ${{ needs.setup.outputs.frontendAffected  == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install deps
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build the code
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Run tests
+        working-directory: ./frontend
+        run: npm run test:ci
+
+  ci-be:
+    needs: setup
+    if: ${{ needs.setup.outputs.backendAffected  == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        board:
+          - esp32dev
+          - esp12e
+          - esp01
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build PlatformIO project
+        working-directory: ./backend
+        run: pio run -e ${{ matrix.board }}
