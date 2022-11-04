@@ -7,11 +7,14 @@ on:
     branches:
       - main
 
+  # Allows to run this via the Actions tab
+  workflow_dispatch:
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name Checkout code
+      - uses: actions/checkout@v2
 
       - name: Check which part is affected
         id: source-affected
@@ -32,8 +35,7 @@ jobs:
     if: ${{ needs.setup.outputs.frontendAffected  == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v3
         with:
@@ -62,25 +64,22 @@ jobs:
           - esp12e
           - esp01
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Cache PlatformIO
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
           key: ${{ runner.os }}-pio
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
-      - name: Build PlatformIO project
+      - name: Build the code
         working-directory: ./backend
         run: pio run -e ${{ matrix.board }}
