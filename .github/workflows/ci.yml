@@ -1,0 +1,83 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+  # Allows to run this via the Actions tab
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check which part is affected
+        id: source-affected
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+    outputs:
+      backendAffected: ${{ steps.source-affected.outputs.backend }}
+      frontendAffected: ${{ steps.source-affected.outputs.frontend }}
+
+  ci-fe:
+    needs: setup
+    if: ${{ needs.setup.outputs.frontendAffected  == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - uses: browser-actions/setup-chrome@latest
+
+      - name: Install deps
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build the code
+        working-directory: ./frontend
+        run: npm run build:ci
+
+  ci-be:
+    needs: setup
+    if: ${{ needs.setup.outputs.backendAffected  == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        board:
+          - esp32dev
+          - esp12e
+          - esp01
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build the code
+        working-directory: ./backend
+        run: pio run -e ${{ matrix.board }}
