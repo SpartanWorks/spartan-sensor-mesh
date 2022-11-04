@@ -105,7 +105,7 @@ void APIServer::handleApiMesh() {
 
   uint16_t i = 0;
   while(true) {
-    String hostname = MDNS.hostname(i);
+    String hostname = MDNS.hostname(i); // FIXME Causes an error log on the serial.
 
     if(hostname == "") break;
 
