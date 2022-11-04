@@ -4,14 +4,33 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 #include <stdarg.h>
+#include <esp_log.h>
+
+#ifndef ESP32
+typedef int (*vprintf_like_t)(const char *, va_list);
+#endif
+
+#ifndef ESP8266
+typedef int (*putchar_like_t)(int ch);
+#endif
+
+extern vprintf_like_t thePrint;
+extern putchar_like_t thePutchar;
+
+int putcharToSerial0(int ch);
+int printToSerial0(char *input, va_list args);
+int putcharToSerial1(int ch);
+int printToSerial1(char *, va_list);
 
 #define DEFAULT_BAUDRATE 115200
 
 enum LogLevel {
-  DEBUG = 3,
-  INFO = 2,
-  WARNING = 1,
-  ERROR = 0
+  NONE = 0,
+  ERROR,
+  WARNING,
+  INFO,
+  DEBUG,
+  VERBOSE
 };
 
 class Log {
@@ -26,15 +45,35 @@ class Log {
   }
 
   void begin() {
-    Serial.begin(115200);
+    LogLevel level = DEBUG;
+    int baudrate = DEFAULT_BAUDRATE;
+    vprintf_like_t printer = (vprintf_like_t) &printToSerial0;
+    putchar_like_t putter = (putchar_like_t) &putcharToSerial0;
+
+    // TODO Configure based on the config JSON.
+
+    Serial.begin(baudrate);
+    thePrint = printer;
+    thePutchar = putter;
+
+    esp_log_level_set("*", (esp_log_level_t) level);
+
+#ifdef ESP32
+    esp_log_set_vprintf(thePrint);
+#endif
+
+#ifdef ESP8266
+     esp_log_set_putchar(thePutchar);
+#endif
   }
 
   void print(String message) {
-    Serial.print(message);
+    va_list args;
+    thePrint(message.c_str(), args);
   }
 
   void println(String message) {
-    Serial.println(message);
+    print(message + "\r\n");
   }
 
 #define DEFINE_LOGGER(level, name)   \
@@ -47,9 +86,9 @@ class Log {
   void name(const char *input...) {  \
     va_list args;                    \
     va_start(args, input);           \
-    char buf[255];                   \
-    vsnprintf(buf, 255, input, args);\
-    name(String(buf));               \
+    thePrint(input, args);           \
+    va_end(args);                    \
+    print("\n");                     \
   }                                  \
   void name(JSONVar input) {         \
     name(JSON.stringify(input));     \
