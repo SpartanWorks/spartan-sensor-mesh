@@ -32,20 +32,20 @@ void CCSHub::begin(System &system) {
   this->initSensor();
   system.device().attach(this);
 
-  system.scheduler().spawn("sample CCS", 115,[=](Task *t) {
-    Serial.println("Sampling CCS hub.");
+  system.scheduler().spawn("sample CCS", 115,[&](Task *t) {
+    system.log().debug("Sampling CCS hub.");
     this->update();
     t->sleep(CCS_SAMPLE_INTERVAL);
   });
 
-  system.scheduler().spawn("reset CCS", 125,[=](Task *t) {
+  system.scheduler().spawn("reset CCS", 125,[&](Task *t) {
     static boolean ccsWarmup = true;
 
     if (ccsWarmup) {
       ccsWarmup = false;
       t->sleep(CCS_WARMUP_TIMEOUT);
     } else {
-      Serial.println("Resetting CCS hub after a warmup.");
+      system.log().info("Resetting CCS hub after a warmup.");
       this->reset();
       t->kill();
     }

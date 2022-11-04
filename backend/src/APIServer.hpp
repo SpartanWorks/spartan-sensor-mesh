@@ -20,6 +20,7 @@
 #include <WiFiClient.h>
 #include <FS.h>
 #include "Device.hpp"
+#include "Log.hpp"
 
 #define SSN_PORT 80
 
@@ -44,7 +45,8 @@
 
 class APIServer: public WebServer {
 private:
-  const Device *device = nullptr;
+  const Device &device;
+  Log &log;
   FS &files;
 
   void handleOptions();
@@ -57,7 +59,7 @@ private:
   void restoreWiFiConfig();
 
 public:
-  APIServer(const Device *d, FS &fs);
+  APIServer(const Device &d, Log &log, FS &fs);
   void begin();
 };
 

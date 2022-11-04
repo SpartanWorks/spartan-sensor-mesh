@@ -31,8 +31,8 @@ void SDSHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample SDS", 115,[=](Task *t) {
-    Serial.println("Sampling SDS hub.");
+  system.scheduler().spawn("sample SDS", 115,[&](Task *t) {
+    system.log().debug("Sampling SDS hub.");
     this->update();
     t->sleep(SDS_SAMPLE_INTERVAL);
   });

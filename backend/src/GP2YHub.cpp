@@ -13,8 +13,8 @@ void GP2YHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample GP2Y", 115,[=](Task *t) {
-    Serial.println("Sampling GP2Y hub.");
+  system.scheduler().spawn("sample GP2Y", 115,[&](Task *t) {
+    system.log().debug("Sampling GP2Y hub.");
     this->update();
     t->sleep(GP2Y_SAMPLE_INTERVAL);
   });

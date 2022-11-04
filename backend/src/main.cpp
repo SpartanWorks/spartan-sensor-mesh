@@ -41,7 +41,7 @@ const int SERVICE_QUERY_INTERVAL = 300000; // 5 minutes
 void setup(void){
   // SYSTEM
   ssn.begin();
-  Serial.println("System initialized");
+  ssn.log().info("System initialized");
 
   // FILE SYSTEM
   FSImplementation.begin();
@@ -57,16 +57,15 @@ void setup(void){
   usedBytes = info.usedBytes;
   totalBytes = info.totalBytes;
 #endif
-  Serial.println("File system initialized (" + String(usedBytes) + " B / " + String(totalBytes) + " B):");
+  ssn.log().info("File system initialized (%ldB / %ldB):", usedBytes, totalBytes);
 
   File dir = FSImplementation.open("/", "r");
   if(!dir.isDirectory()) {
-    Serial.println("/ is not a directory!");
+    ssn.log().warn("/ is not a directory!");
   } else {
     File f;
     while (f = dir.openNextFile()) {
-      Serial.print("- " + String(f.name()));
-      Serial.println(" (" + String(f.size()) + " B)");
+      ssn.log().info("- %s (%ldB)", f.name(), f.size());
       f.close();
     }
   }
@@ -77,7 +76,7 @@ void setup(void){
     ssn.loadConfig(config);
     configFile.close();
   } else {
-    Serial.println("System configuration not found. Please upload a file named `device_config.json` containing the system configuration.");
+    ssn.log().warn("System configuration not found. Please upload a file named `device_config.json` containing the system configuration.");
   }
 
   Wire.begin(SDA_PIN, SCL_PIN); // FIXME Needed as BMP280 library seems to override it internally.
@@ -93,25 +92,22 @@ void setup(void){
       apEnabled = false;
       t->sleep(AP_TIMEOUT);
     } else {
-      Serial.println("Disabling access point.");
+      ssn.log().info("Disabling access point.");
       WiFi.mode(WIFI_STA);
       t->kill();
     }
   });
 
-  Serial.println("WiFi initialized:");
-  Serial.print("- SSID: ");
-  Serial.println(ssn.device().name());
-  Serial.print("- Password: ");
-  Serial.println(ssn.device().password());
-  Serial.print("- IP address: ");
-  Serial.println(WiFi.softAPIP());
+  ssn.log().info("WiFi initialized:");
+  ssn.log().info("- SSID: %s", ssn.device().name().c_str());
+  ssn.log().info("- Password: %s", ssn.device().password().c_str());
+  ssn.log().info("- IP address: %s", WiFi.softAPIP().toString().c_str());
 
   // SERVICE DISCOVERY
   MDNS.begin(ssn.device().name().c_str());
   MDNS.addService("ssn", "tcp", SSN_PORT);
   ssn.scheduler().spawn("scan SSN services", 125, [](Task *t) {
-      Serial.println("Querying for SSN services via mDNS.");
+      ssn.log().debug("Querying for SSN services via mDNS.");
       MDNS.queryService("ssn", "tcp");
       t->sleep(SERVICE_QUERY_INTERVAL);
   });
@@ -120,17 +116,17 @@ void setup(void){
     MDNS.update();
   });
 #endif
-  Serial.println("mDNS responder initialized");
+  ssn.log().info("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(&ssn.device(), FSImplementation);
+  APIServer *server = new APIServer(ssn.device(), ssn.log(), FSImplementation);
   server->begin();
   ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
     server->handleClient();
   });
 
   MDNS.addService("http", "tcp", SSN_PORT);
-  Serial.println("API server initialized");
+  ssn.log().info("API server initialized");
 }
 
 void loop(void) {
