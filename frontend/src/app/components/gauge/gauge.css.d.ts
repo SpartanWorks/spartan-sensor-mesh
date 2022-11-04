@@ -15,4 +15,3 @@ declare const styles: {
   readonly "aliasingFix": string;
 };
 export = styles;
-

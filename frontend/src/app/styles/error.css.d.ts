@@ -5,4 +5,3 @@ declare const styles: {
   readonly "grayOut": string;
 };
 export = styles;
-

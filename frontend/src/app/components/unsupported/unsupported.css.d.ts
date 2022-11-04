@@ -3,4 +3,3 @@ declare const styles: {
   readonly "sadPanda": string;
 };
 export = styles;
-

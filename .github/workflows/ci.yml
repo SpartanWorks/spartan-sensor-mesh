@@ -41,6 +41,9 @@ jobs:
         with:
           node-version: 14
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@latest
+
       - name: Install deps
         working-directory: ./frontend
         run: npm install

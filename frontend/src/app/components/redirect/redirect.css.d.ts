@@ -6,4 +6,3 @@ declare const styles: {
   readonly "iconCogs": string;
 };
 export = styles;
-

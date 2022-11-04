@@ -4,4 +4,3 @@ declare const styles: {
   readonly "readingWrapper": string;
 };
 export = styles;
-
