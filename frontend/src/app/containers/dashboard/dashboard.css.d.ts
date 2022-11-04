@@ -5,3 +5,4 @@ declare const styles: {
   readonly "deviceTag": string;
 };
 export = styles;
+

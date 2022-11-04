@@ -41,8 +41,7 @@ jobs:
         with:
           node-version: 14
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@latest
+      - uses: browser-actions/setup-chrome@latest
 
       - name: Install deps
         working-directory: ./frontend
@@ -50,11 +49,7 @@ jobs:
 
       - name: Build the code
         working-directory: ./frontend
-        run: npm run build
-
-      - name: Run tests
-        working-directory: ./frontend
-        run: npm run test:ci
+        run: npm run build:ci
 
   ci-be:
     needs: setup

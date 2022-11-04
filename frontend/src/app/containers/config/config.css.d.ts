@@ -3,3 +3,4 @@ declare const styles: {
   readonly "displayWrapper": string;
 };
 export = styles;
+
