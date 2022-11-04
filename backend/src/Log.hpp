@@ -4,22 +4,16 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 #include <stdarg.h>
-#include <esp_log.h>
 
-#ifndef ESP32
+#ifdef ESP32
+#include <esp_log.h>
+#else
 typedef int (*vprintf_like_t)(const char *, va_list);
 #endif
 
-#ifndef ESP8266
-typedef int (*putchar_like_t)(int ch);
-#endif
-
 extern vprintf_like_t thePrint;
-extern putchar_like_t thePutchar;
 
-int putcharToSerial0(int ch);
 int printToSerial0(char *input, va_list args);
-int putcharToSerial1(int ch);
 int printToSerial1(char *, va_list);
 
 #define DEFAULT_BAUDRATE 115200
@@ -48,22 +42,22 @@ class Log {
     LogLevel level = DEBUG;
     int baudrate = DEFAULT_BAUDRATE;
     vprintf_like_t printer = (vprintf_like_t) &printToSerial0;
-    putchar_like_t putter = (putchar_like_t) &putcharToSerial0;
 
     // TODO Configure based on the config JSON.
 
     Serial.begin(baudrate);
     thePrint = printer;
-    thePutchar = putter;
-
-    esp_log_level_set("*", (esp_log_level_t) level);
 
 #ifdef ESP32
+    esp_log_level_set("*", (esp_log_level_t) level);
     esp_log_set_vprintf(thePrint);
 #endif
 
 #ifdef ESP8266
-     esp_log_set_putchar(thePutchar);
+    // TODO
+    // Seems to only be configurable during compile time.
+    // https://github.com/esp8266/Arduino/blob/master/doc/Troubleshooting/debugging.rst
+    // An alternative would be to switch to the esp8266-rtos-sdk.
 #endif
   }
 
