@@ -154,13 +154,19 @@ protected:
   uint16_t index;
 
   virtual void updateMean(T s) {
-    if (this->count > windowSize) {
-      T oldMean = this->meanS;
-      this->meanS += s/windowSize - window[index]/windowSize;
-      this->var += (s - oldMean) * (s - this->meanS) - (window[index] - oldMean) * (window[index] - this->meanS);
-    } else {
-      MinMaxReading<T>::updateMean(s);
+    uint16_t limit = this->samples();
+    T m = (T) 0;
+    for(uint16_t i = 0; i < limit; i++) {
+      m += window[i];
     }
+    this->meanS = m / limit;
+
+    T v = (T) 0;
+    for(uint16_t i = 0; i < limit; i++) {
+      T delta = window[i] - this->meanS;
+      v += delta * delta;
+    }
+    this->var = v / limit;
   }
 
 public:
@@ -174,13 +180,13 @@ public:
   }
 
   virtual void add(T s) {
-    MinMaxReading<T>::add(s);
     window[index] = s;
     index = (index + 1) % windowSize;
+    MinMaxReading<T>::add(s);
   }
 
   virtual T variance() const {
-    return (this->count > windowSize) ? max(0, this->var / (windowSize - 1)) : MinMaxReading<T>::variance();
+    return this->var;
   }
 
   virtual uint32_t samples() const {

@@ -8,6 +8,7 @@
 #include "MHZHub.hpp"
 #include "CCSHub.hpp"
 #include "GP2YHub.hpp"
+#include "SGPHub.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -143,6 +144,18 @@ bool System::begin(JSONVar &config) {
 
         CCSHub *ccs = new CCSHub(&Wire, (int) conn["address"]);
         ccs->begin(*this);
+        // htu->compensate(ccs); // TODO
+      } else if (type == "SGPHub") {
+        if(bus != "hardware-i2c") {
+          l.warn("Bad SGPHub configuration, skipping.");
+          continue;
+        }
+
+        l.info("Attaching SGPHub with config: ");
+        l.info(sensor);
+
+        SGPHub *sgp = new SGPHub(&Wire, (int) conn["address"]);
+        sgp->begin(*this);
         // htu->compensate(ccs); // TODO
       } else if (type == "GP2YHub") {
         if(bus != "software-uart") {

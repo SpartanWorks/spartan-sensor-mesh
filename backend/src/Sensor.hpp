@@ -31,8 +31,8 @@ class Sensor {
   {}
 
   virtual ~Sensor() {
-    if (this->sReading != nullptr) {
-      delete this->sReading;
+    if(sReading != nullptr) {
+      delete sReading;
     }
   }
 
@@ -100,15 +100,14 @@ class Sensor {
   }
 
   void add(T s) {
-  if (!isnan(s)) {
-    this->sReading->add(s);
-    this->nMeasurements++;
-    this->setStatus("ok");
-  } else {
-    this->setError("Invalid sensor reading value.");
+    if (!isnan(s) && s <= this->sReading->rangeMax() && s >= this->sReading->rangeMin()) {
+      this->sReading->add(s);
+      this->nMeasurements++;
+      this->setStatus("ok");
+    } else {
+      this->setError(String("Invalid sensor reading value: ") + s);
+    }
   }
-}
-
 };
 
 #endif
