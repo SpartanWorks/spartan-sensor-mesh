@@ -6,8 +6,8 @@ SGPHub::SGPHub(TwoWire *i2c, uint8_t addr):
     sensor(SGP30(i2c)),
     voc(Sensor<float>("Total VOC", "SGP", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppb", 0, 60000))),
     co2(Sensor<float>("CO2", "SGP", "co2", new WindowedReading<float, SAMPLE_BACKLOG>("ppm", 0, 57330))),
-    h2(Sensor<float>("H2", "SGP", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppb", 0, 1000000))),
-    ethanol(Sensor<float>("Ethanol", "SGP", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppb", 0, 1000000)))
+    h2(Sensor<float>("H2", "SGP", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppm", 0, 1000))),
+    ethanol(Sensor<float>("Ethanol", "SGP", "voc", new WindowedReading<float, SAMPLE_BACKLOG>("ppm", 0, 1000)))
 {}
 
 void SGPHub::begin(System &system) {
@@ -73,8 +73,8 @@ void SGPHub::update() {
   if(result) {
     this->co2.add(this->sensor.getCO2());
     this->voc.add(this->sensor.getTVOC());
-    this->h2.add(this->sensor.getH2() * 1000.0);
-    this->ethanol.add(this->sensor.getEthanol() * 1000.0);
+    this->h2.add(this->sensor.getH2());
+    this->ethanol.add(this->sensor.getEthanol());
   } else {
     String error = String("Could not read sensor:" + String(this->sensor.lastError()));
     this->co2.setError(error);
