@@ -31,8 +31,8 @@ class Sensor {
   {}
 
   virtual ~Sensor() {
-    if (this->sReading != nullptr) {
-      delete this->sReading;
+    if(sReading != nullptr) {
+      delete sReading;
     }
   }
 

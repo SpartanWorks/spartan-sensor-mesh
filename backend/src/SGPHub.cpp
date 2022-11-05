@@ -73,8 +73,20 @@ void SGPHub::update() {
   if(result) {
     this->co2.add(this->sensor.getCO2());
     this->voc.add(this->sensor.getTVOC());
-    this->h2.add(this->sensor.getH2());
-    this->ethanol.add(this->sensor.getEthanol());
+
+    float h2 = this->sensor.getH2();
+    if(h2 > this->h2.reading()->rangeMax() || h2 < this->h2.reading()->rangeMin()) {
+      this->h2.setError(String("Invalid sensor reading: ") + h2);
+    } else {
+      this->h2.add(h2);
+    }
+
+    float eth = this->sensor.getEthanol();
+    if(eth > this->ethanol.reading()->rangeMax() || eth < this->ethanol.reading()->rangeMin()) {
+      this->ethanol.setError(String("Invalid sensor reading: ") + eth);
+    } else {
+      this->ethanol.add(eth);
+    }
   } else {
     String error = String("Could not read sensor:" + String(this->sensor.lastError()));
     this->co2.setError(error);
