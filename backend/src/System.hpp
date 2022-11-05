@@ -22,8 +22,7 @@ class System {
  public:
   System(Timestamp slice);
 
-  void begin();
-  bool loadConfig(JSONVar& config);
+  bool begin(JSONVar& config);
   void run();
 
   Scheduler& scheduler();

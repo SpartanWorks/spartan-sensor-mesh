@@ -10,15 +10,27 @@
 #include "GP2YHub.hpp"
 
 System::System(Timestamp slice):
-    l(Log(LogLevel::INFO)),
+    l(Log()),
     sched(Scheduler(slice)),
     dev(Device())
 {}
 
-void System::begin() {
-  l.begin();
+bool System::begin(JSONVar &config) {
+  if(JSON.typeof(config) == "undefined") {
+    l.error("Malformed JSON configuration file.");
+    return false;
+  }
 
-  l.info("Log initialized");
+  if(!config.hasOwnProperty("log")) {
+    l.error("Malformed JSON configuration file. Missing `log` property:");
+    l.error(config);
+    return false;
+  }
+
+  JSONVar logConfig = config["log"];
+  l.begin(logConfig);
+  l.info("Log initialized:");
+  l.info(logConfig);
 
   sched.begin();
   l.info("Scheduler initialized");
@@ -28,15 +40,6 @@ void System::begin() {
     l.debug(sched.monitor());
     t->sleep(STATS_INTERVAL);
   });
-}
-
-bool System::loadConfig(JSONVar &config) {
-  if(JSON.typeof(config) == "undefined" || JSON.typeof(config["sensors"]) != "array") {
-    // TODO Add more validation.
-    l.error("Invalid configuration JSON specified:");
-    l.error(config);
-    return false;
-  }
 
   String model = (const char*) config["model"];
   String group = (const char*) config["group"];
@@ -44,6 +47,12 @@ bool System::loadConfig(JSONVar &config) {
   String password = (const char*) config["password"];
 
   this->dev = Device(model, group, name, password);
+
+  if(JSON.typeof(config["sensors"]) != "array") {
+    l.error("Malformed JSON configuration file. Missing `sensors` property:");
+    l.error(config);
+    return false;
+  }
 
   JSONVar sensors = config["sensors"];
   uint16_t numSensors = sensors.length();

@@ -29,24 +29,51 @@ enum LogLevel {
 
 class Log {
  private:
-  LogLevel currLevel;
+  LogLevel currLevel = NONE;
 
  public:
-  Log(LogLevel level): currLevel(level) {}
-
   void setLevel(LogLevel level) {
     currLevel = level;
   }
 
-  void begin() {
+  void begin(JSONVar &config) {
     LogLevel level = DEBUG;
-    int baudrate = DEFAULT_BAUDRATE;
-    vprintf_like_t printer = (vprintf_like_t) &printToSerial0;
 
-    // TODO Configure based on the config JSON.
+    if(config.hasOwnProperty("level")) {
+      String l = (const char *) config["level"];
+      if(l == "verbose") {
+        level = VERBOSE;
+      } else if (l == "debug") {
+        level = DEBUG;
+      } else if (l == "info") {
+        level = INFO;
+      } else if (l == "warning") {
+        level = WARNING;
+      } else if (l == "error") {
+        level = ERROR;
+      } else {
+        level = NONE;
+      }
+    }
 
-    Serial.begin(baudrate);
-    thePrint = printer;
+    if(config.hasOwnProperty("console")) {
+      JSONVar c = config["console"];
+
+      uint32_t baudrate = DEFAULT_BAUDRATE;
+      if(c.hasOwnProperty("baudrate")) {
+        baudrate = (unsigned long) c["baudrate"];
+      }
+
+      if(String((const char*) c["type"]) == "hardware-uart" && (int) c["number"] == 1) {
+        Serial1.begin(baudrate);
+        thePrint = (vprintf_like_t) &printToSerial1;
+      } else {
+        Serial.begin(baudrate);
+        thePrint = (vprintf_like_t) &printToSerial0;
+      }
+    }
+
+    setLevel(level);
 
 #ifdef ESP32
     esp_log_level_set("*", (esp_log_level_t) level);
@@ -78,11 +105,14 @@ class Log {
     }                                \
   }                                  \
   void name(const char *input...) {  \
-    va_list args;                    \
-    va_start(args, input);           \
-    thePrint(input, args);           \
-    va_end(args);                    \
-    print("\n");                     \
+    if(currLevel >= (level)) {       \
+      print("[" #level "] ");        \
+      va_list args;                  \
+      va_start(args, input);         \
+      thePrint(input, args);         \
+      va_end(args);                  \
+      print("\n");                   \
+    }                                \
   }                                  \
   void name(JSONVar input) {         \
     name(JSON.stringify(input));     \

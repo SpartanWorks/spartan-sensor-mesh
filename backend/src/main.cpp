@@ -39,10 +39,6 @@ const int AP_TIMEOUT = 900000; // 15 minutes
 const int SERVICE_QUERY_INTERVAL = 300000; // 5 minutes
 
 void setup(void){
-  // SYSTEM
-  ssn.begin();
-  ssn.log().info("System initialized");
-
   // FILE SYSTEM
   FSImplementation.begin();
   uint32_t usedBytes = 0;
@@ -57,6 +53,19 @@ void setup(void){
   usedBytes = info.usedBytes;
   totalBytes = info.totalBytes;
 #endif
+
+  // SYSTEM
+  if(FSImplementation.exists("/device_config.json")) {
+    File configFile = FSImplementation.open("/device_config.json", "r");
+    JSONVar config = JSON.parse(configFile.readString());
+    ssn.begin(config);
+    configFile.close();
+    ssn.log().info("System initialized");
+  } else {
+    ssn.begin(undefined);
+    ssn.log().warn("System configuration not found. Please upload a file named `device_config.json` containing the system configuration.");
+  }
+
   ssn.log().info("File system initialized (%ldB / %ldB):", usedBytes, totalBytes);
 
   File dir = FSImplementation.open("/", "r");
@@ -68,15 +77,6 @@ void setup(void){
       ssn.log().info("- %s (%ldB)", f.name(), f.size());
       f.close();
     }
-  }
-
-  if(FSImplementation.exists("/device_config.json")) {
-    File configFile = FSImplementation.open("/device_config.json", "r");
-    JSONVar config = JSON.parse(configFile.readString());
-    ssn.loadConfig(config);
-    configFile.close();
-  } else {
-    ssn.log().warn("System configuration not found. Please upload a file named `device_config.json` containing the system configuration.");
   }
 
   Wire.begin(SDA_PIN, SCL_PIN); // FIXME Needed as BMP280 library seems to override it internally.
