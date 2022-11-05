@@ -15,6 +15,7 @@ private:
   Adafruit_BMP280 sensor;
   Sensor<float> pressure;
   Sensor<float> temperature;
+  Sensor<float> altitude;
 
 public:
   BMPHub(TwoWire *i2c, uint8_t addr);
