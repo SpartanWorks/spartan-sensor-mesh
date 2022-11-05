@@ -16,13 +16,13 @@ void CCSHub::initSensor() {
 
   uint32_t t0 = millis();
   uint32_t t1 = t0;
-  while(!this->sensor.dataAvailable(), (t1 - t0) < INIT_TIME) {
+  while(!this->sensor.dataAvailable(), (t1 - t0) < CCS_INIT_TIME) {
     delay(10);
     t1 = millis();
   }
 
   if(!this->sensor.dataAvailable()) {
-    String error = String("Sensor initialization took more than ") + String(INIT_TIME) + "ms.";
+    String error = String("Sensor initialization took more than ") + String(CCS_INIT_TIME) + "ms.";
     this->eco2.setError(error);
     this->voc.setError(error);
   }

@@ -5,7 +5,7 @@
 #include "SparkFunCCS811.h"
 #include "System.hpp"
 
-#define INIT_TIME 200
+#define CCS_INIT_TIME 200
 #define CCS_WARMUP_TIMEOUT 1200000 // 20 minutes
 #define CCS_SAMPLE_INTERVAL 2000 // 2 seconds
 #define SAMPLE_BACKLOG 30
