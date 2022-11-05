@@ -29,8 +29,8 @@ void DallasTempHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample Dallas", 115,[=](Task *t) {
-    Serial.println("Sampling Dallas hub.");
+  system.scheduler().spawn("sample Dallas", 115,[&](Task *t) {
+    system.log().debug("Sampling Dallas hub.");
     this->update();
     t->sleep(DALLAS_SAMPLE_INTERVAL);
   });

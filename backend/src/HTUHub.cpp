@@ -20,8 +20,8 @@ void HTUHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample HTU", 115,[=](Task *t) {
-    Serial.println("Sampling HTU hub.");
+  system.scheduler().spawn("sample HTU", 115,[&](Task *t) {
+    system.log().debug("Sampling HTU hub.");
     this->update();
     t->sleep(HTU_SAMPLE_INTERVAL);
   });

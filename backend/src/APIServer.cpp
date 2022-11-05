@@ -1,60 +1,57 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(const Device *d, FS &fs): WebServer(SSN_PORT), device(d), files(fs) {
+APIServer::APIServer(const Device &d, Log &l, FS &fs): WebServer(SSN_PORT), device(d), log(l), files(fs) {
 }
 
-bool waitForConnection(uint32_t timeout) {
+bool waitForConnection(Log &log, uint32_t timeout) {
   uint32_t i = 0;
   while((WiFi.status() != WL_CONNECTED) && (i < timeout)) {
-    Serial.print(".");
+    log.print(".");
     delay(500);
     i += 500;
   }
-  Serial.println("");
+  log.println("");
 
   if(WiFi.status() != WL_CONNECTED) {
-    Serial.println("Connection failed.");
+    log.warn("Connection failed.");
     return false;
   }
 
   return true;
 }
 
-bool connect(const String ssid, const String password) {
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+bool connect(Log &log, const String ssid, const String password) {
+  log.info("Connecting to %s", ssid.c_str());
 
   WiFi.begin(ssid.c_str(), password.c_str());
-  bool result = waitForConnection(WIFI_CONNECTION_TIMEOUT);
+  bool result = waitForConnection(log, WIFI_CONNECTION_TIMEOUT);
 
   if(result) {
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
+    log.info("Connected to %s", ssid.c_str());
+    log.info("IP address: %s", WiFi.localIP().toString().c_str());
   }
   return result;
 }
 
 void APIServer::handleOptions() {
-  Serial.println("Serving OPTIONS");
+  log.debug("Serving OPTIONS");
   this->sendHeader(ALLOWED_HEADER, AUTHORIZATION_HEADER);
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->send(200, APPLICATION_JSON, STATUS_OK);
 }
 
 void APIServer::handleApiLogin() {
-  Serial.println("Serving /api/login");
+  log.debug("Serving /api/login");
 
-  bool authorized = this->authenticate(this->device->name().c_str(), this->device->password().c_str());
+  bool authorized = this->authenticate(this->device.name().c_str(), this->device.password().c_str());
 
   return authorized ? this->send(200, APPLICATION_JSON, STATUS_OK) : this->requestAuthentication();
 }
 
 void APIServer::handleApiConfig() {
-  Serial.println("Serving /api/config");
+  log.debug("Serving /api/config");
 
-  if(!this->authenticate(this->device->name().c_str(), this->device->password().c_str())) {
+  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
     this->send(401, APPLICATION_JSON, UNAUTHORIZED);
   }
 
@@ -70,8 +67,8 @@ void APIServer::handleApiConfig() {
     }
   }
 
-  if(connect(ssid, pass)) {
-    Serial.println("Saving WiFi configuration...");
+  if(connect(log, ssid, pass)) {
+    log.debug("Saving WiFi configuration...");
     File f = this->files.open(WIFI_CONFIG_FILE, "w");
     f.write((const uint8_t*)ssid.c_str(), ssid.length());
     f.write('\n');
@@ -86,18 +83,18 @@ void APIServer::handleApiConfig() {
 }
 
 void APIServer::handleApiData() {
-  Serial.println("Serving /api/data");
+  log.debug("Serving /api/data");
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
-  this->send(200, APPLICATION_JSON, this->device->toJSON());
+  this->send(200, APPLICATION_JSON, this->device.toJSON());
 }
 
 void APIServer::handleApiMesh() {
-  Serial.println("Serving /api/mesh");
+  log.debug("Serving /api/mesh");
   JSONVar mesh;
 
   JSONVar self;
 
-  self["hostname"] = this->device->name();
+  self["hostname"] = this->device.name();
   self["ip"] = WiFi.localIP().toString();
   self["port"] = SSN_PORT;
 
@@ -124,7 +121,7 @@ void APIServer::handleApiMesh() {
 }
 
 void APIServer::handleWildcard() {
-  Serial.println("Serving *");
+  log.debug("Serving *");
   File f = this->files.open("/static/index.html.gz", "r");
 
   if(!f) {
@@ -136,16 +133,16 @@ void APIServer::handleWildcard() {
 }
 
 void APIServer::restoreWiFiConfig() {
-  Serial.println("Reading WiFi configuration...");
+  log.debug("Reading WiFi configuration...");
   if(!this->files.exists(WIFI_CONFIG_FILE)) {
-    Serial.println("Config unavailable.");
+    log.debug("Config unavailable.");
   } else {
     File f = this->files.open(WIFI_CONFIG_FILE, "r");
 
     String ssid = f.readStringUntil('\n');
     String pass = f.readStringUntil('\n');
 
-    connect(ssid, pass);
+    connect(log, ssid, pass);
 
     f.close();
   }

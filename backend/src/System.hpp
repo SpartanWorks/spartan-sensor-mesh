@@ -9,23 +9,25 @@
 #include "SensorHub.hpp"
 #include "Reading.hpp"
 #include "List.hpp"
+#include "Log.hpp"
 
 #define STATS_INTERVAL 60000 // 60 seconds
 
 class System {
  private:
+  Log l;
   Scheduler sched;
   Device dev;
 
  public:
   System(Timestamp slice);
 
-  void begin();
-  bool loadConfig(JSONVar& config);
+  bool begin(JSONVar& config);
   void run();
 
   Scheduler& scheduler();
   Device& device();
+  Log& log();
 };
 
 #endif

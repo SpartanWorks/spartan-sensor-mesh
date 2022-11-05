@@ -11,8 +11,8 @@ void DHTHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample DHT", 115,[=](Task *t) {
-    Serial.println("Sampling DHT hub.");
+  system.scheduler().spawn("sample DHT", 115,[&](Task *t) {
+    system.log().debug("Sampling DHT hub.");
     this->update();
     t->sleep(DHT_SAMPLE_INTERVAL);
   });

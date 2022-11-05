@@ -13,8 +13,8 @@ void BMPHub::begin(System &system) {
 
   system.device().attach(this);
 
-  system.scheduler().spawn("sample BMP", 115,[=](Task *t) {
-    Serial.println("Sampling BMP hub.");
+  system.scheduler().spawn("sample BMP", 115,[&](Task *t) {
+    system.log().debug("Sampling BMP hub.");
     this->update();
     t->sleep(BMP_SAMPLE_INTERVAL);
   });
