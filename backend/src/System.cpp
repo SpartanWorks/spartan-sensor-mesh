@@ -11,7 +11,7 @@
 
 System::System(Timestamp slice):
     l(Log()),
-    sched(Scheduler(slice)),
+    sched(Scheduler(slice, l)),
     dev(Device())
 {}
 
@@ -37,7 +37,7 @@ bool System::begin(JSONVar &config) {
 
   sched.spawn("system monitor", 125, [&](Task *t) {
     l.debug("Free heap memory: %dB", ESP.getFreeHeap());
-    l.debug(sched.monitor());
+    sched.monitor();
     t->sleep(STATS_INTERVAL);
   });
 

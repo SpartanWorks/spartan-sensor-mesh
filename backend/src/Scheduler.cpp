@@ -18,9 +18,7 @@ void Task::updateTime(Timestamp time) {
   this->vTime += time * this->priority;
 }
 
-Scheduler::Scheduler(): Scheduler(0) {}
-
-Scheduler::Scheduler(Timestamp slice): timeSlice(slice) {}
+Scheduler::Scheduler(Timestamp slice, Log&l): timeSlice(slice), log(l) {}
 
 Scheduler::~Scheduler() {
   if (this->running != nullptr) {
@@ -149,11 +147,11 @@ void Scheduler::run() {
 
 #ifdef PROCESS_MONITOR
 
-char buf[21];
-
 String uint64String(Timestamp num) {
   const char map[] = "0123456789";
-  char *p = &buf[21];
+  char buf[22];
+  buf[21] = 0;
+  char *p = &buf[20];
   *p = 0;
 
   do {
@@ -164,12 +162,11 @@ String uint64String(Timestamp num) {
   return String(p);
 }
 
-char output[255];
-
 String Scheduler::taskToString(Task *t, Timestamp delta) {
   Timestamp cpu = (t->rTime - t->prevRTime) * 10000 / delta;
 
-  sprintf(output, "%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  char output[256];
+  sprintf(output, "%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s",
           String((size_t) t, HEX).c_str(),
           t->name.c_str(),
           t->priority,
@@ -185,24 +182,13 @@ String Scheduler::taskToString(Task *t, Timestamp delta) {
   return out;
 }
 
-String Scheduler::monitor() {
+void Scheduler::monitor() {
   Timestamp currTime = this->now();
   Timestamp delta = currTime - this->monitorTime;
   Timestamp total = 0;
   this->monitorTime = currTime;
 
-  String procs = "";
-  Function f = [&procs, delta, this, &total](Task *t) {
-    procs += this->taskToString(t, delta);
-    total += t->rTime - t->prevRTime;
-    t->prevRTime = t->rTime;
-  };
-
-  foreach<Task*>(this->running, f);
-  foreach<Task*>(this->waiting, f);
-
-  String out = "";
-  sprintf(output, "%-10s %-20s %-5s %-3s %-10s %-21s %-21s %-21s\r\n",
+  log.debug("%-10s %-20s %-5s %-3s %-10s %-21s %-21s %-21s",
           "PID",
           "NAME",
           "PRI",
@@ -211,10 +197,18 @@ String Scheduler::monitor() {
           "RTIME",
           "VTIME",
           "WTIME");
-  out += output;
+
+  Function f = [delta, this, &total](Task *t) {
+    log.debug(this->taskToString(t, delta));
+    total += t->rTime - t->prevRTime;
+    t->prevRTime = t->rTime;
+  };
+
+  foreach<Task*>(this->running, f);
+  foreach<Task*>(this->waiting, f);
 
   Timestamp cpu = (delta - total) * 10000 / delta;
-  sprintf(output, "%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s\r\n",
+  log.debug("%-10s %-20s %-5d %-3d %-10s %-21s %-21s %-21s",
           "-",
           "system",
           0,
@@ -223,10 +217,6 @@ String Scheduler::monitor() {
           uint64String(currTime).c_str(),
           "0",
           "0");
-  out += output;
-  out += procs;
-
-  return out;
 }
 
 #endif

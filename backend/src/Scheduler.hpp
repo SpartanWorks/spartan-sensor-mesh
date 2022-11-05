@@ -4,6 +4,7 @@
 #include <functional>
 #include <Arduino.h>
 #include "List.hpp"
+#include "Log.hpp"
 
 #define PROCESS_MONITOR
 
@@ -59,6 +60,8 @@ private:
   List<Task*> *running = nullptr;
   List<Task*> *waiting = nullptr;
 
+  Log &log;
+
   void reschedule();
   void rescheduleWaiting();
   void wake(Timestamp time);
@@ -70,8 +73,7 @@ private:
   #endif
 
 public:
-  Scheduler();
-  Scheduler(Timestamp slice);
+  Scheduler(Timestamp slice, Log& log);
   ~Scheduler();
 
   Timestamp now();
@@ -81,7 +83,7 @@ public:
   void run();
 
   #ifdef PROCESS_MONITOR
-    String monitor();
+    void monitor();
   #endif
 };
 
