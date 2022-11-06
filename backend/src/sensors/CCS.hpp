@@ -15,13 +15,17 @@ private:
   TwoWire *i2c;
   uint8_t address;
   CCS811 sensor;
-  Reading<float> eco2;
-  Reading<float> voc;
+  Reading<float> *eco2;
+  Reading<float> *voc;
 
+  CCS(TwoWire *i2c, uint8_t address);
   void initSensor();
 
 public:
-  CCS(TwoWire *i2c, uint8_t address);
+  ~CCS();
+
+  static CCS* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;

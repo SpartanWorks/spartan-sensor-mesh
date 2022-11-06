@@ -4,15 +4,44 @@ CCS::CCS(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(CCS811(addr)),
-    eco2(Reading<float>("CO2", "CCS", "co2", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 29206))),
-    voc(Reading<float>("Total VOC", "CCS", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 32768)))
+    eco2(nullptr),
+    voc(nullptr)
 {}
+
+CCS::~CCS() {
+  if (this->voc != nullptr) delete this->voc;
+  if (this->eco2 != nullptr) delete this->eco2;
+}
+
+CCS* CCS::create(JSONVar &config) {
+  JSONVar conn = config["connection"];
+  String bus = (const char*) conn["bus"];
+  uint16_t address = (int) conn["address"];
+  JSONVar readings = config["readings"];
+
+  if(conn == undefined || readings == undefined || bus != "hardware-i2c") {
+    return nullptr;
+  }
+
+  CCS *ccs = new CCS(&Wire, address);
+
+  for(uint16_t i = 0; i < readings.length(); i++) {
+    String type = (const char*) readings[i]["type"];
+    String name = (const char*) readings[i]["name"];
+    JSONVar cfg = readings[i]["widget"];
+
+    if (type == "voc") {
+      ccs->voc = new Reading<float>(name, "CCS", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 32768), cfg);
+    } else if (type == "co2") {
+      ccs->eco2 = new Reading<float>(name, "CCS", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 29206), cfg);
+    }
+  }
+
+  return ccs;
+}
 
 void CCS::initSensor() {
   this->sensor.begin(*(this->i2c));
-
-  this->eco2.setStatus("init");
-  this->voc.setStatus("init");
 
   uint32_t t0 = millis();
   uint32_t t1 = t0;
@@ -23,8 +52,8 @@ void CCS::initSensor() {
 
   if(!this->sensor.dataAvailable()) {
     String error = String("Sensor initialization took more than ") + String(CCS_INIT_TIME) + "ms.";
-    this->eco2.setError(error);
-    this->voc.setError(error);
+    if (this->eco2 != nullptr) this->eco2->setError(error);
+    if (this->voc != nullptr) this->voc->setError(error);
   }
 }
 
@@ -55,26 +84,26 @@ void CCS::begin(System &system) {
 void CCS::update() {
   if(!this->sensor.dataAvailable()) {
     String error = "Sensor is not available.";
-    this->eco2.setError(error);
-    this->voc.setError(error);
+    if (this->eco2 != nullptr) this->eco2->setError(error);
+    if (this->voc != nullptr) this->voc->setError(error);
     return;
   }
 
   CCS811::CCS811_Status_e result = this->sensor.readAlgorithmResults();
 
   if(result == CCS811::CCS811_Stat_SUCCESS) {
-    this->eco2.add(this->sensor.getCO2());
-    this->voc.add(this->sensor.getTVOC());
+    if (this->eco2 != nullptr) this->eco2->add(this->sensor.getCO2());
+    if (this->voc != nullptr) this->voc->add(this->sensor.getTVOC());
   } else {
     String error = String("Could not read sensor. Response:  ") + String(result);
-    this->eco2.setError(error);
-    this->voc.setError(error);
+    if (this->eco2 != nullptr) this->eco2->setError(error);
+    if (this->voc != nullptr) this->voc->setError(error);
   }
 }
 
 void CCS::connect(Device *d) const {
-  d->attach(&this->eco2);
-  d->attach(&this->voc);
+  if (this->eco2 != nullptr) d->attach(this->eco2);
+  if (this->voc != nullptr) d->attach(this->voc);
 }
 
 void CCS::reset() {

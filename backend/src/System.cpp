@@ -136,15 +136,16 @@ bool System::begin(JSONVar &config) {
         MHZ *mhz = new MHZ((int) conn["rx"], (int) conn["tx"]);
         mhz->begin(*this);
       } else if (type == "CCS") {
-        if(bus != "hardware-i2c") {
+        l.info("Attaching CCS with config: ");
+        l.info(sensor);
+
+        CCS *ccs = CCS::create(sensor);
+
+        if(ccs == nullptr) {
           l.warn("Bad CCS configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching CCS with config: ");
-        l.info(sensor);
-
-        CCS *ccs = new CCS(&Wire, (int) conn["address"]);
         ccs->begin(*this);
         // htu->compensate(ccs); // TODO
       } else if (type == "SGP") {
