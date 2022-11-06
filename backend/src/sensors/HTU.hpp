@@ -13,12 +13,16 @@ private:
   TwoWire *i2c;
   uint8_t address;
   HTU21D sensor;
-  Reading<float> humidity;
-  Reading<float> temperature;
+  Reading<float> *humidity;
+  Reading<float> *temperature;
   List<Sensor*> *toCompensate;
 
-public:
   HTU(TwoWire *i2c, uint8_t addr);
+
+public:
+
+  static HTU* create(JSONVar &config);
+
   ~HTU();
   void begin(System &system);
   void update();

@@ -79,15 +79,16 @@ bool System::begin(JSONVar &config) {
 
         bmp->begin(*this);
       } else if (type == "HTU") {
-        if(bus != "hardware-i2c") {
+        l.info("Attaching HTU with config: ");
+        l.info(sensor);
+
+        HTU *htu = HTU::create(sensor);
+
+        if(htu == nullptr) {
           l.warn("Bad HTU configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching HTU with config: ");
-        l.info(sensor);
-
-        HTU *htu = new HTU(&Wire, (int) conn["address"]);
         htu->begin(*this);
       } else if (type == "SDS") {
         if(bus != "hardware-uart") {
