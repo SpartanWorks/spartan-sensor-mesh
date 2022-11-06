@@ -1,12 +1,12 @@
-#ifndef __SENSOR_HPP__
-#define __SENSOR_HPP__
+#ifndef __READING_HPP__
+#define __READING_HPP__
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 #include "Value.hpp"
 
 template<typename T>
-class Sensor {
+class Reading {
  protected:
   String sModel;
   String sType;
@@ -19,7 +19,7 @@ class Sensor {
 
  public:
 
-  Sensor(String name, String model, String type, Value<T> *value):
+  Reading(String name, String model, String type, Value<T> *value):
       sModel(model),
       sType(type),
       sName(name),
@@ -30,7 +30,7 @@ class Sensor {
       sValue(value)
   {}
 
-  virtual ~Sensor() {
+  virtual ~Reading() {
     if(sValue != nullptr) {
       delete sValue;
     }

@@ -21,8 +21,8 @@ class SDSHub: public SensorHub {
 private:
   HardwareSerial &serial;
   PatchedSdsSensor sensor;
-  Sensor<float> pm25;
-  Sensor<float> pm10;
+  Reading<float> pm25;
+  Reading<float> pm10;
 
 public:
   SDSHub(HardwareSerial &serial);

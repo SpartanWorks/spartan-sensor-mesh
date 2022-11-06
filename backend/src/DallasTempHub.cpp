@@ -11,7 +11,7 @@ DallasTempHub::DallasTempHub(uint8_t pin, uint8_t resolution):
 DallasTempHub::~DallasTempHub() {
   if (this->temperatures != nullptr) {
     foreach<Temp>(this->temperatures, [](Temp t) {
-      delete t.sensor;
+      delete t.reading;
     });
     delete this->temperatures;
   }
@@ -19,10 +19,10 @@ DallasTempHub::~DallasTempHub() {
 
 void DallasTempHub::begin(System &system) {
   this->sensors.begin();
-  this->nSensors = this->sensors.getDeviceCount();
-  for(uint8_t i = 0; i < this->nSensors; ++i) {
+  this->nReadings = this->sensors.getDeviceCount();
+  for(uint8_t i = 0; i < this->nReadings; ++i) {
     Value<float> *r = new WindowedValue<float, SAMPLE_BACKLOG>("°C", -55, 125);
-    Sensor<float> *s = new Sensor<float>("temperature" + String(i), "DallasTemperature", "temperature", r);
+    Reading<float> *s = new Reading<float>("temperature" + String(i), "DallasTemperature", "temperature", r);
     this->temperatures = new List<Temp>(Temp(i, s), this->temperatures);
   }
   this->sensors.requestTemperatures();
@@ -40,9 +40,9 @@ void DallasTempHub::update() {
   foreach<Temp>(this->temperatures, [this](Temp t) {
     float temp = this->sensors.getTempCByIndex(t.index);
     if(temp != DEVICE_DISCONNECTED_C && temp != DEVICE_DISCONNECTED_RAW) {
-      t.sensor->add(temp);
+      t.reading->add(temp);
     } else {
-      t.sensor->setError(String("Could not read sensor. Response: ") + String(temp));
+      t.reading->setError(String("Could not read sensor. Response: ") + String(temp));
     }
   });
   this->sensors.requestTemperatures();
@@ -50,6 +50,6 @@ void DallasTempHub::update() {
 
 void DallasTempHub::connect(Device *d) const {
   foreach<Temp>(this->temperatures, [d](Temp t) {
-    d->attach(t.sensor);
+    d->attach(t.reading);
   });
 }

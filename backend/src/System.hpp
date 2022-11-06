@@ -3,12 +3,12 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
+#include "Log.hpp"
 #include "Scheduler.hpp"
 #include "Device.hpp"
-#include "Sensor.hpp"
 #include "SensorHub.hpp"
+#include "Reading.hpp"
 #include "List.hpp"
-#include "Log.hpp"
 
 #define STATS_INTERVAL 60000 // 60 seconds
 

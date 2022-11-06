@@ -2,7 +2,7 @@
 #define __SENSORHUB_HPP__
 
 #include <Arduino.h>
-#include "Sensor.hpp"
+#include "Reading.hpp"
 
 class Device;
 class System;

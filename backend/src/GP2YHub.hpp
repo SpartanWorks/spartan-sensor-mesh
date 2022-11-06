@@ -24,8 +24,8 @@
 class GP2YHub: public SensorHub {
 private:
   SoftwareSerial *serial;
-  Sensor<float> pm;
-  Sensor<float> raw;
+  Reading<float> pm;
+  Reading<float> raw;
 
   uint16_t readValue = 0;
   float offset = -0.293; // These two here calibrated against SSD011.

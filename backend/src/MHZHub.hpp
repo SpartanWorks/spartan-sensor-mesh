@@ -15,8 +15,8 @@ class MHZHub: public SensorHub {
 private:
   SoftwareSerial *serial;
   MHZ19 sensor;
-  Sensor<float> co2;
-  Sensor<float> temperature;
+  Reading<float> co2;
+  Reading<float> temperature;
 
   void initSensor();
 

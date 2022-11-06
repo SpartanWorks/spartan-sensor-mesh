@@ -10,16 +10,16 @@
 
 struct Temp {
   uint8_t index;
-  Sensor<float> *sensor;
+  Reading<float> *reading;
 
-  Temp(int i, Sensor<float> *s): index(i), sensor(s) {}
+  Temp(int i, Reading<float> *r): index(i), reading(r) {}
 };
 
 class DallasTempHub: public SensorHub {
 private:
   OneWire oneWire;
   DallasTemperature sensors;
-  uint8_t nSensors = 0;
+  uint8_t nReadings = 0;
   List<Temp> *temperatures = nullptr;
 
 public:

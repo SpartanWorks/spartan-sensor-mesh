@@ -33,7 +33,7 @@ export interface DeviceData {
   model: string;
   name: string;
   group: string;
-  sensors: Array<SensorReading>;
+  readings: Array<SensorReading>;
 }
 
 export interface UpdateCallback {

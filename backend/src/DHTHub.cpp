@@ -2,8 +2,8 @@
 
 DHTHub::DHTHub(uint8_t pin, uint8_t model):
     sensor(DHT(pin, model)),
-    humidity(Sensor<float>("humidity", "DHT", "humidity", new WindowedValue<float, SAMPLE_BACKLOG>("%", 0, 100))),
-    temperature(Sensor<float>("temperature", "DHT", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 50)))
+    humidity(Reading<float>("humidity", "DHT", "humidity", new WindowedValue<float, SAMPLE_BACKLOG>("%", 0, 100))),
+    temperature(Reading<float>("temperature", "DHT", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 50)))
 {}
 
 void DHTHub::begin(System &system) {

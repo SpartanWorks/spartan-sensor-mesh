@@ -38,7 +38,7 @@ function renderSensor(data: SensorReading) {
   }
 }
 
-function combineSensors(a: SensorReading, b: SensorReading): SensorReading[] {
+function combineReadings(a: SensorReading, b: SensorReading): SensorReading[] {
   if (a.status === "error" || b.status === "error" || a.status !== b.status || a.value.unit !== b.value.unit) {
     return [a, b];
   }
@@ -77,13 +77,13 @@ function combineSensors(a: SensorReading, b: SensorReading): SensorReading[] {
   ];
 }
 
-function reduceSensors(group: SensorReading[]): SensorReading[] {
+function reduceReadings(group: SensorReading[]): SensorReading[] {
   if (group.length < 2) {
     return group;
   } else {
     let acc = group[0];
     for (let i = 1; i < group.length; i++) {
-      const result = combineSensors(acc, group[i]);
+      const result = combineReadings(acc, group[i]);
       if (result.length !== 1) {
         return result.concat(group.slice(i + 1));
       } else {
@@ -98,8 +98,8 @@ function deviceTag(device: DeviceData): string {
   return device.group + " / " + device.name;
 }
 
-function renderSensors(device: DeviceData) {
-  const grouped = device.sensors.reduce((groups, s) => {
+function renderReadings(device: DeviceData) {
+  const grouped = device.readings.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
       groups.get(group)?.push(s);
@@ -110,7 +110,7 @@ function renderSensors(device: DeviceData) {
   }, new Map<string, SensorReading[]>());
 
   const recombined = Array.from(grouped.values())
-    .map(reduceSensors)
+    .map(reduceReadings)
     .reduce((acc, sensors) => acc.concat(sensors), [] as SensorReading[])
     .sort((a, b) => (a.type > b.type ? 1 : -1));
 
@@ -131,7 +131,7 @@ export class Dashboard extends preact.Component<Props, {}> {
           {
             !this.props.store.dataLoaded
             ? <Spinner/>
-            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderSensors)
+            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderReadings)
           }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>

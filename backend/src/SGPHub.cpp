@@ -4,10 +4,10 @@ SGPHub::SGPHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(SGP30(i2c)),
-    voc(Sensor<float>("Total VOC", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 60000))),
-    co2(Sensor<float>("CO2", "SGP", "co2", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 57330))),
-    h2(Sensor<float>("H2", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000))),
-    ethanol(Sensor<float>("Ethanol", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000)))
+    voc(Reading<float>("Total VOC", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 60000))),
+    co2(Reading<float>("CO2", "SGP", "co2", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 57330))),
+    h2(Reading<float>("H2", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000))),
+    ethanol(Reading<float>("Ethanol", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000)))
 {}
 
 void SGPHub::begin(System &system) {

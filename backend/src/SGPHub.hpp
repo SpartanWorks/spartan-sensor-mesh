@@ -15,10 +15,10 @@ private:
   TwoWire *i2c;
   uint8_t address;
   SGP30 sensor;
-  Sensor<float> voc;
-  Sensor<float> co2;
-  Sensor<float> h2;
-  Sensor<float> ethanol;
+  Reading<float> voc;
+  Reading<float> co2;
+  Reading<float> h2;
+  Reading<float> ethanol;
 
 public:
   SGPHub(TwoWire *i2c, uint8_t address);

@@ -15,8 +15,8 @@ private:
   TwoWire *i2c;
   uint8_t address;
   CCS811 sensor;
-  Sensor<float> eco2;
-  Sensor<float> voc;
+  Reading<float> eco2;
+  Reading<float> voc;
 
   void initSensor();
 

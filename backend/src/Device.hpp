@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
-#include "Sensor.hpp"
+#include "Reading.hpp"
 #include "SensorHub.hpp"
 #include "List.hpp"
 
@@ -13,7 +13,7 @@ private:
   String dName;
   String dPass;
   String dGroup;
-  List<const Sensor<float>*> *list; // FIXME Could use Sensor<any> here.
+  List<const Reading<float>*> *list; // FIXME Could use Reading<any> here.
 
 public:
   Device();
@@ -22,7 +22,7 @@ public:
   Device(String m, String g, String n, String p);
   ~Device();
 
-  virtual void attach(const Sensor<float> *s);
+  virtual void attach(const Reading<float> *s);
   virtual void attach(const SensorHub *s);
   virtual String model() const;
   virtual String name() const;

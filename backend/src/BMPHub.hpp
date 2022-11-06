@@ -13,9 +13,9 @@ private:
   TwoWire *i2c;
   uint8_t address;
   Adafruit_BMP280 sensor;
-  Sensor<float> pressure;
-  Sensor<float> temperature;
-  Sensor<float> altitude;
+  Reading<float> pressure;
+  Reading<float> temperature;
+  Reading<float> altitude;
 
 public:
   BMPHub(TwoWire *i2c, uint8_t addr);

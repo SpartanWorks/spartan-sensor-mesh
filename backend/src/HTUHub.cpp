@@ -4,8 +4,8 @@ HTUHub::HTUHub(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(HTU21D()),
-    humidity(Sensor<float>("humidity", "HTU", "humidity", new WindowedValue<float, SAMPLE_BACKLOG>("%", 0, 100))),
-    temperature(Sensor<float>("temperature", "HTU", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", -40, 125))),
+    humidity(Reading<float>("humidity", "HTU", "humidity", new WindowedValue<float, SAMPLE_BACKLOG>("%", 0, 100))),
+    temperature(Reading<float>("temperature", "HTU", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", -40, 125))),
     toCompensate(nullptr)
 {}
 
