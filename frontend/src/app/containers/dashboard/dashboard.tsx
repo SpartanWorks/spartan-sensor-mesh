@@ -5,7 +5,6 @@ import { PM } from "../../components/pm/pm";
 import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
-import { Temperature } from "../../components/temperature/temperature";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
 import { DeviceData, SensorReading } from "../../services/device";
 import { DashboardStore } from "../../store/dashboard";
@@ -19,8 +18,6 @@ function renderSensor(data: SensorReading) {
   const t = data.config.type ?? data.type;
 
   switch (t) {
-  case "temperature":
-    return <Temperature data={data} {...data.config}/>;
   case "pressure":
     return <Pressure data={data} {...data.config}/>;
   case "pm2.5":
