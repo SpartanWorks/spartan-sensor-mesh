@@ -171,15 +171,16 @@ bool System::begin(JSONVar &config) {
         GP2Y *gp2y = new GP2Y((int) conn["rx"], (int) conn["tx"]);
         gp2y->begin(*this);
       } else if (type == "DallasTemp") {
-        if(bus != "dallas-1-wire") {
+        l.info("Attaching DallasTemp with config: ");
+        l.info(sensor);
+
+        DallasTemp *dallas = DallasTemp::create(sensor);
+
+        if(dallas == nullptr) {
           l.warn("Bad DallasTemp configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching DallasTemp with config: ");
-        l.info(sensor);
-
-        DallasTemp *dallas = new DallasTemp((int) conn["pin"], (int) sensor["resolution"]);
         dallas->begin(*this);
       } else if (type == "DHT") {
         l.info("Attaching DHT with config: ");

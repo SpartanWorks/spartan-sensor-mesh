@@ -22,9 +22,12 @@ private:
   uint8_t nReadings = 0;
   List<Temp> *temperatures = nullptr;
 
-public:
   DallasTemp(uint8_t pin, uint8_t resolution);
+
+public:
   ~DallasTemp();
+
+  static DallasTemp* create(JSONVar &config);
   void begin(System &system);
   void update();
   void connect(Device *d) const;
