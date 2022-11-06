@@ -148,15 +148,16 @@ bool System::begin(JSONVar &config) {
         ccs->begin(*this);
         // htu->compensate(ccs); // TODO
       } else if (type == "SGP") {
-        if(bus != "hardware-i2c") {
+        l.info("Attaching SGP with config: ");
+        l.info(sensor);
+
+        SGP *sgp = SGP::create(sensor);
+
+        if(sgp == nullptr) {
           l.warn("Bad SGP configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching SGP with config: ");
-        l.info(sensor);
-
-        SGP *sgp = new SGP(&Wire, (int) conn["address"]);
         sgp->begin(*this);
         // htu->compensate(ccs); // TODO
       } else if (type == "GP2Y") {

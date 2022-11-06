@@ -15,13 +15,18 @@ private:
   TwoWire *i2c;
   uint8_t address;
   SGP30 sensor;
-  Reading<float> voc;
-  Reading<float> co2;
-  Reading<float> h2;
-  Reading<float> ethanol;
+  Reading<float> *voc;
+  Reading<float> *co2;
+  Reading<float> *h2;
+  Reading<float> *ethanol;
+
+  SGP(TwoWire *i2c, uint8_t address);
 
 public:
-  SGP(TwoWire *i2c, uint8_t address);
+  ~SGP();
+
+  static SGP* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;
