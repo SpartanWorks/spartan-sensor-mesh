@@ -21,11 +21,15 @@ class SDS: public Sensor {
 private:
   HardwareSerial &serial;
   PatchedSdsSensor sensor;
-  Reading<float> pm25;
-  Reading<float> pm10;
+  Reading<float> *pm25;
+  Reading<float> *pm10;
 
-public:
   SDS(HardwareSerial &serial);
+public:
+  ~SDS();
+
+  static SDS* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;

@@ -60,10 +60,7 @@ bool System::begin(JSONVar &config) {
 
   for(uint16_t i = 0; i < numSensors; i++) {
     JSONVar sensor = sensors[i];
-
     String type = (const char*) sensor["type"];
-    JSONVar conn = sensor["connection"];
-    String bus = (const char*) conn["bus"];
 
     if((bool) sensor["enabled"]) {
       if(type == "BMP") {
@@ -91,36 +88,14 @@ bool System::begin(JSONVar &config) {
 
         htu->begin(*this);
       } else if (type == "SDS") {
-        if(bus != "hardware-uart") {
-          l.warn("Bad SDS configuration, skipping.");
-          continue;
-        }
-
         l.info("Attaching SDS with config: ");
         l.info(sensor);
 
-        SDS *sds;
-        switch((int) conn["number"]) {
-#ifdef ESP32
-          case 2: {
-            HardwareSerial& sdsSerial(Serial2);
-            sds = new SDS(sdsSerial);
-          }
-          break;
-#endif
+        SDS *sds = SDS::create(sensor);
 
-          case 1: {
-            HardwareSerial& sdsSerial(Serial1);
-            sds = new SDS(sdsSerial);
-          }
-          break;
-
-          case 0:
-          default: {
-            HardwareSerial& sdsSerial(Serial);
-            sds = new SDS(sdsSerial);
-          }
-          break;
+        if(sds == nullptr) {
+          l.warn("Bad SDS configuration, skipping.");
+          continue;
         }
 
         sds->begin(*this);
