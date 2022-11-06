@@ -1,7 +1,6 @@
 import { observer } from "mobx-preact";
 import * as preact from "preact";
 import { GaugeWidget } from "../../components/gauge/widget";
-import { PM } from "../../components/pm/pm";
 import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
@@ -20,10 +19,6 @@ function renderSensor(data: SensorReading) {
   switch (t) {
   case "pressure":
     return <Pressure data={data} {...data.config}/>;
-  case "pm2.5":
-    return <PM data={data} {...data.config}/>;
-  case "pm10":
-    return <PM data={data} {...data.config}/>;
 
   case "gauge":
     return <GaugeWidget data={data} {...data.config}/>;

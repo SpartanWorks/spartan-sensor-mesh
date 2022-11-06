@@ -3,6 +3,7 @@ import { SensorReading } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { ColorGauge } from "./color";
 import { JetGauge } from "./jet";
+import { Tier, TieredGauge } from "./tiered";
 import { SensorLabel } from "./label";
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   min?: number;
   max?: number;
   color?: "jet" | string;
+  tiers?: Tier[];
   rounding?: number;
 }
 
@@ -25,7 +27,18 @@ export const GaugeWidget = (props: Props) => {
 
   let gauge;
 
-  if(props.color === "jet") {
+  if (!!props.tiers) {
+    const def = {
+      min: ps.min,
+      max: ps.max,
+      color: props.tiers.at(-1)?.color ?? props.color ?? "gray",
+    };
+    gauge = (
+      <TieredGauge tiers={props.tiers} defaultTier={def} {...ps}>
+        <SensorLabel data={props.data} rounding={props.rounding ?? 1} />
+      </TieredGauge>
+    );
+  } else if(props.color === "jet") {
     gauge = (
       <JetGauge {...ps}>
         <SensorLabel data={props.data} rounding={props.rounding ?? 1} />
