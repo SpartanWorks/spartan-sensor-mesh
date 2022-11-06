@@ -125,15 +125,16 @@ bool System::begin(JSONVar &config) {
 
         sds->begin(*this);
       } else if (type == "MHZ") {
-        if(bus != "software-uart") {
+        l.info("Attaching MHZ with config: ");
+        l.info(sensor);
+
+        MHZ *mhz = MHZ::create(sensor);
+
+        if(mhz == nullptr) {
           l.warn("Bad SDS configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching MHZ with config: ");
-        l.info(sensor);
-
-        MHZ *mhz = new MHZ((int) conn["rx"], (int) conn["tx"]);
         mhz->begin(*this);
       } else if (type == "CCS") {
         l.info("Attaching CCS with config: ");

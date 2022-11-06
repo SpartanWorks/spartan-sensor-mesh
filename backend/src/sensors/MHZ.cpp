@@ -2,10 +2,44 @@
 
 MHZ::MHZ(uint8_t rx, uint8_t tx):
     sensor(MHZ19()),
-    co2(Reading<float>("CO2", "MHZ", "co2", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 10000))),
-    temperature(Reading<float>("temperature", "MHZ", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 100)))
+    co2(nullptr),
+    temperature(nullptr)
 {
   this->serial = new SoftwareSerial(rx, tx);
+}
+
+MHZ::~MHZ() {
+  if (this->temperature != nullptr) delete this->temperature;
+  if (this->co2 != nullptr) delete this->co2;
+  if (this->serial != nullptr) delete this->serial;
+}
+
+MHZ* MHZ::create(JSONVar &config) {
+  JSONVar conn = config["connection"];
+  String bus = (const char*) conn["bus"];
+  uint16_t rx = (int) conn["rx"];
+  uint16_t tx = (int) conn["tx"];
+  JSONVar readings = config["readings"];
+
+  if(conn == undefined || readings == undefined || bus != "software-uart") {
+    return nullptr;
+  }
+
+  MHZ *mhz = new MHZ(rx, tx);
+
+  for(uint16_t i = 0; i < readings.length(); i++) {
+    String type = (const char*) readings[i]["type"];
+    String name = (const char*) readings[i]["name"];
+    JSONVar cfg = readings[i]["widget"];
+
+    if (type == "temperature") {
+      mhz->temperature = new Reading<float>(name, "MHZ", type, new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 100), cfg);
+    } else if (type == "co2") {
+      mhz->co2 = new Reading<float>(name, "MHZ", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 10000), cfg);
+    }
+  }
+
+  return mhz;
 }
 
 void MHZ::initSensor() {
@@ -41,28 +75,28 @@ void MHZ::begin(System &system) {
 }
 
 void MHZ::update() {
-  float co2 = this->sensor.getCO2();
-  if(this->sensor.errorCode == RESULT_OK) {
-    this->co2.add(co2);
-  } else {
-    this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
+  if (this->co2 != nullptr) {
+    float co2 = this->sensor.getCO2();
+    if(this->sensor.errorCode == RESULT_OK) {
+      this->co2->add(co2);
+    } else {
+      this->co2->setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
+    }
   }
 
-#ifdef MHZ_TEMP_SENSOR
-  float temp = this->sensor.getTemperature();
-  if(this->sensor.errorCode == RESULT_OK) {
-    this->temperature.add(temp);
-  } else {
-    this->co2.setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
+  if (this->temperature != nullptr) {
+    float temp = this->sensor.getTemperature();
+    if(this->sensor.errorCode == RESULT_OK) {
+      this->temperature->add(temp);
+    } else {
+      this->co2->setError(String("Could not read sensor. Response: ") + String(this->sensor.errorCode));
+    }
   }
-#endif
 }
 
 void MHZ::connect(Device *d) const {
-  d->attach(&this->co2);
-#ifdef MHZ_TEMP_SENSOR
-  d->attach(&this->temperature);
-#endif
+  if (this->co2 != nullptr) d->attach(this->co2);
+  if (this->temperature != nullptr) d->attach(this->temperature);
 }
 
 void MHZ::reset() {

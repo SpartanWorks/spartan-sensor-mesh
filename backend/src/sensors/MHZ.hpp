@@ -15,13 +15,18 @@ class MHZ: public Sensor {
 private:
   SoftwareSerial *serial;
   MHZ19 sensor;
-  Reading<float> co2;
-  Reading<float> temperature;
+  Reading<float> *co2;
+  Reading<float> *temperature;
+
+  MHZ(uint8_t rx, uint8_t tx);
 
   void initSensor();
 
 public:
-  MHZ(uint8_t rx, uint8_t tx);
+  ~MHZ();
+
+  static MHZ* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;
