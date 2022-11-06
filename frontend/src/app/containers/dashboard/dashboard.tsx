@@ -39,7 +39,10 @@ function renderSensor(data: SensorReading) {
 }
 
 function combineReadings(a: SensorReading, b: SensorReading): SensorReading[] {
-  if (a.status === "error" || b.status === "error" || a.status !== b.status || a.value.unit !== b.value.unit) {
+  if (a.status === "error" || b.status === "error"
+    || a.status !== b.status
+    || a.value.unit !== b.value.unit
+    || JSON.stringify(a.config) !== JSON.stringify(b.config)) {
     return [a, b];
   }
 
@@ -49,10 +52,8 @@ function combineReadings(a: SensorReading, b: SensorReading): SensorReading[] {
 
   return [
     {
-      type: a.type,
-      name: a.name,
+      ...a,
       model: "combined",
-      status: a.status,
       errors: a.errors + b.errors,
       lastError: "",
       measurements: a.measurements + b.measurements,

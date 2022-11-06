@@ -27,6 +27,7 @@ export interface SensorReading {
   lastError: string;
   measurements: number;
   value: SensorValue;
+  config: any;
 }
 
 export interface DeviceData {
