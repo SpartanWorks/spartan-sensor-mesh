@@ -1,14 +1,12 @@
 import { observer } from "mobx-preact";
 import * as preact from "preact";
-import { CO2 } from "../../components/co2/co2";
-import { Humidity } from "../../components/humidity/humidity";
+import { GaugeWidget } from "../../components/gauge/widget";
 import { PM } from "../../components/pm/pm";
 import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { Temperature } from "../../components/temperature/temperature";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
-import { VOC } from "../../components/voc/voc";
 import { DeviceData, SensorReading } from "../../services/device";
 import { DashboardStore } from "../../store/dashboard";
 import * as styles from "./dashboard.css";
@@ -18,23 +16,21 @@ interface Props {
 }
 
 function renderSensor(data: SensorReading) {
-  const t = data.config?.type ?? data.type;
+  const t = data.config.type ?? data.type;
 
   switch (t) {
   case "temperature":
     return <Temperature data={data} {...data.config}/>;
-  case "humidity":
-    return <Humidity data={data} {...data.config} />;
   case "pressure":
     return <Pressure data={data} {...data.config}/>;
   case "pm2.5":
     return <PM data={data} {...data.config}/>;
   case "pm10":
     return <PM data={data} {...data.config}/>;
-  case "co2":
-    return <CO2 data={data} {...data.config}/>;
-  case "voc":
-    return <VOC data={data} {...data.config}/>;
+
+  case "gauge":
+    return <GaugeWidget data={data} {...data.config}/>;
+
   default:
     return <UnsupportedSensor data={data}/>;
   }
