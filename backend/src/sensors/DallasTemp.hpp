@@ -1,5 +1,5 @@
-#ifndef __DALLASTEMPHUB_HPP__
-#define __DALLASTEMPHUB_HPP__
+#ifndef __DALLASTEMP_HPP__
+#define __DALLASTEMP_HPP__
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -15,7 +15,7 @@ struct Temp {
   Temp(int i, Reading<float> *r): index(i), reading(r) {}
 };
 
-class DallasTempHub: public SensorHub {
+class DallasTemp: public Sensor {
 private:
   OneWire oneWire;
   DallasTemperature sensors;
@@ -23,8 +23,8 @@ private:
   List<Temp> *temperatures = nullptr;
 
 public:
-  DallasTempHub(uint8_t pin, uint8_t resolution);
-  ~DallasTempHub();
+  DallasTemp(uint8_t pin, uint8_t resolution);
+  ~DallasTemp();
   void begin(System &system);
   void update();
   void connect(Device *d) const;

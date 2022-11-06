@@ -1,6 +1,6 @@
-#include "CCSHub.hpp"
+#include "CCS.hpp"
 
-CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
+CCS::CCS(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(CCS811(addr)),
@@ -8,7 +8,7 @@ CCSHub::CCSHub(TwoWire *i2c, uint8_t addr):
     voc(Reading<float>("Total VOC", "CCS", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 32768)))
 {}
 
-void CCSHub::initSensor() {
+void CCS::initSensor() {
   this->sensor.begin(*(this->i2c));
 
   this->eco2.setStatus("init");
@@ -28,12 +28,12 @@ void CCSHub::initSensor() {
   }
 }
 
-void CCSHub::begin(System &system) {
+void CCS::begin(System &system) {
   this->initSensor();
   system.device().attach(this);
 
   system.scheduler().spawn("sample CCS", 115,[&](Task *t) {
-    system.log().debug("Sampling CCS hub.");
+    system.log().debug("Sampling CCS sensor.");
     this->update();
     t->sleep(CCS_SAMPLE_INTERVAL);
   });
@@ -45,14 +45,14 @@ void CCSHub::begin(System &system) {
       ccsWarmup = false;
       t->sleep(CCS_WARMUP_TIMEOUT);
     } else {
-      system.log().info("Resetting CCS hub after a warmup.");
+      system.log().info("Resetting CCS sensor after a warmup.");
       this->reset();
       t->kill();
     }
   });
 }
 
-void CCSHub::update() {
+void CCS::update() {
   if(!this->sensor.dataAvailable()) {
     String error = "Sensor is not available.";
     this->eco2.setError(error);
@@ -72,15 +72,15 @@ void CCSHub::update() {
   }
 }
 
-void CCSHub::connect(Device *d) const {
+void CCS::connect(Device *d) const {
   d->attach(&this->eco2);
   d->attach(&this->voc);
 }
 
-void CCSHub::reset() {
+void CCS::reset() {
   this->initSensor();
 }
 
-void CCSHub::setCompensationParameters(float temperature, float humidity) {
+void CCS::setCompensationParameters(float temperature, float humidity) {
   this->sensor.setEnvironmentalData(humidity, temperature);
 }

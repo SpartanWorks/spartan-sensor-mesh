@@ -1,6 +1,6 @@
-#include "DallasTempHub.hpp"
+#include "DallasTemp.hpp"
 
-DallasTempHub::DallasTempHub(uint8_t pin, uint8_t resolution):
+DallasTemp::DallasTemp(uint8_t pin, uint8_t resolution):
     oneWire(OneWire(pin)),
     sensors(DallasTemperature(&this->oneWire))
 {
@@ -8,7 +8,7 @@ DallasTempHub::DallasTempHub(uint8_t pin, uint8_t resolution):
   this->sensors.setWaitForConversion(false);
 }
 
-DallasTempHub::~DallasTempHub() {
+DallasTemp::~DallasTemp() {
   if (this->temperatures != nullptr) {
     foreach<Temp>(this->temperatures, [](Temp t) {
       delete t.reading;
@@ -17,7 +17,7 @@ DallasTempHub::~DallasTempHub() {
   }
 }
 
-void DallasTempHub::begin(System &system) {
+void DallasTemp::begin(System &system) {
   this->sensors.begin();
   this->nReadings = this->sensors.getDeviceCount();
   for(uint8_t i = 0; i < this->nReadings; ++i) {
@@ -30,13 +30,13 @@ void DallasTempHub::begin(System &system) {
   system.device().attach(this);
 
   system.scheduler().spawn("sample Dallas", 115,[&](Task *t) {
-    system.log().debug("Sampling Dallas hub.");
+    system.log().debug("Sampling Dallas sensor.");
     this->update();
     t->sleep(DALLAS_SAMPLE_INTERVAL);
   });
 }
 
-void DallasTempHub::update() {
+void DallasTemp::update() {
   foreach<Temp>(this->temperatures, [this](Temp t) {
     float temp = this->sensors.getTempCByIndex(t.index);
     if(temp != DEVICE_DISCONNECTED_C && temp != DEVICE_DISCONNECTED_RAW) {
@@ -48,7 +48,7 @@ void DallasTempHub::update() {
   this->sensors.requestTemperatures();
 }
 
-void DallasTempHub::connect(Device *d) const {
+void DallasTemp::connect(Device *d) const {
   foreach<Temp>(this->temperatures, [d](Temp t) {
     d->attach(t.reading);
   });

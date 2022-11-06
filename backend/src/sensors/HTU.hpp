@@ -1,5 +1,5 @@
-#ifndef __HTUHUB_HPP__
-#define __HTUHUB_HPP__
+#ifndef __HTU_HPP__
+#define __HTU_HPP__
 
 #include <Wire.h>
 #include <SparkFunHTU21D.h>
@@ -8,23 +8,23 @@
 #define HTU_SAMPLE_INTERVAL 2000
 #define SAMPLE_BACKLOG 30
 
-class HTUHub: public SensorHub {
+class HTU: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
   HTU21D sensor;
   Reading<float> humidity;
   Reading<float> temperature;
-  List<SensorHub*> *toCompensate;
+  List<Sensor*> *toCompensate;
 
 public:
-  HTUHub(TwoWire *i2c, uint8_t addr);
-  ~HTUHub();
+  HTU(TwoWire *i2c, uint8_t addr);
+  ~HTU();
   void begin(System &system);
   void update();
   void connect(Device *d) const;
 
-  void compensate(SensorHub *other);
+  void compensate(Sensor *other);
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 #include "Reading.hpp"
-#include "SensorHub.hpp"
+#include "Sensor.hpp"
 #include "List.hpp"
 
 class Device {
@@ -23,7 +23,7 @@ public:
   ~Device();
 
   virtual void attach(const Reading<float> *s);
-  virtual void attach(const SensorHub *s);
+  virtual void attach(const Sensor *s);
   virtual String model() const;
   virtual String name() const;
   virtual String password() const;

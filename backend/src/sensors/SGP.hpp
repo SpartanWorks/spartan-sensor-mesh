@@ -1,5 +1,5 @@
-#ifndef __SGPHUB_HPP__
-#define __SGPHUB_HPP__
+#ifndef __SGP_HPP__
+#define __SGP_HPP__
 
 #include <Wire.h>
 #include "SGP30.h"
@@ -10,7 +10,7 @@
 #define SGP_SAMPLE_INTERVAL 2000 // 2 seconds
 #define SAMPLE_BACKLOG 30
 
-class SGPHub: public SensorHub {
+class SGP: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
@@ -21,7 +21,7 @@ private:
   Reading<float> ethanol;
 
 public:
-  SGPHub(TwoWire *i2c, uint8_t address);
+  SGP(TwoWire *i2c, uint8_t address);
   void begin(System &system);
   void update();
   void connect(Device *d) const;

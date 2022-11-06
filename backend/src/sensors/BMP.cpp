@@ -1,6 +1,6 @@
-#include "BMPHub.hpp"
+#include "BMP.hpp"
 
-BMPHub::BMPHub(TwoWire *i2c, uint8_t addr):
+BMP::BMP(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(Adafruit_BMP280(i2c)),
@@ -9,25 +9,25 @@ BMPHub::BMPHub(TwoWire *i2c, uint8_t addr):
     altitude(Reading<float>("altitude", "BMP", "altitude", new WindowedValue<float, SAMPLE_BACKLOG>("m", -500, 9000)))
 {}
 
-void BMPHub::begin(System &system) {
+void BMP::begin(System &system) {
   this->sensor.begin(this->address);
 
   system.device().attach(this);
 
   system.scheduler().spawn("sample BMP", 115,[&](Task *t) {
-    system.log().debug("Sampling BMP hub.");
+    system.log().debug("Sampling BMP sensor.");
     this->update();
     t->sleep(BMP_SAMPLE_INTERVAL);
   });
 }
 
-void BMPHub::update() {
+void BMP::update() {
   this->pressure.add(this->sensor.readPressure());
   this->temperature.add(this->sensor.readTemperature());
   this->altitude.add(this->sensor.readAltitude());
 }
 
-void BMPHub::connect(Device *d) const {
+void BMP::connect(Device *d) const {
   d->attach(&this->pressure);
   d->attach(&this->temperature);
   d->attach(&this->altitude);

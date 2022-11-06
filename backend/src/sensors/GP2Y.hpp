@@ -1,5 +1,5 @@
-#ifndef __GP2YHUB_HPP__
-#define __GP2YHUB_HPP__
+#ifndef __GP2Y_HPP__
+#define __GP2Y_HPP__
 
 #define GP2Y_RAW_READING 1
 
@@ -21,7 +21,7 @@
 #define GP2Y_SAMPLE_INTERVAL 1000
 #define SAMPLE_BACKLOG 30
 
-class GP2YHub: public SensorHub {
+class GP2Y: public Sensor {
 private:
   SoftwareSerial *serial;
   Reading<float> pm;
@@ -36,7 +36,7 @@ private:
   float getPM();
 
 public:
-  GP2YHub(uint8_t rx, uint8_t tx);
+  GP2Y(uint8_t rx, uint8_t tx);
   void begin(System &system);
   void update();
   void connect(Device *d) const;

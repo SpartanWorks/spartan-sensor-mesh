@@ -1,5 +1,5 @@
-#ifndef __SDSHUB_HPP__
-#define __SDSHUB_HPP__
+#ifndef __SDS_HPP__
+#define __SDS_HPP__
 
 #include <Arduino.h>
 #include "SdsDustSensor.h"
@@ -17,7 +17,7 @@ class PatchedSdsSensor : public SdsDustSensor {
   void pollPm();
 };
 
-class SDSHub: public SensorHub {
+class SDS: public Sensor {
 private:
   HardwareSerial &serial;
   PatchedSdsSensor sensor;
@@ -25,7 +25,7 @@ private:
   Reading<float> pm10;
 
 public:
-  SDSHub(HardwareSerial &serial);
+  SDS(HardwareSerial &serial);
   void begin(System &system);
   void update();
   void connect(Device *d) const;

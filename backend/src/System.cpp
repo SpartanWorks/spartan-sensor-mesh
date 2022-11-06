@@ -1,14 +1,14 @@
 #include "System.hpp"
-#include "BMPHub.hpp"
-#include "DallasTempHub.hpp"
 #include "Device.hpp"
-#include "DHTHub.hpp"
-#include "HTUHub.hpp"
-#include "SDSHub.hpp"
-#include "MHZHub.hpp"
-#include "CCSHub.hpp"
-#include "GP2YHub.hpp"
-#include "SGPHub.hpp"
+#include "sensors/BMP.hpp"
+#include "sensors/DallasTemp.hpp"
+#include "sensors/DHT.hpp"
+#include "sensors/HTU.hpp"
+#include "sensors/SDS.hpp"
+#include "sensors/MHZ.hpp"
+#include "sensors/CCS.hpp"
+#include "sensors/GP2Y.hpp"
+#include "sensors/SGP.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -66,129 +66,129 @@ bool System::begin(JSONVar &config) {
     String bus = (const char*) conn["bus"];
 
     if((bool) sensor["enabled"]) {
-      if(type == "BMPHub") {
+      if(type == "BMP") {
         if(bus != "hardware-i2c") {
-          l.warn("Bad BMPHub configuration, skipping.");
+          l.warn("Bad BMP configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching BMPHub with config: ");
+        l.info("Attaching BMP with config: ");
         l.info(sensor);
 
-        BMPHub *bmp = new BMPHub(&Wire, (int) conn["address"]);
+        BMP *bmp = new BMP(&Wire, (int) conn["address"]);
         bmp->begin(*this);
-      } else if (type == "HTUHub") {
+      } else if (type == "HTU") {
         if(bus != "hardware-i2c") {
-          l.warn("Bad HTUHub configuration, skipping.");
+          l.warn("Bad HTU configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching HTUHub with config: ");
+        l.info("Attaching HTU with config: ");
         l.info(sensor);
 
-        HTUHub *htu = new HTUHub(&Wire, (int) conn["address"]);
+        HTU *htu = new HTU(&Wire, (int) conn["address"]);
         htu->begin(*this);
-      } else if (type == "SDSHub") {
+      } else if (type == "SDS") {
         if(bus != "hardware-uart") {
-          l.warn("Bad SDSHub configuration, skipping.");
+          l.warn("Bad SDS configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching SDSHub with config: ");
+        l.info("Attaching SDS with config: ");
         l.info(sensor);
 
-        SDSHub *sds;
+        SDS *sds;
         switch((int) conn["number"]) {
 #ifdef ESP32
           case 2: {
             HardwareSerial& sdsSerial(Serial2);
-            sds = new SDSHub(sdsSerial);
+            sds = new SDS(sdsSerial);
           }
           break;
 #endif
 
           case 1: {
             HardwareSerial& sdsSerial(Serial1);
-            sds = new SDSHub(sdsSerial);
+            sds = new SDS(sdsSerial);
           }
           break;
 
           case 0:
           default: {
             HardwareSerial& sdsSerial(Serial);
-            sds = new SDSHub(sdsSerial);
+            sds = new SDS(sdsSerial);
           }
           break;
         }
 
         sds->begin(*this);
-      } else if (type == "MHZHub") {
+      } else if (type == "MHZ") {
         if(bus != "software-uart") {
-          l.warn("Bad SDSHub configuration, skipping.");
+          l.warn("Bad SDS configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching MHZHub with config: ");
+        l.info("Attaching MHZ with config: ");
         l.info(sensor);
 
-        MHZHub *mhz = new MHZHub((int) conn["rx"], (int) conn["tx"]);
+        MHZ *mhz = new MHZ((int) conn["rx"], (int) conn["tx"]);
         mhz->begin(*this);
-      } else if (type == "CCSHub") {
+      } else if (type == "CCS") {
         if(bus != "hardware-i2c") {
-          l.warn("Bad CCSHub configuration, skipping.");
+          l.warn("Bad CCS configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching CCSHub with config: ");
+        l.info("Attaching CCS with config: ");
         l.info(sensor);
 
-        CCSHub *ccs = new CCSHub(&Wire, (int) conn["address"]);
+        CCS *ccs = new CCS(&Wire, (int) conn["address"]);
         ccs->begin(*this);
         // htu->compensate(ccs); // TODO
-      } else if (type == "SGPHub") {
+      } else if (type == "SGP") {
         if(bus != "hardware-i2c") {
-          l.warn("Bad SGPHub configuration, skipping.");
+          l.warn("Bad SGP configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching SGPHub with config: ");
+        l.info("Attaching SGP with config: ");
         l.info(sensor);
 
-        SGPHub *sgp = new SGPHub(&Wire, (int) conn["address"]);
+        SGP *sgp = new SGP(&Wire, (int) conn["address"]);
         sgp->begin(*this);
         // htu->compensate(ccs); // TODO
-      } else if (type == "GP2YHub") {
+      } else if (type == "GP2Y") {
         if(bus != "software-uart") {
-          l.warn("Bad GP2YHub configuration, skipping.");
+          l.warn("Bad GP2Y configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching GP2YHub with config: ");
+        l.info("Attaching GP2Y with config: ");
         l.info(sensor);
 
-        GP2YHub *gp2y = new GP2YHub((int) conn["rx"], (int) conn["tx"]);
+        GP2Y *gp2y = new GP2Y((int) conn["rx"], (int) conn["tx"]);
         gp2y->begin(*this);
-      } else if (type == "DallasTempHub") {
+      } else if (type == "DallasTemp") {
         if(bus != "dallas-1-wire") {
-          l.warn("Bad DallasTempHub configuration, skipping.");
+          l.warn("Bad DallasTemp configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching DallasTempHub with config: ");
+        l.info("Attaching DallasTemp with config: ");
         l.info(sensor);
 
-        DallasTempHub *dallas = new DallasTempHub((int) conn["pin"], (int) sensor["resolution"]);
+        DallasTemp *dallas = new DallasTemp((int) conn["pin"], (int) sensor["resolution"]);
         dallas->begin(*this);
-      } else if (type == "DHTHub") {
+      } else if (type == "DHT") {
         if(bus != "dht11" && bus != "dht22") {
-          l.warn("Bad DHTHub configuration, skipping.");
+          l.warn("Bad DHT configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching DHTHub with config: ");
+        l.info("Attaching DHT with config: ");
         l.info(sensor);
 
-        DHTHub *dht = new DHTHub((int) conn["pin"], (bus == "dht22") ? DHT22 : DHT11);
+        ssn::DHT *dht = new ssn::DHT((int) conn["pin"], (bus == "dht22") ? DHT22 : DHT11);
         dht->begin(*this);
       } else {
         l.warn("Skipping unrecognized sensor %s.", type.c_str());

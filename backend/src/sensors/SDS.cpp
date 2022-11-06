@@ -1,4 +1,4 @@
-#include "SDSHub.hpp"
+#include "SDS.hpp"
 
 PatchedSdsSensor::PatchedSdsSensor(HardwareSerial &serial):
   SdsDustSensor(serial, RETRY_DELAY_MS_DEFAULT, MAX_RETRIES_NOT_AVAILABLE_DEFAULT),
@@ -18,27 +18,27 @@ void PatchedSdsSensor::pollPm() {
   writeImmediate(Commands::queryPm);
 }
 
-SDSHub::SDSHub(HardwareSerial &serial):
+SDS::SDS(HardwareSerial &serial):
     serial(serial),
     sensor(PatchedSdsSensor(serial)),
     pm25(Reading<float>("PM 2.5", "SDS", "pm2.5", new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000))),
     pm10(Reading<float>("PM 10", "SDS", "pm10", new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000)))
 {}
 
-void SDSHub::begin(System &system) {
+void SDS::begin(System &system) {
   this->sensor.begin();
   this->sensor.setQueryReportingMode();
 
   system.device().attach(this);
 
   system.scheduler().spawn("sample SDS", 115,[&](Task *t) {
-    system.log().debug("Sampling SDS hub.");
+    system.log().debug("Sampling SDS sensor.");
     this->update();
     t->sleep(SDS_SAMPLE_INTERVAL);
   });
 }
 
-void SDSHub::update() {
+void SDS::update() {
   this->sensor.pollPm();
   PmResult pm = this->sensor.readPm();
   if (pm.isOk()) {
@@ -51,7 +51,7 @@ void SDSHub::update() {
   }
 }
 
-void SDSHub::connect(Device *d) const {
+void SDS::connect(Device *d) const {
   d->attach(&this->pm25);
   d->attach(&this->pm10);
 }

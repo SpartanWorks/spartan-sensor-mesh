@@ -1,6 +1,6 @@
-#include "SGPHub.hpp"
+#include "SGP.hpp"
 
-SGPHub::SGPHub(TwoWire *i2c, uint8_t addr):
+SGP::SGP(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(SGP30(i2c)),
@@ -10,7 +10,7 @@ SGPHub::SGPHub(TwoWire *i2c, uint8_t addr):
     ethanol(Reading<float>("Ethanol", "SGP", "voc", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000)))
 {}
 
-void SGPHub::begin(System &system) {
+void SGP::begin(System &system) {
   this->sensor.begin(); // FIXME Use this->address during init.
 
   this->co2.setStatus("init");
@@ -39,7 +39,7 @@ void SGPHub::begin(System &system) {
   system.device().attach(this);
 
   system.scheduler().spawn("sample SGP", 115,[&](Task *t) {
-    system.log().debug("Sampling SGP hub.");
+    system.log().debug("Sampling SGP sensor.");
     this->update();
     t->sleep(SGP_SAMPLE_INTERVAL);
   });
@@ -51,14 +51,14 @@ void SGPHub::begin(System &system) {
       sgpWarmup = false;
       t->sleep(SGP_WARMUP_TIMEOUT);
     } else {
-      system.log().info("Resetting SGP hub after a warmup.");
+      system.log().info("Resetting SGP sensor after a warmup.");
       this->sensor.GenericReset();
       t->kill();
     }
   });
 }
 
-void SGPHub::update() {
+void SGP::update() {
   if(!this->sensor.isConnected()) {
     String error = "Sensor is not available.";
     this->co2.setError(error);
@@ -84,13 +84,13 @@ void SGPHub::update() {
   }
 }
 
-void SGPHub::connect(Device *d) const {
+void SGP::connect(Device *d) const {
   d->attach(&this->co2);
   d->attach(&this->voc);
   d->attach(&this->h2);
   d->attach(&this->ethanol);
 }
 
-void SGPHub::setCompensationParameters(float temperature, float humidity) {
+void SGP::setCompensationParameters(float temperature, float humidity) {
   this->sensor.setRelHumidity(temperature, humidity);
 }

@@ -6,7 +6,7 @@
 #include "Log.hpp"
 #include "Scheduler.hpp"
 #include "Device.hpp"
-#include "SensorHub.hpp"
+#include "Sensor.hpp"
 #include "Reading.hpp"
 #include "List.hpp"
 

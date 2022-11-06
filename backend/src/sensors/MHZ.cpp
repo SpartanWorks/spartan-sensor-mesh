@@ -1,6 +1,6 @@
-#include "MHZHub.hpp"
+#include "MHZ.hpp"
 
-MHZHub::MHZHub(uint8_t rx, uint8_t tx):
+MHZ::MHZ(uint8_t rx, uint8_t tx):
     sensor(MHZ19()),
     co2(Reading<float>("CO2", "MHZ", "co2", new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 10000))),
     temperature(Reading<float>("temperature", "MHZ", "temperature", new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 100)))
@@ -8,20 +8,20 @@ MHZHub::MHZHub(uint8_t rx, uint8_t tx):
   this->serial = new SoftwareSerial(rx, tx);
 }
 
-void MHZHub::initSensor() {
+void MHZ::initSensor() {
   this->sensor.begin(*(this->serial));
   this->sensor.autoCalibration(false);
   this->sensor.calibrate();
 }
 
-void MHZHub::begin(System &system) {
+void MHZ::begin(System &system) {
   this->serial->begin(MHZ_BAUDRATE);
   this->initSensor();
 
   system.device().attach(this);
 
   system.scheduler().spawn("sample MHZ", 115,[&](Task *t) {
-    system.log().debug("Sampling MHZ hub.");
+    system.log().debug("Sampling MHZ sensor.");
     this->update();
     t->sleep(MHZ_SAMPLE_INTERVAL);
   });
@@ -33,14 +33,14 @@ void MHZHub::begin(System &system) {
       mhzWarmup = false;
       t->sleep(MHZ_WARMUP_TIMEOUT);
     } else {
-      system.log().info("Resetting MHZ hub after a warmup.");
+      system.log().info("Resetting MHZ sensor after a warmup.");
       this->reset();
       t->kill();
     }
   });
 }
 
-void MHZHub::update() {
+void MHZ::update() {
   float co2 = this->sensor.getCO2();
   if(this->sensor.errorCode == RESULT_OK) {
     this->co2.add(co2);
@@ -58,13 +58,13 @@ void MHZHub::update() {
 #endif
 }
 
-void MHZHub::connect(Device *d) const {
+void MHZ::connect(Device *d) const {
   d->attach(&this->co2);
 #ifdef MHZ_TEMP_SENSOR
   d->attach(&this->temperature);
 #endif
 }
 
-void MHZHub::reset() {
+void MHZ::reset() {
   this->initSensor();
 }

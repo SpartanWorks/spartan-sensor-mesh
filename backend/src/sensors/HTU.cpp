@@ -1,6 +1,6 @@
-#include "HTUHub.hpp"
+#include "HTU.hpp"
 
-HTUHub::HTUHub(TwoWire *i2c, uint8_t addr):
+HTU::HTU(TwoWire *i2c, uint8_t addr):
     i2c(i2c),
     address(addr),
     sensor(HTU21D()),
@@ -9,25 +9,25 @@ HTUHub::HTUHub(TwoWire *i2c, uint8_t addr):
     toCompensate(nullptr)
 {}
 
-HTUHub::~HTUHub() {
+HTU::~HTU() {
   if (this->toCompensate != nullptr) {
     delete this->toCompensate;
   }
 }
 
-void HTUHub::begin(System &system) {
+void HTU::begin(System &system) {
   this->sensor.begin(*(this->i2c));
 
   system.device().attach(this);
 
   system.scheduler().spawn("sample HTU", 115,[&](Task *t) {
-    system.log().debug("Sampling HTU hub.");
+    system.log().debug("Sampling HTU sensor.");
     this->update();
     t->sleep(HTU_SAMPLE_INTERVAL);
   });
 }
 
-void HTUHub::update() {
+void HTU::update() {
   float hum = this->sensor.readHumidity();
   if (hum == ERROR_I2C_TIMEOUT || hum == ERROR_BAD_CRC) {
     this->humidity.setError(String("Could not read sensor. Response: ") + String(hum));
@@ -43,17 +43,17 @@ void HTUHub::update() {
   }
 
   if (temp != ERROR_I2C_TIMEOUT && temp != ERROR_BAD_CRC && hum != ERROR_I2C_TIMEOUT && hum != ERROR_BAD_CRC) {
-    foreach<SensorHub*>(this->toCompensate, [=](SensorHub *s) {
+    foreach<Sensor*>(this->toCompensate, [=](Sensor *s) {
       s->setCompensationParameters(temp, hum);
     });
   }
 }
 
-void HTUHub::connect(Device *d) const {
+void HTU::connect(Device *d) const {
   d->attach(&this->humidity);
   d->attach(&this->temperature);
 }
 
-void HTUHub::compensate(SensorHub *s) {
-  this->toCompensate = new List<SensorHub*>(s, this->toCompensate);
+void HTU::compensate(Sensor *s) {
+  this->toCompensate = new List<Sensor*>(s, this->toCompensate);
 }

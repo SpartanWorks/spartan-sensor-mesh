@@ -32,7 +32,7 @@ void Device::attach(const Reading<float> *s) {
   list = new List<const Reading<float>*>(s, list);
 }
 
-void Device::attach(const SensorHub *s) {
+void Device::attach(const Sensor *s) {
   s->connect(this);
 }
 
