@@ -182,15 +182,15 @@ bool System::begin(JSONVar &config) {
         DallasTemp *dallas = new DallasTemp((int) conn["pin"], (int) sensor["resolution"]);
         dallas->begin(*this);
       } else if (type == "DHT") {
-        if(bus != "dht11" && bus != "dht22") {
+        l.info("Attaching DHT with config: ");
+        l.info(sensor);
+        ssn::DHT *dht = ssn::DHT::create(sensor);
+
+        if(dht == nullptr) {
           l.warn("Bad DHT configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching DHT with config: ");
-        l.info(sensor);
-
-        ssn::DHT *dht = new ssn::DHT((int) conn["pin"], (bus == "dht22") ? DHT22 : DHT11);
         dht->begin(*this);
       } else {
         l.warn("Skipping unrecognized sensor %s.", type.c_str());

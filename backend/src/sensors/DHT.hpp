@@ -13,11 +13,15 @@ namespace ssn {
 class DHT: public Sensor {
  private:
   ::DHT sensor;
-  Reading<float> humidity;
-  Reading<float> temperature;
+  Reading<float> *humidity;
+  Reading<float> *temperature;
+
+  DHT(uint8_t pin, uint8_t model);
 
  public:
-  DHT(uint8_t pin, uint8_t model);
+  ~DHT();
+
+  static DHT* create(JSONVar &config);
   void begin(System &system);
   void update();
   void connect(Device *d) const;
