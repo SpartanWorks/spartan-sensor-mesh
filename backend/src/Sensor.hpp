@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
-#include "Reading.hpp"
+#include "Value.hpp"
 
 template<typename T>
 class Sensor {
@@ -15,11 +15,11 @@ class Sensor {
   uint32_t nErrors;
   String sLastError;
   uint32_t nMeasurements;
-  Reading<T> *sReading;
+  Value<T> *sValue;
 
  public:
 
-  Sensor(String name, String model, String type, Reading<T> *reading):
+  Sensor(String name, String model, String type, Value<T> *value):
       sModel(model),
       sType(type),
       sName(name),
@@ -27,12 +27,12 @@ class Sensor {
       nErrors(0),
       sLastError(""),
       nMeasurements(0),
-      sReading(reading)
+      sValue(value)
   {}
 
   virtual ~Sensor() {
-    if(sReading != nullptr) {
-      delete sReading;
+    if(sValue != nullptr) {
+      delete sValue;
     }
   }
 
@@ -74,8 +74,8 @@ class Sensor {
     return this->nMeasurements;
   }
 
-  const Reading<T>* reading() const {
-    return this->sReading;
+  const Value<T>* value() const {
+    return this->sValue;
   }
 
   JSONVar toJSONVar() const {
@@ -89,8 +89,8 @@ class Sensor {
     json["lastError"] = this->lastError();
     json["measurements"] = (unsigned long) this->measurements();
 
-    JSONVar reading = this->reading()->toJSONVar();
-    json["reading"] = reading;
+    JSONVar value = this->value()->toJSONVar();
+    json["value"] = value;
 
     return json;
   }
@@ -100,8 +100,8 @@ class Sensor {
   }
 
   void add(T s) {
-    if (!isnan(s) && s <= this->sReading->rangeMax() && s >= this->sReading->rangeMin()) {
-      this->sReading->add(s);
+    if (!isnan(s) && s <= this->sValue->rangeMax() && s >= this->sValue->rangeMin()) {
+      this->sValue->add(s);
       this->nMeasurements++;
       this->setStatus("ok");
     } else {

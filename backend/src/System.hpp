@@ -7,7 +7,6 @@
 #include "Device.hpp"
 #include "Sensor.hpp"
 #include "SensorHub.hpp"
-#include "Reading.hpp"
 #include "List.hpp"
 #include "Log.hpp"
 

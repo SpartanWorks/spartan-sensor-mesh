@@ -1,4 +1,4 @@
-export interface SensorReadingStats {
+export interface SensorValueStats {
   mean: number;
   variance: number;
   samples: number;
@@ -6,19 +6,19 @@ export interface SensorReadingStats {
   minimum: number;
 }
 
-export interface SensorReadingRange {
+export interface SensorValueRange {
   minimum: number;
   maximum: number;
 }
 
-export interface SensorReading {
+export interface SensorValue {
   unit: string;
-  value: number;
-  range: SensorReadingRange;
-  stats: SensorReadingStats;
+  last: number;
+  range: SensorValueRange;
+  stats: SensorValueStats;
 }
 
-export interface SensorData {
+export interface SensorReading {
   type: string;
   name: string;
   model: string;
@@ -26,14 +26,14 @@ export interface SensorData {
   errors: number;
   lastError: string;
   measurements: number;
-  reading: SensorReading;
+  value: SensorValue;
 }
 
 export interface DeviceData {
   model: string;
   name: string;
   group: string;
-  sensors: Array<SensorData>;
+  sensors: Array<SensorReading>;
 }
 
 export interface UpdateCallback {

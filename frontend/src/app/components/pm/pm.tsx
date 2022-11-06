@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { SensorData } from "../../services/device";
+import { SensorReading } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { SensorLabel } from "../gauge/label";
 import { Tier, TieredGauge } from "../gauge/tiered";
@@ -26,7 +26,7 @@ const PM_25_TIERS: Tier[] = [
 const PM_DEFAULT_COLOR = "#7e0023";
 
 interface Props {
-  data: SensorData;
+  data: SensorReading;
   min: number;
   max: number;
 }
@@ -34,8 +34,8 @@ interface Props {
 export const PM = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <TieredGauge value={props.data.reading.stats.mean}
-                   variance={props.data.reading.stats.variance}
+      <TieredGauge value={props.data.value.stats.mean}
+                   variance={props.data.value.stats.variance}
                    tiers={props.data.type === PM_10 ? PM_10_TIERS : PM_25_TIERS}
                    defaultTier={{ min: props.min, max: props.max, color: PM_DEFAULT_COLOR }}
                    isError={props.data.status === "error"}

@@ -1,8 +1,8 @@
 #include "GP2YHub.hpp"
 
 GP2YHub::GP2YHub(uint8_t rx, uint8_t tx):
-    pm(Sensor<float>("Total PM", "GP2Y", "pm10", new WindowedReading<float, SAMPLE_BACKLOG>("μg/m³", 0, 600))),
-    raw(Sensor<float>("Raw value", "GP2Y", "adc", new WindowedReading<float, SAMPLE_BACKLOG>("counts", 0, 1024)))
+    pm(Sensor<float>("Total PM", "GP2Y", "pm10", new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 600))),
+    raw(Sensor<float>("Raw value", "GP2Y", "adc", new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, 1024)))
 {
   this->serial = new SoftwareSerial(rx, tx);
 }

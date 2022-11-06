@@ -1,11 +1,11 @@
 import * as preact from "preact";
-import { SensorData } from "../../services/device";
+import { SensorReading } from "../../services/device";
 import * as styles from "../../styles/widget.css";
 import { JetGauge } from "../gauge/jet";
 import { SensorLabel } from "../gauge/label";
 
 interface Props {
-  data: SensorData;
+  data: SensorReading;
   min: number;
   max: number;
 }
@@ -13,8 +13,8 @@ interface Props {
 export const Temperature = (props: Props) => (
   <div className={styles.widgetWrapper}>
     <div className={styles.readingWrapper}>
-      <JetGauge value={props.data.reading.stats.mean}
-                variance={props.data.reading.stats.variance}
+      <JetGauge value={props.data.value.stats.mean}
+                variance={props.data.value.stats.variance}
                 min={props.min}
                 max={props.max}
                 isError={props.data.status === "error"}
