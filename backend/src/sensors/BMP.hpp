@@ -13,12 +13,18 @@ private:
   TwoWire *i2c;
   uint8_t address;
   Adafruit_BMP280 sensor;
-  Reading<float> pressure;
-  Reading<float> temperature;
-  Reading<float> altitude;
+  Reading<float> *pressure;
+  Reading<float> *temperature;
+  Reading<float> *altitude;
 
-public:
   BMP(TwoWire *i2c, uint8_t addr);
+
+ public:
+
+  ~BMP();
+
+  static BMP* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;

@@ -5,15 +5,15 @@ int swallowSadness(char *input, va_list args) {
 }
 
 int printToSerial0(char *input, va_list args) {
-  char buf[256];
-  int result = vsnprintf(buf, 256, input, args);
+  char buf[512];
+  int result = vsnprintf(buf, 512, input, args);
   Serial.print(buf);
   return result;
 }
 
 int printToSerial1(char *input, va_list args) {
-  char buf[256];
-  int result = vsnprintf(buf, 256, input, args);
+  char buf[512];
+  int result = vsnprintf(buf, 512, input, args);
   Serial1.print(buf);
   return result;
 }

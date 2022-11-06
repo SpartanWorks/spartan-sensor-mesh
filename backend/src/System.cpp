@@ -67,15 +67,16 @@ bool System::begin(JSONVar &config) {
 
     if((bool) sensor["enabled"]) {
       if(type == "BMP") {
-        if(bus != "hardware-i2c") {
+        l.info("Attaching BMP with config: ");
+        l.info(sensor);
+
+        BMP *bmp = BMP::create(sensor);
+
+        if(bmp == nullptr) {
           l.warn("Bad BMP configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching BMP with config: ");
-        l.info(sensor);
-
-        BMP *bmp = new BMP(&Wire, (int) conn["address"]);
         bmp->begin(*this);
       } else if (type == "HTU") {
         if(bus != "hardware-i2c") {

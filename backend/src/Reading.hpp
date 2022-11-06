@@ -16,10 +16,15 @@ class Reading {
   String sLastError;
   uint32_t nMeasurements;
   Value<T> *sValue;
+  JSONVar conf;
 
  public:
 
   Reading(String name, String model, String type, Value<T> *value):
+      Reading(name, model, type, value, undefined)
+  {}
+
+  Reading(String name, String model, String type, Value<T> *value, JSONVar &conf):
       sModel(model),
       sType(type),
       sName(name),
@@ -27,7 +32,8 @@ class Reading {
       nErrors(0),
       sLastError(""),
       nMeasurements(0),
-      sValue(value)
+      sValue(value),
+      conf(conf)
   {}
 
   virtual ~Reading() {
@@ -74,6 +80,10 @@ class Reading {
     return this->nMeasurements;
   }
 
+  JSONVar config() const {
+    return this->conf;
+  }
+
   const Value<T>* value() const {
     return this->sValue;
   }
@@ -91,6 +101,9 @@ class Reading {
 
     JSONVar value = this->value()->toJSONVar();
     json["value"] = value;
+
+    JSONVar widget = this->config();
+    json["config"] = widget;
 
     return json;
   }
