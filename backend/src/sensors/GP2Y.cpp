@@ -1,10 +1,44 @@
 #include "GP2Y.hpp"
 
 GP2Y::GP2Y(uint8_t rx, uint8_t tx):
-    pm(Reading<float>("Total PM", "GP2Y", "pm10", new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 600))),
-    raw(Reading<float>("Raw value", "GP2Y", "adc", new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, 1024)))
+    pm(nullptr),
+    raw(nullptr)
 {
   this->serial = new SoftwareSerial(rx, tx);
+}
+
+GP2Y::~GP2Y() {
+  if (this->pm != nullptr) delete this->pm;
+  if (this->raw != nullptr) delete this->raw;
+}
+
+GP2Y* GP2Y::create(JSONVar &config) {
+  JSONVar conn = config["connection"];
+  String bus = (const char*) conn["bus"];
+  uint16_t rx = (int) conn["rx"];
+  uint16_t tx = (int) conn["tx"];
+
+  JSONVar readings = config["readings"];
+
+  if(conn == undefined || readings == undefined || bus != "software-uart") {
+    return nullptr;
+  }
+
+  GP2Y *gp2y = new GP2Y(rx, tx);
+
+  for(uint16_t i = 0; i < readings.length(); i++) {
+    String type = (const char*) readings[i]["type"];
+    String name = (const char*) readings[i]["name"];
+    JSONVar cfg = readings[i]["widget"];
+
+    if (type == "pm10") {
+      gp2y->pm = new Reading<float>(name, "GP2Y", type, new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 600), cfg);
+    } else if (type == "raw") {
+      gp2y->raw = new Reading<float>(name, "GP2Y", type, new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, 1024), cfg);
+    }
+  }
+
+  return gp2y;
 }
 
 void GP2Y::begin(System &system) {
@@ -40,14 +74,18 @@ bool GP2Y::read() {
     spin--;
   }
   if(spin == 0) {
-    this->pm.setError("Waited longer than 100 ms for ACK.");
+    String error = "Waited longer than 100 ms for ACK.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
     return false;
   }
 
   uint8_t ack = this->serial->read();
   if (ack != ACK) {
     delay(100);
-    this->pm.setError("Received bad ACK.");
+    String error = "Received bad ACK.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
 
     while(this->serial->available() > 0) {
       this->serial->read();
@@ -61,7 +99,9 @@ bool GP2Y::read() {
     spin--;
   }
   if(spin == 0) {
-    this->pm.setError(String("Waited longer than ") + String((N_SAMPLES + 5) * 10) + "ms for data.");
+    String error = String("Waited longer than ") + String((N_SAMPLES + 5) * 10) + "ms for data.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
     return false;
   }
 
@@ -80,18 +120,12 @@ bool GP2Y::read() {
 
 void GP2Y::update() {
   if (this->read()) {
-    this->pm.add(this->getPM());
+     if (this->pm != nullptr) this->pm->add(this->getPM());
+     if (this->raw != nullptr) this->raw->add(this->readValue);
   }
-  // NOTE read() already handles setting the error.
-
-#ifdef GP2Y_RAW_READING
-  this->raw.add(this->readValue);
-#endif
 }
 
 void GP2Y::connect(Device *d) const {
-  d->attach(&this->pm);
-#ifdef GP2Y_RAW_READING
-  d->attach(&this->raw);
-#endif
+  if (this->pm != nullptr) d->attach(this->pm);
+  if (this->raw != nullptr) d->attach(this->raw);
 }

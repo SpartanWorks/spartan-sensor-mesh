@@ -163,15 +163,16 @@ bool System::begin(JSONVar &config) {
         sgp->begin(*this);
         // htu->compensate(ccs); // TODO
       } else if (type == "GP2Y") {
-        if(bus != "software-uart") {
+        l.info("Attaching GP2Y with config: ");
+        l.info(sensor);
+
+        GP2Y *gp2y = GP2Y::create(sensor);
+
+        if(gp2y == nullptr) {
           l.warn("Bad GP2Y configuration, skipping.");
           continue;
         }
 
-        l.info("Attaching GP2Y with config: ");
-        l.info(sensor);
-
-        GP2Y *gp2y = new GP2Y((int) conn["rx"], (int) conn["tx"]);
         gp2y->begin(*this);
       } else if (type == "DallasTemp") {
         l.info("Attaching DallasTemp with config: ");
