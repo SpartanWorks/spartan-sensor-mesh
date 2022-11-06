@@ -18,6 +18,12 @@ export interface SensorValue {
   stats: SensorValueStats;
 }
 
+export interface WidgetConfig {
+  type: string;
+  min: number;
+  max: number;
+}
+
 export interface SensorReading {
   type: string;
   name: string;
@@ -27,7 +33,7 @@ export interface SensorReading {
   lastError: string;
   measurements: number;
   value: SensorValue;
-  config: any;
+  config: WidgetConfig & { [key: string]: any; };
 }
 
 export interface DeviceData {

@@ -18,21 +18,23 @@ interface Props {
 }
 
 function renderSensor(data: SensorReading) {
-  switch (data.type) {
+  const t = data.config?.type ?? data.type;
+
+  switch (t) {
   case "temperature":
-    return <Temperature data={data} min={11} max={37}/>;
+    return <Temperature data={data} {...data.config}/>;
   case "humidity":
-    return <Humidity data={data}/>;
+    return <Humidity data={data} {...data.config} />;
   case "pressure":
-    return <Pressure data={data} min={95000} max={105000}/>;
+    return <Pressure data={data} {...data.config}/>;
   case "pm2.5":
-    return <PM data={data} min={0} max={250}/>;
+    return <PM data={data} {...data.config}/>;
   case "pm10":
-    return <PM data={data} min={0} max={500}/>;
+    return <PM data={data} {...data.config}/>;
   case "co2":
-    return <CO2 data={data} min={0} max={2000}/>;
+    return <CO2 data={data} {...data.config}/>;
   case "voc":
-    return <VOC data={data} min={0} max={2000}/>;
+    return <VOC data={data} {...data.config}/>;
   default:
     return <UnsupportedSensor data={data}/>;
   }
