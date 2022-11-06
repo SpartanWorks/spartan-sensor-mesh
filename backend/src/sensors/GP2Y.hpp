@@ -1,7 +1,5 @@
-#ifndef __GP2YHUB_HPP__
-#define __GP2YHUB_HPP__
-
-#define GP2Y_RAW_READING 1
+#ifndef __GP2Y_HPP__
+#define __GP2Y_HPP__
 
 #include <Arduino.h>
 #include "SoftwareSerial.h"
@@ -21,11 +19,11 @@
 #define GP2Y_SAMPLE_INTERVAL 1000
 #define SAMPLE_BACKLOG 30
 
-class GP2YHub: public SensorHub {
+class GP2Y: public Sensor {
 private:
   SoftwareSerial *serial;
-  Sensor<float> pm;
-  Sensor<float> raw;
+  Reading<float> *pm;
+  Reading<float> *raw;
 
   uint16_t readValue = 0;
   float offset = -0.293; // These two here calibrated against SSD011.
@@ -35,8 +33,13 @@ private:
   float baseline = 0.0;
   float getPM();
 
+  GP2Y(uint8_t rx, uint8_t tx);
+
 public:
-  GP2YHub(uint8_t rx, uint8_t tx);
+  ~GP2Y();
+
+  static GP2Y* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;

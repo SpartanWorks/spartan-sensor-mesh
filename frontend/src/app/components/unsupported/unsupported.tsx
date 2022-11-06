@@ -1,11 +1,11 @@
 import * as preact from "preact";
-import { SensorData } from "../../services/device";
+import { SensorReading } from "../../services/device";
 import * as error from "../../styles/error.css";
 import { readingWrapper, widgetWrapper } from "../../styles/widget.css";
 import * as styles from "./unsupported.css";
 
 interface Props {
-  data: SensorData;
+  data: SensorReading;
 }
 
 export const UnsupportedSensor = (props: Props) => (

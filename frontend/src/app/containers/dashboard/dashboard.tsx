@@ -1,15 +1,11 @@
 import { observer } from "mobx-preact";
 import * as preact from "preact";
-import { CO2 } from "../../components/co2/co2";
-import { Humidity } from "../../components/humidity/humidity";
-import { PM } from "../../components/pm/pm";
+import { GaugeWidget } from "../../components/gauge/widget";
 import { Pressure } from "../../components/pressure/pressure";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
-import { Temperature } from "../../components/temperature/temperature";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
-import { VOC } from "../../components/voc/voc";
-import { DeviceData, SensorData } from "../../services/device";
+import { DeviceData, SensorReading } from "../../services/device";
 import { DashboardStore } from "../../store/dashboard";
 import * as styles from "./dashboard.css";
 
@@ -17,73 +13,68 @@ interface Props {
   store: DashboardStore;
 }
 
-function renderSensor(data: SensorData) {
-  switch (data.type) {
-  case "temperature":
-    return <Temperature data={data} min={11} max={37}/>;
-  case "humidity":
-    return <Humidity data={data}/>;
+function renderSensor(data: SensorReading) {
+  const t = data.config.type ?? data.type;
+
+  switch (t) {
   case "pressure":
-    return <Pressure data={data} min={95000} max={105000}/>;
-  case "pm2.5":
-    return <PM data={data} min={0} max={250}/>;
-  case "pm10":
-    return <PM data={data} min={0} max={500}/>;
-  case "co2":
-    return <CO2 data={data} min={0} max={2000}/>;
-  case "voc":
-    return <VOC data={data} min={0} max={2000}/>;
+    return <Pressure data={data} {...data.config}/>;
+
+  case "gauge":
+    return <GaugeWidget data={data} {...data.config}/>;
+
   default:
     return <UnsupportedSensor data={data}/>;
   }
 }
 
-function combineSensors(a: SensorData, b: SensorData): SensorData[] {
-  if (a.status === "error" || b.status === "error" || a.status !== b.status || a.reading.unit !== b.reading.unit) {
+function combineReadings(a: SensorReading, b: SensorReading): SensorReading[] {
+  if (a.status === "error" || b.status === "error"
+    || a.status !== b.status
+    || a.value.unit !== b.value.unit
+    || JSON.stringify(a.config) !== JSON.stringify(b.config)) {
     return [a, b];
   }
 
-  const total = a.reading.stats.variance + b.reading.stats.variance;
-  const aWeight = total === 0 ? 0 : (1 - a.reading.stats.variance / total);
-  const bWeight = total === 0 ? 0 : (1 - b.reading.stats.variance / total);
+  const total = a.value.stats.variance + b.value.stats.variance;
+  const aWeight = total === 0 ? 0 : (1 - a.value.stats.variance / total);
+  const bWeight = total === 0 ? 0 : (1 - b.value.stats.variance / total);
 
   return [
     {
-      type: a.type,
-      name: a.name,
+      ...a,
       model: "combined",
-      status: a.status,
       errors: a.errors + b.errors,
       lastError: "",
       measurements: a.measurements + b.measurements,
-      reading: {
-        unit: a.reading.unit,
-        value: aWeight * a.reading.value + bWeight * b.reading.value,
+      value: {
+        unit: a.value.unit,
+        last: aWeight * a.value.last + bWeight * b.value.last,
         range: {
           // NOTE Combined sensors have a reduced range.
-          minimum: Math.max(a.reading.range.minimum, b.reading.range.minimum),
-          maximum: Math.min(a.reading.range.maximum, b.reading.range.maximum),
+          minimum: Math.max(a.value.range.minimum, b.value.range.minimum),
+          maximum: Math.min(a.value.range.maximum, b.value.range.maximum),
         },
         stats: {
-          mean: aWeight * a.reading.stats.mean + bWeight * b.reading.stats.mean,
-          variance: aWeight * a.reading.stats.variance + bWeight * b.reading.stats.variance, // Uh oh :S
-          samples: a.reading.stats.samples + b.reading.stats.samples,
+          mean: aWeight * a.value.stats.mean + bWeight * b.value.stats.mean,
+          variance: aWeight * a.value.stats.variance + bWeight * b.value.stats.variance, // Uh oh :S
+          samples: a.value.stats.samples + b.value.stats.samples,
           // NOTE This are likely bogous values.
-          maximum: Math.max(a.reading.stats.maximum, b.reading.stats.maximum),
-          minimum: Math.min(a.reading.stats.minimum, b.reading.stats.minimum),
+          maximum: Math.max(a.value.stats.maximum, b.value.stats.maximum),
+          minimum: Math.min(a.value.stats.minimum, b.value.stats.minimum),
         }
       },
     }
   ];
 }
 
-function reduceSensors(group: SensorData[]): SensorData[] {
+function reduceReadings(group: SensorReading[]): SensorReading[] {
   if (group.length < 2) {
     return group;
   } else {
     let acc = group[0];
     for (let i = 1; i < group.length; i++) {
-      const result = combineSensors(acc, group[i]);
+      const result = combineReadings(acc, group[i]);
       if (result.length !== 1) {
         return result.concat(group.slice(i + 1));
       } else {
@@ -98,8 +89,8 @@ function deviceTag(device: DeviceData): string {
   return device.group + " / " + device.name;
 }
 
-function renderSensors(device: DeviceData) {
-  const grouped = device.sensors.reduce((groups, s) => {
+function renderReadings(device: DeviceData) {
+  const grouped = device.readings.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
       groups.get(group)?.push(s);
@@ -107,11 +98,11 @@ function renderSensors(device: DeviceData) {
       groups.set(group, [s]);
     }
     return groups;
-  }, new Map<string, SensorData[]>());
+  }, new Map<string, SensorReading[]>());
 
   const recombined = Array.from(grouped.values())
-    .map(reduceSensors)
-    .reduce((acc, sensors) => acc.concat(sensors), [] as SensorData[])
+    .map(reduceReadings)
+    .reduce((acc, sensors) => acc.concat(sensors), [] as SensorReading[])
     .sort((a, b) => (a.type > b.type ? 1 : -1));
 
   return (
@@ -131,7 +122,7 @@ export class Dashboard extends preact.Component<Props, {}> {
           {
             !this.props.store.dataLoaded
             ? <Spinner/>
-            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderSensors)
+            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderReadings)
           }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>

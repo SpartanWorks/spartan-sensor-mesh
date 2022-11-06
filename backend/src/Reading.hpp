@@ -3,194 +3,123 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
-
-#define DIGITS 5
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
+#include "Value.hpp"
 
 template<typename T>
 class Reading {
-protected:
-  String sUnit;
-  T rMin;
-  T rMax;
-  T var;
-  T last;
-  T meanS;
-  uint32_t count;
+ protected:
+  String sModel;
+  String sType;
+  String sName;
+  String sStatus;
+  uint32_t nErrors;
+  String sLastError;
+  uint32_t nMeasurements;
+  Value<T> *sValue;
+  JSONVar conf;
 
-  virtual void updateMean(T s) {
-    T delta = s - meanS;
-    meanS += delta / count;
-    var += delta * (s - meanS);
-  }
+ public:
 
-public:
-  Reading(String unit, T rMin, T rMax):
-      sUnit(unit),
-      rMin(rMin),
-      rMax(rMax),
-      var((T) 0),
-      last((T) 0),
-      meanS((T) 0),
-      count(0)
+  Reading(String name, String model, String type, Value<T> *value):
+      Reading(name, model, type, value, undefined)
   {}
 
-  virtual ~Reading() {}
+  Reading(String name, String model, String type, Value<T> *value, JSONVar &conf):
+      sModel(model),
+      sType(type),
+      sName(name),
+      sStatus("init"),
+      nErrors(0),
+      sLastError(""),
+      nMeasurements(0),
+      sValue(value),
+      conf(conf)
+  {}
 
-  virtual void add(T s) {
-    last = s;
-    count++;
-    this->updateMean(s);
+  virtual ~Reading() {
+    if(sValue != nullptr) {
+      delete sValue;
+    }
   }
 
-  virtual T mean() const {
-    return meanS;
+  String model() const {
+    return this->sModel;
   }
 
-  virtual T variance() const {
-    return (count > 1) ? max(0, var / (count - 1)) : ((T) 0);
+  String type() const {
+    return this->sType;
   }
 
-  virtual T value() const {
-    return last;
+  String name() const {
+    return this->sName;
   }
 
-  virtual String unit() const {
-    return this->sUnit;
+  String status() const {
+    return this->sStatus;
   }
 
-  virtual T rangeMin() const {
-    return this->rMin;
+  void setStatus(String status) {
+    this->sStatus = status;
   }
 
-  virtual T rangeMax() const {
-    return this->rMax;
+  uint32_t errors() const {
+    return this->nErrors;
   }
 
-  virtual uint32_t samples() const {
-    return count;
+  String lastError() const {
+    return this->sLastError;
   }
 
-  virtual JSONVar toJSONVar() const {
+  void setError(String error) {
+    this->sLastError = error;
+    this->nErrors++;
+    this->setStatus("error");
+  }
+
+  uint32_t measurements() const {
+    return this->nMeasurements;
+  }
+
+  JSONVar config() const {
+    return this->conf;
+  }
+
+  const Value<T>* value() const {
+    return this->sValue;
+  }
+
+  JSONVar toJSONVar() const {
     JSONVar json;
-    json["value"] = this->value();
-    json["unit"] = this->unit();
 
-    JSONVar stats;
-    stats["mean"] = this->mean();
-    stats["variance"] = this->variance();
-    stats["samples"] = (unsigned long) this->samples();
-    json["stats"] = stats;
+    json["model"] = this->model();
+    json["type"] = this->type();
+    json["name"] = this->name();
+    json["status"] = this->status();
+    json["errors"] = (unsigned long) this->errors();
+    json["lastError"] = this->lastError();
+    json["measurements"] = (unsigned long) this->measurements();
 
-    JSONVar range;
-    range["minimum"] = this->rangeMin();
-    range["maximum"] = this->rangeMax();
-    json["range"] = range;
+    JSONVar value = this->value()->toJSONVar();
+    json["value"] = value;
+
+    JSONVar widget = this->config();
+    json["config"] = widget;
 
     return json;
   }
 
-  virtual String toJSON() const {
+  String toJSON() const {
     return JSON.stringify(this->toJSONVar());
   }
 
-};
-
-template<typename T>
-class MinMaxReading: public Reading<T> {
-protected:
-  T minS;
-  T maxS;
-
-public:
-  MinMaxReading(String unit, T rMin, T rMax):
-      Reading<T>(unit, rMin, rMax),
-      minS((T) 0),
-      maxS((T) 0)
-  {}
-
-  virtual void add(T s) {
-    Reading<T>::add(s);
-    minS = (this->count == 1) ? s : min(s, minS);
-    maxS = (this->count == 1) ? s : max(s, maxS);
-  }
-
-  virtual T minimum() const {
-    return minS;
-  }
-
-  virtual T maximum() const {
-    return maxS;
-  }
-
-  virtual JSONVar toJSONVar() const {
-    JSONVar json;
-    json["value"] = this->value();
-    json["unit"] = this->unit();
-
-    JSONVar stats;
-    stats["mean"] = this->mean();
-    stats["variance"] = this->variance();
-    stats["samples"] = (unsigned long) this->samples();
-    stats["minimum"] = this->minimum();
-    stats["maximum"] = this->maximum();
-    json["stats"] = stats;
-
-    JSONVar range;
-    range["minimum"] = this->rangeMin();
-    range["maximum"] = this->rangeMax();
-    json["range"] = range;
-
-    return json;
-  }
-};
-
-template<typename T, uint16_t windowSize>
-class WindowedReading: public MinMaxReading<T> {
-protected:
-  T window[windowSize];
-  uint16_t index;
-
-  virtual void updateMean(T s) {
-    uint16_t limit = this->samples();
-    T m = (T) 0;
-    for(uint16_t i = 0; i < limit; i++) {
-      m += window[i];
+  void add(T s) {
+    if (!isnan(s) && s <= this->sValue->rangeMax() && s >= this->sValue->rangeMin()) {
+      this->sValue->add(s);
+      this->nMeasurements++;
+      this->setStatus("ok");
+    } else {
+      this->setError(String("Invalid sensor reading value: ") + s);
     }
-    this->meanS = m / limit;
-
-    T v = (T) 0;
-    for(uint16_t i = 0; i < limit; i++) {
-      T delta = window[i] - this->meanS;
-      v += delta * delta;
-    }
-    this->var = v / limit;
-  }
-
-public:
-  WindowedReading(String unit, T rMin, T rMax):
-      MinMaxReading<T>(unit, rMin, rMax),
-      index(0)
-  {
-    for(uint16_t i = 0; i < windowSize; ++i) {
-      window[i] = (T) 0;
-    }
-  }
-
-  virtual void add(T s) {
-    window[index] = s;
-    index = (index + 1) % windowSize;
-    MinMaxReading<T>::add(s);
-  }
-
-  virtual T variance() const {
-    return this->var;
-  }
-
-  virtual uint32_t samples() const {
-    return min(this->count, windowSize);
   }
 };
 

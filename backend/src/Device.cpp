@@ -28,11 +28,11 @@ Device::~Device() {
   }
 }
 
-void Device::attach(const Sensor<float> *s) {
-  list = new List<const Sensor<float>*>(s, list);
+void Device::attach(const Reading<float> *s) {
+  list = new List<const Reading<float>*>(s, list);
 }
 
-void Device::attach(const SensorHub *s) {
+void Device::attach(const Sensor *s) {
   s->connect(this);
 }
 
@@ -58,16 +58,16 @@ JSONVar Device::toJSONVar() const {
   json["name"] = this->name();
   json["group"] = this->group();
 
-  JSONVar sensors;
+  JSONVar readings;
   uint16_t i = 0;
 
-  foreach<const Sensor<float>*>(list, [&sensors, &i](const Sensor<float> *s) {
-    JSONVar sensor = s->toJSONVar();
-    sensors[i] = sensor;
+  foreach<const Reading<float>*>(list, [&readings, &i](const Reading<float> *r) {
+    JSONVar reading = r->toJSONVar();
+    readings[i] = reading;
     i++;
   });
 
-  json["sensors"] = sensors;
+  json["readings"] = readings;
 
   return json;
 }

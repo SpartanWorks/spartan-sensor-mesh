@@ -1,5 +1,5 @@
-#ifndef __MHZHUB_HPP__
-#define __MHZHUB_HPP__
+#ifndef __MHZ_HPP__
+#define __MHZ_HPP__
 
 #include "SoftwareSerial.h"
 #include "MHZ19.h"
@@ -11,17 +11,22 @@
 #define MHZ_SAMPLE_INTERVAL 2000
 #define SAMPLE_BACKLOG 30
 
-class MHZHub: public SensorHub {
+class MHZ: public Sensor {
 private:
   SoftwareSerial *serial;
   MHZ19 sensor;
-  Sensor<float> co2;
-  Sensor<float> temperature;
+  Reading<float> *co2;
+  Reading<float> *temperature;
+
+  MHZ(uint8_t rx, uint8_t tx);
 
   void initSensor();
 
 public:
-  MHZHub(uint8_t rx, uint8_t tx);
+  ~MHZ();
+
+  static MHZ* create(JSONVar &config);
+
   void begin(System &system);
   void update();
   void connect(Device *d) const;
