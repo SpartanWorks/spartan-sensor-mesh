@@ -32,7 +32,7 @@ jobs:
 
   ci-fe:
     needs: setup
-    if: ${{ needs.setup.outputs.frontendAffected  == 'true' }}
+    if: ${{ needs.setup.outputs.frontendAffected == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
 
   ci-be:
     needs: setup
-    if: ${{ needs.setup.outputs.backendAffected  == 'true' }}
+    if: ${{ needs.setup.outputs.backendAffected  = 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
