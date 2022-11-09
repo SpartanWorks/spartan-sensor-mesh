@@ -34,7 +34,7 @@ GP2Y* GP2Y::create(JSONVar &config) {
     if (type == "pm10") {
       gp2y->pm = new Reading<float>(name, "GP2Y", type, new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 600), cfg);
     } else if (type == "raw") {
-      gp2y->raw = new Reading<float>(name, "GP2Y", type, new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, 1024), cfg);
+      gp2y->raw = new Reading<float>(name, "GP2Y", type, new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, MAX_RAW_READING_VALUE), cfg);
     }
   }
 
@@ -43,6 +43,7 @@ GP2Y* GP2Y::create(JSONVar &config) {
 
 void GP2Y::begin(System &system) {
   this->serial->begin(GP2Y_BAUDRATE);
+  this->init();
   this->read();
 
   system.device().attach(this);
@@ -63,58 +64,58 @@ float GP2Y::getPM() {
   return result + this->baseline;
 }
 
+bool GP2Y::init() {
+  if(!this->send(RESET)) {
+    String error = "Failed to reset the sensor.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
+    return false;
+  }
+
+  delay(100);
+
+  if(!this->send(INIT, NUM_CHANNELS)) {
+    String error = "Failed to initialize the sensor.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
+    return false;
+  }
+
+  if(!this->send(INIT, NUM_CHANNELS)) {
+    String error = "Failed to initialize the sensor.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
+    return false;
+  }
+
+  if(!this->send(SET_SAMPLING_TIME, CHANNEL, SAMPLE_TIME)
+     || !this->send(SET_DELTA_TIME, CHANNEL, DELTA_TIME)
+     || !this->send(SET_SAMPLING_INTERVAL, CHANNEL, SAMPLE_INTERVAL)){
+    String error = "Failed to set sampling rate of the sensor.";
+    if (this->pm != nullptr) this->pm->setError(error);
+    if (this->raw != nullptr) this->raw->setError(error);
+    return false;
+  }
+  return true;
+}
+
 bool GP2Y::read() {
-  this->serial->write(HEADER);
-  this->serial->write(MEASURE_RAW_ONGOING); // Faster than MEASURE_RAW
-  this->serial->write((uint8_t)N_SAMPLES);
+  this->flush();
 
-  uint32_t spin = 100;
-  while(this->serial->available() < 1 && spin > 0) {
-    delay(1);
-    spin--;
-  }
-  if(spin == 0) {
-    String error = "Waited longer than 100 ms for ACK.";
+  if(!this->send(MEASURE_RUNNING, CHANNEL)) {
+    String error = "Didn't receive a valid ACK in more than 100 ms.";
     if (this->pm != nullptr) this->pm->setError(error);
     if (this->raw != nullptr) this->raw->setError(error);
     return false;
   }
 
-  uint8_t ack = this->serial->read();
-  if (ack != ACK) {
-    delay(100);
-    String error = "Received bad ACK.";
-    if (this->pm != nullptr) this->pm->setError(error);
-    if (this->raw != nullptr) this->raw->setError(error);
-
-    while(this->serial->available() > 0) {
-      this->serial->read();
-    }
-    return false;
-  }
-
-  spin = N_SAMPLES + 5;
-  while(this->serial->available() < 2 && spin > 0) {
-    delay(10); // How long it takes for a single measurement.
-    spin--;
-  }
-  if(spin == 0) {
-    String error = String("Waited longer than ") + String((N_SAMPLES + 5) * 10) + "ms for data.";
+  if(!this->readData()) {
+    String error = "Didn't receive data in more than 100 ms.";
     if (this->pm != nullptr) this->pm->setError(error);
     if (this->raw != nullptr) this->raw->setError(error);
     return false;
   }
 
-  uint8_t low = this->serial->read();
-  uint8_t high = this->serial->read();
-  uint16_t raw = (uint16_t)(high) << 8 | low;
-
-  this->readValue = raw;
-
-  // NOTE In case of a previous read error this will set the stage for the next reading.
-  while(this->serial->available() > 0) {
-    this->serial->read();
-  }
   return true;
 }
 
@@ -128,4 +129,78 @@ void GP2Y::update() {
 void GP2Y::connect(Device *d) const {
   if (this->pm != nullptr) d->attach(this->pm);
   if (this->raw != nullptr) d->attach(this->raw);
+}
+
+bool GP2Y::send(uint8_t command) {
+  this->serial->write(HEADER);
+  this->serial->write(command);
+  return this->ack();
+}
+
+bool GP2Y::send(uint8_t command, uint8_t channel) {
+  this->serial->write(HEADER);
+  this->serial->write(command);
+  this->serial->write(channel);
+  return this->ack();
+}
+
+bool GP2Y::send(uint8_t command, uint8_t channel, uint16_t value) {
+  uint8_t low = value & 0xFF;
+  uint8_t high = value >> 8;
+
+  this->serial->write(HEADER);
+  this->serial->write(command);
+  this->serial->write(channel);
+  this->serial->write(low);
+  this->serial->write(high);
+  return this->ack();
+}
+
+bool GP2Y::await(uint16_t time, uint8_t numBytes) {
+  uint16_t spin = time;
+
+  while(this->serial->available() < numBytes && spin > 0) {
+    delay(1);
+    spin--;
+  }
+  if(spin == 0) {
+    return false;
+  }
+  return true;
+}
+
+bool GP2Y::ack() {
+  if(!this->await(100, 1)) {
+    return false;
+  }
+
+  uint8_t ack = this->serial->read();
+  if (ack != ACK) {
+    delay(100);
+    this->flush();
+    return false;
+  }
+
+  return true;
+}
+
+bool GP2Y::readData() {
+  if(!this->await(100, 2)) {
+    return false;
+  }
+
+  uint8_t low = this->serial->read();
+  uint8_t high = this->serial->read();
+  uint16_t raw = (uint16_t)(high) << 8 | low;
+
+  this->readValue = raw;
+
+  return true;
+}
+
+void GP2Y::flush() {
+  // NOTE In case of a previous read error this will set the stage for the next reading.
+  while(this->serial->available() > 0) {
+    this->serial->read();
+  }
 }
