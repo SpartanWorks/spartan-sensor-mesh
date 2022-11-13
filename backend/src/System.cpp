@@ -7,8 +7,8 @@
 #include "sensors/SDS.hpp"
 #include "sensors/MHZ.hpp"
 #include "sensors/CCS.hpp"
-#include "sensors/GP2Y.hpp"
 #include "sensors/SGP.hpp"
+#include "sensors/ADC.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -137,18 +137,18 @@ bool System::begin(JSONVar &config) {
 
         sgp->begin(*this);
         // htu->compensate(ccs); // TODO
-      } else if (type == "GP2Y") {
-        l.info("Attaching GP2Y with config: ");
+      } else if (type == "ADC") {
+        l.info("Attaching ADC with config: ");
         l.info(sensor);
 
-        GP2Y *gp2y = GP2Y::create(sensor);
+        ADC *adc = ADC::create(sensor);
 
-        if(gp2y == nullptr) {
-          l.warn("Bad GP2Y configuration, skipping.");
+        if(adc == nullptr) {
+          l.warn("Bad ADC configuration, skipping.");
           continue;
         }
 
-        gp2y->begin(*this);
+        adc->begin(*this);
       } else if (type == "DallasTemp") {
         l.info("Attaching DallasTemp with config: ");
         l.info(sensor);
