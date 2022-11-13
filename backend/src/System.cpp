@@ -9,6 +9,7 @@
 #include "sensors/CCS.hpp"
 #include "sensors/GP2Y.hpp"
 #include "sensors/SGP.hpp"
+#include "sensors/ADC.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -149,6 +150,18 @@ bool System::begin(JSONVar &config) {
         }
 
         gp2y->begin(*this);
+      } else if (type == "ADC") {
+        l.info("Attaching ADC with config: ");
+        l.info(sensor);
+
+        ADC *adc = ADC::create(sensor);
+
+        if(adc == nullptr) {
+          l.warn("Bad ADC configuration, skipping.");
+          continue;
+        }
+
+        adc->begin(*this);
       } else if (type == "DallasTemp") {
         l.info("Attaching DallasTemp with config: ");
         l.info(sensor);

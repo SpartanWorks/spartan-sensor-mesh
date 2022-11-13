@@ -61,12 +61,12 @@ void GP2Y::begin(System &system) {
 }
 
 float GP2Y::getPM() {
-  float result = (this->factor * this->sensor.getVoltage(CHANNEL) + this->offset) * 1000.0;
+  float result = (this->factor * this->sensor.getVoltage(CHANNEL) + this->offset) * 1000.0 + this->baseline;
   // Dust value can't be lower than 0, so if we get negative values it means the callibration parameters aren't ideal, so we keep the value as a baseline.
   if(result < 0) {
-    this->baseline = -result;
+    this->baseline = this->baseline + (-result);
   }
-  return result + this->baseline;
+  return result;
 }
 
 void GP2Y::update() {
