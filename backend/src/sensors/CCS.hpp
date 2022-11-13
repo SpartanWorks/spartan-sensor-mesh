@@ -6,19 +6,18 @@
 #include "System.hpp"
 
 #define CCS_INIT_TIME 200
-#define CCS_WARMUP_TIMEOUT 1200000 // 20 minutes
-#define CCS_SAMPLE_INTERVAL 2000 // 2 seconds
-#define SAMPLE_BACKLOG 30
 
 class CCS: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
   CCS811 sensor;
+  uint16_t sampleInterval;
+  uint16_t warmupTime;
   Reading<float> *eco2;
   Reading<float> *voc;
 
-  CCS(TwoWire *i2c, uint8_t address);
+  CCS(TwoWire *i2c, uint8_t address, uint16_t ws, uint16_t wt);
   void initSensor();
 
 public:

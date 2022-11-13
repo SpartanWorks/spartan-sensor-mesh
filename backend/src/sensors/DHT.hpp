@@ -5,18 +5,16 @@
 
 #include "System.hpp"
 
-#define DHT_SAMPLE_INTERVAL 5000
-#define SAMPLE_BACKLOG 30
-
 namespace ssn {
 
 class DHT: public Sensor {
  private:
   ::DHT sensor;
+  uint16_t sampleInterval;
   Reading<float> *humidity;
   Reading<float> *temperature;
 
-  DHT(uint8_t pin, uint8_t model);
+  DHT(uint8_t pin, uint8_t model, uint16_t interval);
 
  public:
   ~DHT();

@@ -1,9 +1,11 @@
 #include "CCS.hpp"
 
-CCS::CCS(TwoWire *i2c, uint8_t addr):
+CCS::CCS(TwoWire *i2c, uint8_t addr, uint16_t interval, uint16_t warmup):
     i2c(i2c),
     address(addr),
     sensor(CCS811(addr)),
+    sampleInterval(interval),
+    warmupTime(warmup),
     eco2(nullptr),
     voc(nullptr)
 {}
@@ -14,6 +16,8 @@ CCS::~CCS() {
 }
 
 CCS* CCS::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
+  uint16_t warmup = (int) config["warmupTime"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t address = (int) conn["address"];
@@ -23,17 +27,18 @@ CCS* CCS::create(JSONVar &config) {
     return nullptr;
   }
 
-  CCS *ccs = new CCS(&Wire, address);
+  CCS *ccs = new CCS(&Wire, address, interval, warmup);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "voc") {
-      ccs->voc = new Reading<float>(name, "CCS", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 32768), cfg);
+      ccs->voc = new Reading<float>(name, "CCS", type, new WindowedValue<float>(window, "ppb", 0, 32768), cfg);
     } else if (type == "co2") {
-      ccs->eco2 = new Reading<float>(name, "CCS", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 29206), cfg);
+      ccs->eco2 = new Reading<float>(name, "CCS", type, new WindowedValue<float>(window, "ppm", 0, 29206), cfg);
     }
   }
 
@@ -64,7 +69,7 @@ void CCS::begin(System &system) {
   system.scheduler().spawn("sample CCS", 115,[&](Task *t) {
     system.log().debug("Sampling CCS sensor.");
     this->update();
-    t->sleep(CCS_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 
   system.scheduler().spawn("reset CCS", 125,[&](Task *t) {
@@ -72,7 +77,7 @@ void CCS::begin(System &system) {
 
     if (ccsWarmup) {
       ccsWarmup = false;
-      t->sleep(CCS_WARMUP_TIMEOUT);
+      t->sleep(this->warmupTime);
     } else {
       system.log().info("Resetting CCS sensor after a warmup.");
       this->reset();

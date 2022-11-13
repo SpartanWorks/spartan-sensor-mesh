@@ -5,9 +5,6 @@
 #include "ADCOverUART.hpp"
 #include "System.hpp"
 
-#define ADC_SAMPLE_INTERVAL 1000
-#define SAMPLE_BACKLOG 30
-
 struct ADCChannel {
   uint8_t index;
 
@@ -32,9 +29,10 @@ struct ADCChannel {
 class ADC: public Sensor {
 private:
   ADCOverUART sensor;
+  uint16_t sampleInterval;
   List<ADCChannel> *channels = nullptr;
 
-  ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels);
+  ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval);
 
 public:
   ~ADC();

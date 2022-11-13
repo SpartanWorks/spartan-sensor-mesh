@@ -5,9 +5,6 @@
 #include "SdsDustSensor.h"
 #include "System.hpp"
 
-#define SDS_SAMPLE_INTERVAL 1000
-#define SAMPLE_BACKLOG 30
-
 class PatchedSdsSensor : public SdsDustSensor {
   HardwareSerial &serial;
 
@@ -21,10 +18,11 @@ class SDS: public Sensor {
 private:
   HardwareSerial &serial;
   PatchedSdsSensor sensor;
+  uint16_t sampleInterval;
   Reading<float> *pm25;
   Reading<float> *pm10;
 
-  SDS(HardwareSerial &serial);
+  SDS(HardwareSerial &serial, uint16_t interval);
 public:
   ~SDS();
 

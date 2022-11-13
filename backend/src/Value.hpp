@@ -145,10 +145,11 @@ public:
   }
 };
 
-template<typename T, uint16_t windowSize>
+template<typename T>
 class WindowedValue: public MinMaxValue<T> {
 protected:
-  T window[windowSize];
+  uint16_t windowSize;
+  T *window;
   uint16_t index;
 
   virtual void updateMean(T s) {
@@ -168,13 +169,19 @@ protected:
   }
 
 public:
-  WindowedValue(String unit, T rMin, T rMax):
+  WindowedValue(uint16_t ws, String unit, T rMin, T rMax):
       MinMaxValue<T>(unit, rMin, rMax),
+      windowSize(ws),
+      window(new T[ws]),
       index(0)
   {
     for(uint16_t i = 0; i < windowSize; ++i) {
       window[i] = (T) 0;
     }
+  }
+
+  ~WindowedValue() {
+    delete[] window;
   }
 
   virtual void add(T s) {

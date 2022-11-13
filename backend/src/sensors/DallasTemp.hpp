@@ -5,9 +5,6 @@
 #include <DallasTemperature.h>
 #include "System.hpp"
 
-#define DALLAS_SAMPLE_INTERVAL 5000
-#define SAMPLE_BACKLOG 30
-
 struct Temp {
   uint8_t index;
   Reading<float> *reading;
@@ -19,10 +16,11 @@ class DallasTemp: public Sensor {
 private:
   OneWire oneWire;
   DallasTemperature sensors;
+  uint16_t sampleInterval;
   uint8_t nReadings = 0;
   List<Temp> *temperatures = nullptr;
 
-  DallasTemp(uint8_t pin, uint8_t resolution);
+  DallasTemp(uint8_t pin, uint8_t resolution, uint16_t sampleInterval);
 
 public:
   ~DallasTemp();
