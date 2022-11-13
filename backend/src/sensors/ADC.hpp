@@ -5,13 +5,6 @@
 #include "ADCOverUART.hpp"
 #include "System.hpp"
 
-#define NUM_CHANNELS 1
-#define CHANNEL 0
-
-#define SAMPLE_TIME 280
-#define DELTA_TIME 40
-#define SAMPLE_INTERVAL 10000
-
 #define ADC_SAMPLE_INTERVAL 1000
 #define SAMPLE_BACKLOG 30
 
