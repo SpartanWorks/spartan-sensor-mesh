@@ -36,7 +36,7 @@ BMP* BMP::create(JSONVar &config) {
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "pressure") {
-      bmp->pressure = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "Pa", 30000, 110000), cfg);
+      bmp->pressure = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "hPa", 300, 1100), cfg);
     } else if (type == "temperature") {
       bmp->temperature = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "°C", -40, 85), cfg);
     } else if (type == "altitude") {
@@ -61,7 +61,7 @@ void BMP::begin(System &system) {
 
 void BMP::update() {
   if (this->pressure != nullptr) {
-    this->pressure->add(this->sensor.readPressure());
+    this->pressure->add(this->sensor.readPressure() / 100.0);
   }
 
   if (this->temperature != nullptr) {
