@@ -18,9 +18,10 @@ void PatchedSdsSensor::pollPm() {
   writeImmediate(Commands::queryPm);
 }
 
-SDS::SDS(HardwareSerial &serial):
+SDS::SDS(HardwareSerial &serial, uint16_t interval):
     serial(serial),
     sensor(PatchedSdsSensor(serial)),
+    sampleInterval(interval),
     pm25(nullptr),
     pm10(nullptr)
 {}
@@ -31,6 +32,7 @@ SDS::~SDS() {
 }
 
 SDS* SDS::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t number = (int) conn["number"];
@@ -46,21 +48,21 @@ SDS* SDS::create(JSONVar &config) {
 #ifdef ESP32
     case 2: {
       HardwareSerial& sdsSerial(Serial2);
-      sds = new SDS(sdsSerial);
+      sds = new SDS(sdsSerial, interval);
     }
       break;
 #endif
 
     case 1: {
       HardwareSerial& sdsSerial(Serial1);
-      sds = new SDS(sdsSerial);
+      sds = new SDS(sdsSerial, interval);
     }
       break;
 
     case 0:
     default: {
       HardwareSerial& sdsSerial(Serial);
-      sds = new SDS(sdsSerial);
+      sds = new SDS(sdsSerial, interval);
     }
       break;
   }
@@ -68,12 +70,13 @@ SDS* SDS::create(JSONVar &config) {
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "pm10") {
-      sds->pm10 = new Reading<float>(name, "SDS", type, new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000), cfg);
+      sds->pm10 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 1000), cfg);
     } else if (type == "pm2.5") {
-      sds->pm25 = new Reading<float>(name, "SDS", type, new WindowedValue<float, SAMPLE_BACKLOG>("μg/m³", 0, 1000), cfg);
+      sds->pm25 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 1000), cfg);
     }
   }
 
@@ -89,7 +92,7 @@ void SDS::begin(System &system) {
   system.scheduler().spawn("sample SDS", 115,[&](Task *t) {
     system.log().debug("Sampling SDS sensor.");
     this->update();
-    t->sleep(SDS_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 }
 

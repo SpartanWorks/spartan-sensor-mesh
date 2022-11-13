@@ -1,9 +1,10 @@
 #include "BMP.hpp"
 
-BMP::BMP(TwoWire *i2c, uint8_t addr):
+BMP::BMP(TwoWire *i2c, uint8_t addr, uint16_t interval):
     i2c(i2c),
     address(addr),
     sensor(Adafruit_BMP280(i2c)),
+    sampleInterval(interval),
     pressure(nullptr),
     temperature(nullptr),
     altitude(nullptr)
@@ -16,6 +17,7 @@ BMP::~BMP() {
 }
 
 BMP* BMP::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t address = (int) conn["address"];
@@ -25,19 +27,20 @@ BMP* BMP::create(JSONVar &config) {
     return nullptr;
   }
 
-  BMP *bmp = new BMP(&Wire, address);
+  BMP *bmp = new BMP(&Wire, address, interval);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "pressure") {
-      bmp->pressure = new Reading<float>(name, "BMP", type, new WindowedValue<float, SAMPLE_BACKLOG>("Pa", 30000, 110000), cfg);
+      bmp->pressure = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "Pa", 30000, 110000), cfg);
     } else if (type == "temperature") {
-      bmp->temperature = new Reading<float>(name, "BMP", type, new WindowedValue<float, SAMPLE_BACKLOG>("°C", -40, 85), cfg);
+      bmp->temperature = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "°C", -40, 85), cfg);
     } else if (type == "altitude") {
-      bmp->altitude = new Reading<float>(name, "BMP", type, new WindowedValue<float, SAMPLE_BACKLOG>("m", -500, 9000), cfg);
+      bmp->altitude = new Reading<float>(name, "BMP", type, new WindowedValue<float>(window, "m", -500, 9000), cfg);
     }
   }
 
@@ -52,7 +55,7 @@ void BMP::begin(System &system) {
   system.scheduler().spawn("sample BMP", 115,[&](Task *t) {
     system.log().debug("Sampling BMP sensor.");
     this->update();
-    t->sleep(BMP_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 }
 

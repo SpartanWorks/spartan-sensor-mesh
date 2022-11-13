@@ -5,19 +5,17 @@
 #include <SparkFunHTU21D.h>
 #include "System.hpp"
 
-#define HTU_SAMPLE_INTERVAL 2000
-#define SAMPLE_BACKLOG 30
-
 class HTU: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
   HTU21D sensor;
+  uint16_t sampleInterval;
   Reading<float> *humidity;
   Reading<float> *temperature;
   List<Sensor*> *toCompensate;
 
-  HTU(TwoWire *i2c, uint8_t addr);
+  HTU(TwoWire *i2c, uint8_t addr, uint16_t interval);
 
 public:
 

@@ -1,7 +1,8 @@
 #include "DHT.hpp"
 
-ssn::DHT::DHT(uint8_t pin, uint8_t model):
+ssn::DHT::DHT(uint8_t pin, uint8_t model, uint16_t interval):
     sensor(::DHT(pin, model)),
+    sampleInterval(interval),
     humidity(nullptr),
     temperature(nullptr)
 {}
@@ -12,6 +13,7 @@ ssn::DHT::~DHT() {
 }
 
 ssn::DHT* ssn::DHT::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t pin = (int) conn["pin"];
@@ -21,17 +23,18 @@ ssn::DHT* ssn::DHT::create(JSONVar &config) {
     return nullptr;
   }
 
-  ssn::DHT *dht = new ssn::DHT(pin, (bus == "dht22") ? DHT22 : DHT11);
+  ssn::DHT *dht = new ssn::DHT(pin, (bus == "dht22") ? DHT22 : DHT11, interval);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "humidity") {
-      dht->humidity = new Reading<float>(name, "DHT", type, new WindowedValue<float, SAMPLE_BACKLOG>("%", 0, 100), cfg);
+      dht->humidity = new Reading<float>(name, "DHT", type, new WindowedValue<float>(window, "%", 0, 100), cfg);
     } else if (type == "temperature") {
-      dht->temperature = new Reading<float>(name, "DHT", type, new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 50), cfg);
+      dht->temperature = new Reading<float>(name, "DHT", type, new WindowedValue<float>(window, "°C", 0, 50), cfg);
     }
   }
 
@@ -46,7 +49,7 @@ void ssn::DHT::begin(System &system) {
   system.scheduler().spawn("sample DHT", 115,[&](Task *t) {
     system.log().debug("Sampling DHT sensor.");
     this->update();
-    t->sleep(DHT_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 }
 

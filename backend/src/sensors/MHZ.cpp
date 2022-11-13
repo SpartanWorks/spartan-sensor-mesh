@@ -1,7 +1,9 @@
 #include "MHZ.hpp"
 
-MHZ::MHZ(uint8_t rx, uint8_t tx):
+MHZ::MHZ(uint8_t rx, uint8_t tx, uint16_t interval, uint16_t warmup):
     sensor(MHZ19()),
+    sampleInterval(interval),
+    warmupTime(warmup),
     co2(nullptr),
     temperature(nullptr)
 {
@@ -15,6 +17,8 @@ MHZ::~MHZ() {
 }
 
 MHZ* MHZ::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
+  uint16_t warmup = (int) config["warmupTime"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t rx = (int) conn["rx"];
@@ -25,17 +29,18 @@ MHZ* MHZ::create(JSONVar &config) {
     return nullptr;
   }
 
-  MHZ *mhz = new MHZ(rx, tx);
+  MHZ *mhz = new MHZ(rx, tx, interval, warmup);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "temperature") {
-      mhz->temperature = new Reading<float>(name, "MHZ", type, new WindowedValue<float, SAMPLE_BACKLOG>("°C", 0, 100), cfg);
+      mhz->temperature = new Reading<float>(name, "MHZ", type, new WindowedValue<float>(window, "°C", 0, 100), cfg);
     } else if (type == "co2") {
-      mhz->co2 = new Reading<float>(name, "MHZ", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 10000), cfg);
+      mhz->co2 = new Reading<float>(name, "MHZ", type, new WindowedValue<float>(window, "ppm", 0, 10000), cfg);
     }
   }
 
@@ -57,7 +62,7 @@ void MHZ::begin(System &system) {
   system.scheduler().spawn("sample MHZ", 115,[&](Task *t) {
     system.log().debug("Sampling MHZ sensor.");
     this->update();
-    t->sleep(MHZ_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 
   system.scheduler().spawn("reset MHZ", 125,[&](Task *t) {
@@ -65,7 +70,7 @@ void MHZ::begin(System &system) {
 
     if (mhzWarmup) {
       mhzWarmup = false;
-      t->sleep(MHZ_WARMUP_TIMEOUT);
+      t->sleep(this->warmupTime);
     } else {
       system.log().info("Resetting MHZ sensor after a warmup.");
       this->reset();

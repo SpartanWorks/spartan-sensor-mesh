@@ -5,9 +5,10 @@ ADCChannel::ADCChannel(JSONVar &config, Reading<float> *s, Reading<float> *r):
     raw(r)
 {
   this->index = (int) config["number"];
-  this->samplingInterval = (int) config["samplingInterval"];
-  this->samplingTime = (int) config["samplingTime"];
-  this->deltaTime = (int) config["deltaTime"];
+  // NOTE All config times are expressed in milliseconds, while this expects microseconds.
+  this->samplingInterval = (uint16_t) ((double) config["samplingInterval"] * 1000);
+  this->samplingTime = (uint16_t) ((double) config["samplingTime"] * 1000);
+  this->deltaTime = (uint16_t) ((double) config["deltaTime"] * 1000);
   this->min = (double) config["min"];
   this->offset = (double) config["offset"];
   this->factor = (double) config["factor"];
@@ -33,8 +34,9 @@ void ADCChannel::setError(String error) {
   if (this->raw != nullptr) this->raw->setError(error);
 }
 
-ADC::ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels):
+ADC::ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval):
     sensor(ADCOverUART(rx, tx, numChannels)),
+    sampleInterval(interval),
     channels(channels)
 {}
 
@@ -49,6 +51,7 @@ ADC::~ADC() {
 }
 
 ADC* ADC::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t rx = (int) conn["rx"];
@@ -73,22 +76,22 @@ ADC* ADC::create(JSONVar &config) {
 
     float min = (double) channel["min"];
     float max = (double) channel["max"];
-
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     Reading<float> *raw = nullptr;
-    Reading<float> *scaled = new Reading<float>(name, "ADC", type, new WindowedValue<float, SAMPLE_BACKLOG>(unit, min, max), cfg);
+    Reading<float> *scaled = new Reading<float>(name, "ADC", type, new WindowedValue<float>(window, unit, min, max), cfg);
 
     if (readings[i].hasOwnProperty("includeRaw") && (bool) readings[i]["includeRaw"]) {
       JSONVar rawCfg = readings[i]["rawWidget"];
-      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float, SAMPLE_BACKLOG>("", 0, MAX_RAW_READING_VALUE), rawCfg);
+      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float>(window, "", 0, MAX_RAW_READING_VALUE), rawCfg);
     }
 
     numChannels = max(numChannels, (int) channel["number"]);
     channels = new List<ADCChannel>(ADCChannel(channel, scaled, raw), channels);
   }
 
-  return new ADC(rx, tx, numChannels + 1, channels);
+  return new ADC(rx, tx, numChannels + 1, channels, interval);
 }
 
 void ADC::begin(System &system) {
@@ -112,7 +115,7 @@ void ADC::begin(System &system) {
   system.scheduler().spawn("sample ADC", 115,[&](Task *t) {
     system.log().debug("Sampling ADC sensor.");
     this->update();
-    t->sleep(ADC_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 }
 

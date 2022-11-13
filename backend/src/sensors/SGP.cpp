@@ -1,9 +1,11 @@
 #include "SGP.hpp"
 
-SGP::SGP(TwoWire *i2c, uint8_t addr):
+SGP::SGP(TwoWire *i2c, uint8_t addr, uint16_t interval, uint16_t warmup):
     i2c(i2c),
     address(addr),
     sensor(SGP30(i2c)),
+    sampleInterval(interval),
+    warmupTime(warmup),
     voc(nullptr),
     co2(nullptr),
     h2(nullptr),
@@ -18,6 +20,8 @@ SGP::~SGP() {
 }
 
 SGP* SGP::create(JSONVar &config) {
+  uint16_t interval = (int) config["samplingInterval"];
+  uint16_t warmup = (int) config["warmupTime"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
   uint16_t address = (int) conn["address"];
@@ -27,21 +31,22 @@ SGP* SGP::create(JSONVar &config) {
     return nullptr;
   }
 
-  SGP *sgp = new SGP(&Wire, address);
+  SGP *sgp = new SGP(&Wire, address, interval, warmup);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
+    uint16_t window = (int) readings[i]["averaging"];
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "voc") {
-      sgp->voc = new Reading<float>(name, "SGP", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppb", 0, 60000), cfg);
+      sgp->voc = new Reading<float>(name, "SGP", type, new WindowedValue<float>(window, "ppb", 0, 60000), cfg);
     } else if (type == "co2") {
-      sgp->co2 = new Reading<float>(name, "SGP", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 57330), cfg);
+      sgp->co2 = new Reading<float>(name, "SGP", type, new WindowedValue<float>(window, "ppm", 0, 57330), cfg);
     } else if (type == "h2") {
-      sgp->h2 = new Reading<float>(name, "SGP", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000), cfg);
+      sgp->h2 = new Reading<float>(name, "SGP", type, new WindowedValue<float>(window, "ppm", 0, 1000), cfg);
     } else if (type == "ethanol") {
-      sgp->ethanol = new Reading<float>(name, "SGP", type, new WindowedValue<float, SAMPLE_BACKLOG>("ppm", 0, 1000), cfg);
+      sgp->ethanol = new Reading<float>(name, "SGP", type, new WindowedValue<float>(window, "ppm", 0, 1000), cfg);
     }
   }
 
@@ -74,7 +79,7 @@ void SGP::begin(System &system) {
   system.scheduler().spawn("sample SGP", 115,[&](Task *t) {
     system.log().debug("Sampling SGP sensor.");
     this->update();
-    t->sleep(SGP_SAMPLE_INTERVAL);
+    t->sleep(this->sampleInterval);
   });
 
   system.scheduler().spawn("reset SGP", 125,[&](Task *t) {
@@ -82,7 +87,7 @@ void SGP::begin(System &system) {
 
     if (sgpWarmup) {
       sgpWarmup = false;
-      t->sleep(SGP_WARMUP_TIMEOUT);
+      t->sleep(this->warmupTime);
     } else {
       system.log().info("Resetting SGP sensor after a warmup.");
       this->sensor.GenericReset();

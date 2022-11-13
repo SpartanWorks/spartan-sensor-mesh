@@ -5,19 +5,17 @@
 #include <Adafruit_BMP280.h>
 #include "System.hpp"
 
-#define BMP_SAMPLE_INTERVAL 1000
-#define SAMPLE_BACKLOG 30
-
 class BMP: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
   Adafruit_BMP280 sensor;
+  uint16_t sampleInterval;
   Reading<float> *pressure;
   Reading<float> *temperature;
   Reading<float> *altitude;
 
-  BMP(TwoWire *i2c, uint8_t addr);
+  BMP(TwoWire *i2c, uint8_t addr, uint16_t interval);
 
  public:
 
