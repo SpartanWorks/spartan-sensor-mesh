@@ -7,7 +7,6 @@
 #include "sensors/SDS.hpp"
 #include "sensors/MHZ.hpp"
 #include "sensors/CCS.hpp"
-#include "sensors/GP2Y.hpp"
 #include "sensors/SGP.hpp"
 #include "sensors/ADC.hpp"
 
@@ -138,18 +137,6 @@ bool System::begin(JSONVar &config) {
 
         sgp->begin(*this);
         // htu->compensate(ccs); // TODO
-      } else if (type == "GP2Y") {
-        l.info("Attaching GP2Y with config: ");
-        l.info(sensor);
-
-        GP2Y *gp2y = GP2Y::create(sensor);
-
-        if(gp2y == nullptr) {
-          l.warn("Bad GP2Y configuration, skipping.");
-          continue;
-        }
-
-        gp2y->begin(*this);
       } else if (type == "ADC") {
         l.info("Attaching ADC with config: ");
         l.info(sensor);
