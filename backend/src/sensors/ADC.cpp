@@ -15,17 +15,18 @@ ADCChannel::ADCChannel(JSONVar &config, Reading<float> *s, Reading<float> *r):
 }
 
 void ADCChannel::add(uint16_t raw, float volts) {
-  if (this->raw != nullptr) this->raw->add(raw);
-
   if (this->scaled != nullptr) {
     float result = this->factor * volts + this->offset + this->baseline;
 
     if (result < this->min) {
       this->baseline += this->min - result;
+      return this->add(raw, volts);
     }
 
     this->scaled->add(result);
   }
+
+  if (this->raw != nullptr) this->raw->add(raw);
 }
 
 void ADCChannel::setError(String error) {
@@ -70,16 +71,17 @@ ADC* ADC::create(JSONVar &config) {
 
     JSONVar channel = readings[i]["channel"];
 
-    float min = (double) readings[i]["min"];
-    float max = (double) readings[i]["max"];
+    float min = (double) channel["min"];
+    float max = (double) channel["max"];
 
     JSONVar cfg = readings[i]["widget"];
 
     Reading<float> *raw = nullptr;
     Reading<float> *scaled = new Reading<float>(name, "ADC", type, new WindowedValue<float, SAMPLE_BACKLOG>(unit, min, max), cfg);
 
-    if ((bool) readings[i]["includeRaw"]) {
-      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float, SAMPLE_BACKLOG>("counts", 0, MAX_RAW_READING_VALUE));
+    if (readings[i].hasOwnProperty("includeRaw") && (bool) readings[i]["includeRaw"]) {
+      JSONVar rawCfg = readings[i]["rawWidget"];
+      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float, SAMPLE_BACKLOG>("", 0, MAX_RAW_READING_VALUE), rawCfg);
     }
 
     numChannels = max(numChannels, (int) channel["number"]);
