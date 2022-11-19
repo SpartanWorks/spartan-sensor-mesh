@@ -19,11 +19,21 @@ ssn::DHT* ssn::DHT::create(JSONVar &config) {
   uint16_t pin = (int) conn["pin"];
   JSONVar readings = config["readings"];
 
-  if(conn == undefined || readings == undefined || (bus != "dht11" && bus != "dht22")) {
+  if (conn == undefined || readings == undefined || (bus != "dht11" && bus != "dht22")) {
     return nullptr;
   }
 
-  ssn::DHT *dht = new ssn::DHT(pin, (bus == "dht22") ? DHT22 : DHT11, interval);
+  uint8_t model = DHT11;
+  float tMin = 0;
+  float tMax = 50;
+
+  if (bus == "dht22") {
+    model = DHT22;
+    tMin = -40;
+    tMax = 80;
+  }
+
+  ssn::DHT *dht = new ssn::DHT(pin, model, interval);
 
   for(uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
@@ -34,7 +44,7 @@ ssn::DHT* ssn::DHT::create(JSONVar &config) {
     if (type == "humidity") {
       dht->humidity = new Reading<float>(name, "DHT", type, new WindowedValue<float>(window, "%", 0, 100), cfg);
     } else if (type == "temperature") {
-      dht->temperature = new Reading<float>(name, "DHT", type, new WindowedValue<float>(window, "°C", 0, 50), cfg);
+      dht->temperature = new Reading<float>(name, "DHT", type, new WindowedValue<float>(window, "°C", tMin, tMax), cfg);
     }
   }
 
