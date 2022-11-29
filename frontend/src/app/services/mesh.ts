@@ -55,7 +55,14 @@ export class MeshService {
       setTimeout(() => this.fetchAll(interval), interval);
     };
 
-    return Promise.all(this.devices.map((d) => d.fetchData()))
+    return Promise.all(this.devices.map((d) => d.fetchData().catch((e) => {
+      console.warn({
+        error: "Fetching device data failed. Removing device.",
+        cause: e
+      });
+      this.devices = this.devices.filter((other) => other !== d);
+      throw e;
+    })))
       .then(this.onUpdateCallback)
       .then(repeat)
       .catch((e) => {
