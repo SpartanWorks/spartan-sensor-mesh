@@ -47,6 +47,8 @@ export interface UpdateCallback {
   (arg: DeviceData): void;
 }
 
+const TIMEOUT = 2000;
+
 export class DeviceService {
   baseUrl: string;
   onUpdateCallback: UpdateCallback;
@@ -63,7 +65,12 @@ export class DeviceService {
   }
 
   fetchData(): Promise<DeviceData> {
-    return fetch(this.baseUrl + "/api/data").then((r) => r.json());
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+    return fetch(this.baseUrl + "/api/data", { signal: controller.signal }).then((r) => {
+      clearTimeout(timeoutId);
+      return r.json();
+    });
   }
 
   private fetchInterval(interval: number): Promise<void> {
