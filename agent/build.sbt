@@ -6,7 +6,7 @@ lazy val root = project
   .enablePlugins(GraalVMNativeImagePlugin, DockerPlugin, JavaServerAppPackaging)
   .in(file("."))
   .settings(
-    name := "Scala3 Cats http4s starter",
+    name := "Spartan Sensor Mesh",
     version := "0.1.0-SNAPSHOT",
 
     scalaVersion := scala3Version,
@@ -40,7 +40,7 @@ lazy val root = project
     dockerExposedPorts ++= Seq(8080),
 
     // GraalVM packaging:
-    assembly / mainClass := Some("sw.Main"),
+    assembly / mainClass := Some("ssm.Main"),
     assembly / assemblyJarName := s"${packageName.value}_3-${version.value}.jar",
     graalVMNativeImageGraalVersion := Some("22.3.1"),
 

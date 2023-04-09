@@ -31,9 +31,14 @@ agent/.bsp
 agent/.vscode/
 
 # Metals
+.metals
 agent/.bloop/
 agent/.metals/
 agent/metals.sbt
+agent/project/.bloop/
+agent/project/metals.sbt
+agent/project/project/
+agent/project/target
 
 # IDEA
 agent/.idea

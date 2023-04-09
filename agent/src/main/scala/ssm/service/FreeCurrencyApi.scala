@@ -1,4 +1,4 @@
-package sw.service
+package ssm.service
 
 import cats.effect.*
 import org.http4s.*

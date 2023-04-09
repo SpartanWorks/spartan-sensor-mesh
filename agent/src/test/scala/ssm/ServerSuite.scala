@@ -1,4 +1,4 @@
-package sw
+package ssm
 
 import cats.effect.*
 import cats.syntax.all.*
@@ -7,9 +7,9 @@ import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import org.http4s.client.UnexpectedStatus
 
-import sw.domain.ConversionRate
-import sw.domain.ConversionRate.given
-import sw.service.FreeCurrencyApi
+import ssm.domain.ConversionRate
+import ssm.domain.ConversionRate.given
+import ssm.service.FreeCurrencyApi
 
 class ServerSuite extends munit.CatsEffectSuite:
   test("Server responds to pings") {

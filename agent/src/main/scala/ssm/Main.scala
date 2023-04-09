@@ -1,11 +1,11 @@
-package sw
+package ssm
 
 import cats.effect.*
 import org.http4s.implicits.*
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.blaze.client.BlazeClientBuilder
 
-import sw.service.*
+import ssm.service.*
 
 object Main extends IOApp:
 

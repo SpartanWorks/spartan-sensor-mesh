@@ -1,6 +1,6 @@
 #! /bin/bash
 
-PACKAGE=scala3-cats-http4s-starter_3
+PACKAGE=spartan-sensor-mesh_3
 VERSION=0.1.0-SNAPSHOT
 SCALA_VERSION=3.2.2
 META_INF_DIR=./src/main/resources/META-INF/native-image

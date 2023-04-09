@@ -1,4 +1,4 @@
-package sw.domain
+package ssm.domain
 
 import cats.data.*
 import cats.implicits.*

@@ -1,4 +1,4 @@
-package sw
+package ssm
 
 import cats.data.*
 import cats.effect.*
@@ -11,10 +11,10 @@ import org.http4s.client.UnexpectedStatus
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 
-import sw.domain.ConversionRate
-import sw.domain.ConversionRate.given
+import ssm.domain.ConversionRate
+import ssm.domain.ConversionRate.given
 
-import sw.service.FreeCurrencyApi
+import ssm.service.FreeCurrencyApi
 
 case class BadValue(message: String) extends Throwable(message)
 
