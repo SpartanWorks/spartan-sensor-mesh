@@ -5,7 +5,7 @@ This project uses several connected ESP8266 boards to display various sensor rea
 
 ## Building
 
-The UI is a run-of-the-mill TypeScript app. To build it:
+The `ui` is a run-of-the-mill TypeScript app. To build it:
 
 ```
 npm i
@@ -20,6 +20,14 @@ The `device` is organized as a PlatformIO project with two targets: ESP32 and ES
 pio run -t esp32dev # Or pio run -t esp12e
 pio run -t uploadfs
 pio run -t upload
+```
+
+The `agent` is a JVM-based variant of the sensing service, currently also supporting GraalVM native-image compilation & Docker. To build the `agent` backend run the following commands:
+
+```
+sbt assembly # Creates a runnable uberjar.
+sbt Docker/publishLocal # Creates a runnable container image.
+sbt GraalVMNativeImage/packageBin # Creates a native binary for your system.
 ```
 
 ## Configuration
@@ -70,4 +78,12 @@ The `device` backend can be monitored by hooking it up with a serial cable, and 
 
 ```
 pio run -t monitor
+```
+
+The `agent` backend can be run in debug mode (ideally via a language server protocol implementation), and utilizes the following extra commands for convenience:
+
+```
+sbt scalafm
+sbt sacalfixAll
+sbt coverage test coverageReport
 ```
