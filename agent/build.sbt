@@ -61,3 +61,18 @@ lazy val root = project
     ),
 
   )
+
+val runTraced = taskKey[Unit]("Runs the project in native-image tracing mode. Will create a bunch of configuration files for the dynamic features.")
+
+runTraced := {
+  val curState = state.value
+  val resources = (Compile / resourceDirectory).value
+  val updState = Project.extract(curState).appendWithoutSession(
+    Seq(
+      Compile / run / fork := true,
+      Compile / run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=${resources}/META-INF/native-image"
+    ),
+    curState
+  )
+  Project.extract(updState).runInputTask(Compile / run, "", updState)
+}
