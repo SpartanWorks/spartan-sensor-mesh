@@ -1,0 +1,825 @@
+[
+{
+  "name":"[B"
+},
+{
+  "name":"[C"
+},
+{
+  "name":"[D"
+},
+{
+  "name":"[F"
+},
+{
+  "name":"[I"
+},
+{
+  "name":"[J"
+},
+{
+  "name":"[Lcats.parse.Parser0;"
+},
+{
+  "name":"[Lcats.parse.Parser;"
+},
+{
+  "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Ljava.nio.ByteBuffer;"
+},
+{
+  "name":"[Ljavax.management.openmbean.CompositeData;"
+},
+{
+  "name":"[Lorg.http4s.blaze.channel.nio1.SelectorLoop;"
+},
+{
+  "name":"[Lorg.http4s.blaze.util.TickWheelExecutor$Bucket;"
+},
+{
+  "name":"[Lscala.util.Either;"
+},
+{
+  "name":"[Lsun.security.pkcs.SignerInfo;"
+},
+{
+  "name":"[S"
+},
+{
+  "name":"[Z"
+},
+{
+  "name":"cats.Later",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"cats.effect.metrics.CpuStarvation",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"cats.effect.metrics.CpuStarvationMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"cats.effect.std.Semaphore$impl",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"cats.effect.unsafe.IORuntimeCompanionPlatform",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"cats.effect.unsafe.metrics.ComputePoolSampler",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"cats.effect.unsafe.metrics.ComputePoolSamplerMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"cats.effect.unsafe.metrics.LiveFiberSnapshotTrigger",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"cats.effect.unsafe.metrics.LiveFiberSnapshotTriggerMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"cats.effect.unsafe.metrics.LocalQueueSampler",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"cats.effect.unsafe.metrics.LocalQueueSamplerMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"cats.parse.Parser$State",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"cats.parse.Parser0",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"com.sun.crypto.provider.AESCipher$General",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.ARCFOURCipher",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.DESCipher",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.DESedeCipher",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.DHParameters",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.HmacCore$HmacSHA384",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.management.GarbageCollectorMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.GcInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.HotSpotDiagnosticMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.ThreadMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.UnixOperatingSystemMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.VMOption",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.internal.GarbageCollectorExtImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.HotSpotDiagnostic",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.HotSpotThreadImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.OperatingSystemImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"fs2.Chunk$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"fs2.internal.ScopedResource$$anon$1",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"io.circe.Decoder$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"io.circe.Encoder$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"io.circe.JsonDecimal",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"java.lang.Boolean",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Byte",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Character",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.ClassValue"
+},
+{
+  "name":"java.lang.Deprecated",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.Double",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Float",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Integer",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Long",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Short",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.StackTraceElement",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.String"
+},
+{
+  "name":"java.lang.Void",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.invoke.VarHandle",
+  "methods":[{"name":"releaseFence","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.management.BufferPoolMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ClassLoadingMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.CompilationMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.LockInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ManagementPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.management.MemoryMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryManagerMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryPoolMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryUsage",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MonitorInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.PlatformLoggingMXBean",
+  "queryAllPublicMethods":true,
+  "methods":[
+    {"name":"getLoggerLevel","parameterTypes":["java.lang.String"] }, 
+    {"name":"getLoggerNames","parameterTypes":[] }, 
+    {"name":"getParentLoggerName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setLoggerLevel","parameterTypes":["java.lang.String","java.lang.String"] }
+  ]
+},
+{
+  "name":"java.lang.management.RuntimeMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ThreadInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.math.BigDecimal"
+},
+{
+  "name":"java.math.BigInteger"
+},
+{
+  "name":"java.security.AlgorithmParametersSpi"
+},
+{
+  "name":"java.security.KeyStoreSpi"
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.interfaces.RSAPrivateKey"
+},
+{
+  "name":"java.security.interfaces.RSAPublicKey"
+},
+{
+  "name":"java.util.Date"
+},
+{
+  "name":"java.util.PropertyPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"java.util.logging.LogManager",
+  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
+},
+{
+  "name":"java.util.logging.LoggingMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"javax.management.MBeanOperationInfo",
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"getSignature","parameterTypes":[] }]
+},
+{
+  "name":"javax.management.MBeanServerBuilder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"javax.management.ObjectName"
+},
+{
+  "name":"javax.management.openmbean.CompositeData"
+},
+{
+  "name":"javax.management.openmbean.OpenMBeanOperationInfoSupport"
+},
+{
+  "name":"javax.management.openmbean.TabularData"
+},
+{
+  "name":"javax.security.auth.x500.X500Principal",
+  "fields":[{"name":"thisX500Name"}],
+  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+},
+{
+  "name":"jdk.management.jfr.ConfigurationInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.EventTypeInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.FlightRecorderMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.FlightRecorderMXBeanImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"jdk.management.jfr.RecordingInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.SettingDescriptorInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.http4s.Header$Raw$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.Headers$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.MediaType$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.MimeDB$application$",
+  "fields":[
+    {"name":"0bitmap$1"}, 
+    {"name":"10bitmap$1"}, 
+    {"name":"11bitmap$1"}, 
+    {"name":"12bitmap$1"}, 
+    {"name":"13bitmap$1"}, 
+    {"name":"14bitmap$1"}, 
+    {"name":"15bitmap$1"}, 
+    {"name":"16bitmap$1"}, 
+    {"name":"17bitmap$1"}, 
+    {"name":"18bitmap$1"}, 
+    {"name":"19bitmap$1"}, 
+    {"name":"1bitmap$1"}, 
+    {"name":"20bitmap$1"}, 
+    {"name":"21bitmap$1"}, 
+    {"name":"22bitmap$1"}, 
+    {"name":"23bitmap$1"}, 
+    {"name":"24bitmap$1"}, 
+    {"name":"25bitmap$1"}, 
+    {"name":"26bitmap$1"}, 
+    {"name":"27bitmap$1"}, 
+    {"name":"28bitmap$1"}, 
+    {"name":"29bitmap$1"}, 
+    {"name":"2bitmap$1"}, 
+    {"name":"30bitmap$1"}, 
+    {"name":"31bitmap$1"}, 
+    {"name":"32bitmap$1"}, 
+    {"name":"33bitmap$1"}, 
+    {"name":"34bitmap$1"}, 
+    {"name":"35bitmap$1"}, 
+    {"name":"36bitmap$1"}, 
+    {"name":"37bitmap$1"}, 
+    {"name":"38bitmap$1"}, 
+    {"name":"39bitmap$1"}, 
+    {"name":"3bitmap$1"}, 
+    {"name":"40bitmap$1"}, 
+    {"name":"41bitmap$1"}, 
+    {"name":"42bitmap$1"}, 
+    {"name":"43bitmap$1"}, 
+    {"name":"44bitmap$1"}, 
+    {"name":"45bitmap$1"}, 
+    {"name":"46bitmap$1"}, 
+    {"name":"47bitmap$1"}, 
+    {"name":"48bitmap$1"}, 
+    {"name":"49bitmap$1"}, 
+    {"name":"4bitmap$1"}, 
+    {"name":"50bitmap$1"}, 
+    {"name":"51bitmap$1"}, 
+    {"name":"5bitmap$1"}, 
+    {"name":"6bitmap$1"}, 
+    {"name":"7bitmap$1"}, 
+    {"name":"8bitmap$1"}, 
+    {"name":"9bitmap$1"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$audio$",
+  "fields":[
+    {"name":"0bitmap$2"}, 
+    {"name":"1bitmap$2"}, 
+    {"name":"2bitmap$2"}, 
+    {"name":"3bitmap$2"}, 
+    {"name":"4bitmap$2"}, 
+    {"name":"5bitmap$2"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$chemical$",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"org.http4s.MimeDB$font$",
+  "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"org.http4s.MimeDB$image$",
+  "fields":[
+    {"name":"0bitmap$5"}, 
+    {"name":"1bitmap$3"}, 
+    {"name":"2bitmap$3"}, 
+    {"name":"3bitmap$3"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$message$",
+  "fields":[{"name":"0bitmap$6"}]
+},
+{
+  "name":"org.http4s.MimeDB$model$",
+  "fields":[
+    {"name":"0bitmap$7"}, 
+    {"name":"1bitmap$4"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$multipart$",
+  "fields":[{"name":"0bitmap$8"}]
+},
+{
+  "name":"org.http4s.MimeDB$text$",
+  "fields":[
+    {"name":"0bitmap$9"}, 
+    {"name":"1bitmap$5"}, 
+    {"name":"2bitmap$4"}, 
+    {"name":"3bitmap$4"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$video$",
+  "fields":[
+    {"name":"0bitmap$10"}, 
+    {"name":"1bitmap$6"}, 
+    {"name":"2bitmap$5"}, 
+    {"name":"3bitmap$5"}
+  ]
+},
+{
+  "name":"org.http4s.MimeDB$x_conference$",
+  "fields":[{"name":"0bitmap$11"}]
+},
+{
+  "name":"org.http4s.MimeDB$x_shader$",
+  "fields":[{"name":"0bitmap$12"}]
+},
+{
+  "name":"org.http4s.Platform$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.QValue$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.Query",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.Query$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"org.http4s.QueryParamEncoder$",
+  "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"org.http4s.QueryParameterValue$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"org.http4s.Request",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.Uri",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.Uri$",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"org.http4s.Uri$Path$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"org.http4s.blaze.client.PoolManager",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.blaze.util.Execution$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.blaze.util.TickWheelExecutor",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.blazecore.util.IdentityWriter$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.circe.CirceInstances$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.dsl.io$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.internal.parsing.CommonRules$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.http4s.util.Renderer$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"org.typelevel.ci.package$CIStringSyntax",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"sun.management.ClassLoadingImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.CompilationImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.ManagementFactoryHelper$1",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryManagerImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryPoolImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.RuntimeImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.misc.Signal",
+  "methods":[
+    {"name":"<init>","parameterTypes":["java.lang.String"] }, 
+    {"name":"handle","parameterTypes":["sun.misc.Signal","sun.misc.SignalHandler"] }
+  ]
+},
+{
+  "name":"sun.misc.SignalHandler"
+},
+{
+  "name":"sun.misc.Unsafe",
+  "allDeclaredFields":true
+},
+{
+  "name":"sun.security.pkcs12.PKCS12KeyStore",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSA$SHA224withDSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSA$SHA256withDSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.JavaKeyStore$JKS",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA2$SHA224",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA2$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA5$SHA384",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA5$SHA512",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.X509Factory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.certpath.PKIXCertPathValidator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.PSSParameters",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSAKeyFactory$Legacy",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSAPSSSignature",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.KeyManagerFactoryImpl$SunX509",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.SSLContextImpl$DefaultSSLContext",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.util.ObjectIdentifier"
+},
+{
+  "name":"sun.security.x509.AuthorityInfoAccessExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.BasicConstraintsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CRLDistributionPointsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CertificateExtensions"
+},
+{
+  "name":"sun.security.x509.CertificatePoliciesExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.ExtendedKeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.KeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.NetscapeCertTypeExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.PrivateKeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.SubjectAlternativeNameExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.SubjectKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sw.Config$$anon$1",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"sw.Config$$anon$2",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"sw.Config$$anon$4",
+  "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"sw.Main$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"sw.Server$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"sw.Server$$anon$2",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"sw.service.FreeCurrencyApiImpl$$anon$1",
+  "fields":[{"name":"0bitmap$1"}]
+}
+]

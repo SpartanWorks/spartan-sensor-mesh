@@ -1,0 +1,7 @@
+{
+  "resources":{
+  "includes":[{
+      "pattern":"\\Qapplication.conf\\E"
+    }]},
+  "bundles":[]
+}
