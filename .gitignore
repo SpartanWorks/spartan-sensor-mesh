@@ -1,4 +1,4 @@
-frontend/dist
-frontend/package-lock.json
-frontend/node_modules
-backend/data
+ui/dist
+ui/package-lock.json
+ui/node_modules
+device/data

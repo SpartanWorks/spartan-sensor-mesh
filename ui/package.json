@@ -9,7 +9,7 @@
     "build:ci": "ENV=dev gulp develop",
     "build:watch": "ENV=dev gulp watch",
     "build:release": "ENV=prod gulp release",
-    "postbuild:release": "cp dist/*.gz dist/static/*.gz ../backend/data/static/",
+    "postbuild:release": "cp dist/*.gz dist/static/*.gz ../device/data/static/",
     "prebuild": "npm run test",
     "prebuild:ci": "npm run test:ci",
     "prebuild:release": "npm run test",
