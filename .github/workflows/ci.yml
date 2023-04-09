@@ -91,38 +91,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: zulu
-        java-version: 17
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
 
-    - name: Enable Coursier cache
-      uses: coursier/cache-action@v6
+      - name: Enable Coursier cache
+        uses: coursier/cache-action@v6
 
-    - name: Install Coursier & SBT
-      uses: coursier/setup-action@v1
+      - name: Install Coursier & SBT
+        uses: coursier/setup-action@v1
 
-    - name: Test the code
-      run: sbt coverage test coverageReport
+      - name: Test the code
+        working-directory: ./agent
+        run: sbt coverage test coverageReport
 
-    - name: Save Coverage Report as Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: coverage-report
-        path: target/scala-3.2.2/scoverage-report/
+      - name: Save Coverage Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: agent/target/scala-3.2.2/scoverage-report/
 
-    - name: Upload Test Results to GitHub
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: target/test-reports/
+      - name: Upload Test Results to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: agent/target/test-reports/
 
-    - name: Build a Docker image
-      run: sbt Docker/publishLocal
+      - name: Build a Docker image
+        working-directory: ./agent
+        run: sbt Docker/publishLocal
 
-    - name: Build a GraalVM native-image
-      run: sbt GraalVMNativeImage/packageBin
+      - name: Build a GraalVM native-image
+        working-directory: ./agent
+        run: sbt GraalVMNativeImage/packageBin
