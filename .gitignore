@@ -1,4 +1,41 @@
+# UI temps
 ui/dist
 ui/package-lock.json
 ui/node_modules
+
+# PlatformIO temps
 device/data
+
+# Agent temps
+# macOS
+agent/.DS_Store
+
+# SBT Specific
+agent/dist/*
+agent/target/
+agent/lib_managed/
+agent/src_managed/
+agent/project/boot/
+agent/project/plugins/project/
+agent/project/local-plugins.sbt
+agent/.history
+agent/.ensime
+agent/.ensime_cache/
+agent/.sbt-scripted/
+agent/local.sbt
+
+# Bloop
+agent/.bsp
+
+# VS Code
+agent/.vscode/
+
+# Metals
+agent/.bloop/
+agent/.metals/
+agent/metals.sbt
+
+# IDEA
+agent/.idea
+agent/.idea_modules
+agent/ /.worksheet/
