@@ -5,7 +5,7 @@ This project uses several connected ESP8266 boards to display various sensor rea
 
 ## Building
 
-The frontend is a run-of-the-mill TypeScript app. To build it:
+The UI is a run-of-the-mill TypeScript app. To build it:
 
 ```
 npm i
@@ -14,7 +14,7 @@ npm run build:release
 
 It will update some static files on the backend side to make them ready for upload.
 
-The backend is organized as a PlatformIO project with two targets: ESP32 and ESP8266. To build the backend run the following commands:
+The `device` is organized as a PlatformIO project with two targets: ESP32 and ESP8266. To build the `device` backend run the following commands:
 
 ```
 pio run -t esp32dev # Or pio run -t esp12e
@@ -24,7 +24,7 @@ pio run -t upload
 
 ## Configuration
 
-The backend expects two configuration files to be present in its filesystem:
+The `device` backend expects two configuration files to be present in its filesystem:
 
 - `wifi_config.txt` - optional, contains the SSID and password (on separate two lines) of the network that it should connect to. If not provided, it'll start an access point and allow reconfiguring the network via the UI.
 
@@ -58,15 +58,15 @@ The backend expects two configuration files to be present in its filesystem:
 
 ## Development
 
-You can run the frontend locally against a sensor in the following way:
+You can run the UI locally against a sensor in the following way:
 
 ```
 SERVER="http://address.of.server:port" npm run build:watch
 ```
 
-Then your frontend will be avaliable under http://localhost:8888 and pointing to `$SERVER` with automatic reload of the code changes and sourcemaps in place.
+Then the UI will be avaliable under http://localhost:8888 and pointing to `$SERVER` with automatic reload of the code changes and sourcemaps in place.
 
-The backend can be monitored by hooking it up with a serial cable, and running the serial monitor:
+The `device` backend can be monitored by hooking it up with a serial cable, and running the serial monitor:
 
 ```
 pio run -t monitor

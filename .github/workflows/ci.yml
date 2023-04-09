@@ -21,18 +21,18 @@ jobs:
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            backend:
-              - 'backend/**'
-            frontend:
-              - 'frontend/**'
+            device:
+              - 'device/**'
+            ui:
+              - 'ui/**'
 
     outputs:
-      backendAffected: ${{ steps.source-affected.outputs.backend }}
-      frontendAffected: ${{ steps.source-affected.outputs.frontend }}
+      deviceAffected: ${{ steps.source-affected.outputs.device }}
+      uiAffected: ${{ steps.source-affected.outputs.ui }}
 
-  ci-fe:
+  ci-ui:
     needs: setup
-    if: ${{ needs.setup.outputs.frontendAffected == 'true' }}
+    if: ${{ needs.setup.outputs.uiAffected == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,16 +44,16 @@ jobs:
       - uses: browser-actions/setup-chrome@latest
 
       - name: Install deps
-        working-directory: ./frontend
+        working-directory: ./ui
         run: npm install
 
       - name: Build the code
-        working-directory: ./frontend
+        working-directory: ./ui
         run: npm run build:ci
 
-  ci-be:
+  ci-device:
     needs: setup
-    if: ${{ needs.setup.outputs.backendAffected == 'true' }}
+    if: ${{ needs.setup.outputs.deviceAffected == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -79,5 +79,5 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build the code
-        working-directory: ./backend
+        working-directory: ./device
         run: pio run -e ${{ matrix.board }}
