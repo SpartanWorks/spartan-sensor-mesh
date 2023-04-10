@@ -6,9 +6,7 @@ import io.circe.config.syntax.*
 
 case class Rest(host: String, port: Int)
 
-case class FreeCurrencyApi(apiKey: String)
-
-case class Config(rest: Rest, freeCurrencyApi: FreeCurrencyApi)
+case class Config(rest: Rest)
 
 object Config:
 

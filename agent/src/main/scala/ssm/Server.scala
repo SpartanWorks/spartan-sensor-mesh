@@ -14,24 +14,21 @@ import org.http4s.implicits.*
 import ssm.domain.ConversionRate
 import ssm.domain.ConversionRate.given
 
-import ssm.service.FreeCurrencyApi
-
-case class BadValue(message: String) extends Throwable(message)
+import ssm.service.DDGCurrencyApi
 
 object Server:
   val message = "Hello World"
 
   given EntityDecoder[IO, ValidatedNec[String, ConversionRate]] = accumulatingJsonOf[IO, ValidatedNec[String, ConversionRate]]
 
-  def routes(service: FreeCurrencyApi) = HttpRoutes.of[IO] {
+  def routes(service: DDGCurrencyApi) = HttpRoutes.of[IO] {
 
     case GET -> Root / "ping" =>
       Ok(message)
 
     case GET -> Root / "convert" / source / destination =>
       val response = for {
-        latest <- service.latest(source, List(destination))
-        value <- IO.fromOption(latest.get(destination))(BadValue(s"Did not receive the expected value for: $destination"))
+        value <- service.latest(source, destination)
         result <- ConversionRate
           .create(source, destination, value)
           .fold(e => BadRequest(e.foldLeft("")(_ ++ _)), c => Ok(c.asJson))

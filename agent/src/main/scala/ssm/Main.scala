@@ -13,7 +13,7 @@ object Main extends IOApp:
     for
       config <- IO.fromEither(Config.all)
       server <- BlazeClientBuilder[IO].resource.use { client =>
-        val service = FreeCurrencyApi(client, config.freeCurrencyApi.apiKey)
+        val service = DDGCurrencyApi(client)
         BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
           .withHttpApp(Server.routes(service).orNotFound)
