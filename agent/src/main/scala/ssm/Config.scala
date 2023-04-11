@@ -5,7 +5,7 @@ import com.typesafe.config.ConfigFactory
 import io.circe.generic.auto.*
 import io.circe.config.syntax.*
 
-case class Rest(host: String, port: Int)
+case class Rest(host: String, port: Int, logRequests: Boolean)
 
 case class Config(rest: Rest)
 

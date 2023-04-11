@@ -24,11 +24,11 @@ lazy val root = project
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-config" % "0.10.0",
 
-      // Config
+      // Misc
       "com.typesafe" % "config" % "1.4.2",
-    ),
+      "ch.qos.logback" % "logback-classic" % "1.4.6",
 
-    libraryDependencies ++= Seq(
+      // Test
       "org.scalameta" %% "munit" % "0.7.29" % Test,
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test,
     ),
