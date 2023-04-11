@@ -4,34 +4,35 @@ import cats.effect.*
 import cats.implicits.*
 import com.typesafe.scalalogging.Logger
 import fs2.Stream
-import fr.davit.scout.*
+import fr.davit.scout.Zeroconf
 
 import scala.concurrent.duration.FiniteDuration
 
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicReference
 
-case class Node(host: String, port: Int, address: InetAddress)
-
-case class MDNSBadAddress(message: String) extends Throwable(message)
 
 trait MDNS {
   def run: Resource[IO, Unit]
-  def mesh: IO[Set[Node]]
+  def nodes: IO[Set[MDNS.Node]]
 }
 
 object MDNS {
-  def apply(name: String, serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration): MDNS =
-    new MDNSImpl(name, serviceName, serviceType, port, scanInterval)
+  case class Node(hostname: String, port: Int, address: InetAddress)
 
-  private class MDNSImpl(name: String, serviceName: String, serviceType: String, port: Int, interval: FiniteDuration) extends MDNS {
+  case class BadAddress(message: String) extends Throwable(message)
+
+  def apply(name: String, serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, dnsTTL: FiniteDuration): MDNS =
+    new MDNSImpl(name, serviceName, serviceType, port, scanInterval, dnsTTL)
+
+  private class MDNSImpl(name: String, serviceName: String, serviceType: String, port: Int, interval: FiniteDuration, ttl: FiniteDuration) extends MDNS {
     private val service = Zeroconf.Service(serviceName, serviceType)
     private val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
     private val ref = new AtomicReference[Set[Node]](Set.empty)
     private val log = Logger(getClass.getName)
 
     def run: Resource[IO, Unit] = {
-      val register = Zeroconf.register[IO](instance)
+      val register = Zeroconf.register[IO](instance, ttl = ttl)
 
       val scan = Zeroconf
         .scan[IO](service)
@@ -41,7 +42,7 @@ object MDNS {
         .flatMap { instances =>
           instances.map { instance =>
             for
-              address <- IO.fromOption(instance.addresses.headOption)(MDNSBadAddress("Could not determine the address of a node."))
+              address <- IO.fromOption(instance.addresses.headOption)(BadAddress("Could not determine the address of a node."))
             yield Node(instance.target, instance.port, address)
           }.sequence
         }
@@ -55,7 +56,7 @@ object MDNS {
       Stream.repeatEval(scan).metered(interval).concurrently(register).compile.resource.drain
      }
 
-    def mesh: IO[Set[Node]] =
+    def nodes: IO[Set[Node]] =
       IO(ref.get())
   }
 }

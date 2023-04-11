@@ -17,7 +17,7 @@ object Main extends ResourceApp.Forever:
       config <- Config.load()
 
       client <- BlazeClientBuilder[IO].resource
-      mdns = MDNS(config.mdns.nodeName, config.mdns.serviceName, "tcp", config.mdns.port, config.mdns.scanInterval)
+      mdns = MDNS(config.mdns.nodeName, config.mdns.serviceName, "tcp", config.mdns.port, config.mdns.scanInterval, config.mdns.dnsTTL)
       currency = DDGCurrencyApi(client)
       routes = Server.routes(currency).orNotFound
 
