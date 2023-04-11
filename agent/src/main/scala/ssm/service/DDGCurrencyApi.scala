@@ -13,16 +13,17 @@ import io.circe.generic.auto.*
 import io.circe.parser.*
 import org.http4s.client.dsl.Http4sClientDsl
 
-case class DDGConversion(`from-currency-symbol`: String, `to-currency-symbol`: String, `converted-amount`: String)
-case class DDGCurrencyApiResult(conversion: DDGConversion)
-
-case class DDGBadValue(message: String) extends Throwable(message)
 
 trait DDGCurrencyApi:
   def latest(base: String, targets: String): IO[Double]
 
 object DDGCurrencyApi:
-  val CouldNotExtractResponse = DDGBadValue("Could not extract the response data from DDG spice API.")
+  private case class Conversion(`from-currency-symbol`: String, `to-currency-symbol`: String, `converted-amount`: String)
+  private case class CurrencyApiResult(conversion: Conversion)
+
+  case class BadValue(message: String) extends Throwable(message)
+
+  val CouldNotExtractResponse = BadValue("Could not extract the response data from DDG spice API.")
 
   def apply(client: Client[IO]): DDGCurrencyApi =
     new DDGCurrencyApiImpl(client)
@@ -39,6 +40,6 @@ object DDGCurrencyApi:
         flat = response.replace("\n", "")
         matched <- IO.fromOption(Spice.findFirstMatchIn(flat))(DDGCurrencyApi.CouldNotExtractResponse)
         stripped <- IO.fromTry(Try(matched.group(1).strip).recoverWith(_ => Failure(DDGCurrencyApi.CouldNotExtractResponse)))
-        parsed <- IO.fromEither(decode[DDGCurrencyApiResult](stripped))
+        parsed <- IO.fromEither(decode[CurrencyApiResult](stripped))
         value <- IO.fromTry(Try(parsed.conversion.`converted-amount`.toDouble))
       yield value
