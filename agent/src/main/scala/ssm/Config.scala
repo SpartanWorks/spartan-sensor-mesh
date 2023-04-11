@@ -5,9 +5,13 @@ import com.typesafe.config.ConfigFactory
 import io.circe.generic.auto.*
 import io.circe.config.syntax.*
 
+import scala.concurrent.duration.FiniteDuration
+
 case class Rest(host: String, port: Int, logRequests: Boolean)
 
-case class Config(rest: Rest)
+case class MDNS(nodeName: String, serviceName: String, port: Int, scanInterval: FiniteDuration)
+
+case class Config(rest: Rest, mdns: MDNS)
 
 object Config:
 

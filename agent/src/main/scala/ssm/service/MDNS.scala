@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.Logger
 import fs2.Stream
 import fr.davit.scout.*
 
-import scala.concurrent.duration.*
+import scala.concurrent.duration.FiniteDuration
 
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicReference
