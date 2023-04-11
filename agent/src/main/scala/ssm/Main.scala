@@ -2,24 +2,24 @@ package ssm
 
 import cats.effect.*
 import org.http4s.implicits.*
+import org.http4s.server.Server
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.blaze.client.BlazeClientBuilder
 
 import ssm.service.*
 
-object Main extends IOApp:
+object Main extends ResourceApp.Forever:
 
-  override def run(args: List[String]): IO[ExitCode] =
+  override def run(args: List[String]): Resource[IO, Unit] =
     for
-      config <- IO.fromEither(Config.all)
-      server <- BlazeClientBuilder[IO].resource.use { client =>
-        val service = DDGCurrencyApi(client)
-        BlazeServerBuilder[IO]
+      client <- BlazeClientBuilder[IO].resource
+
+      service = DDGCurrencyApi(client)
+      routes = Server.routes(service).orNotFound
+
+      config <- Config.load()
+      _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
-          .withHttpApp(Server.routes(service).orNotFound)
-          .serve
-          .compile
-          .drain
-          .as(ExitCode.Success)
-      }
-    yield server
+          .withHttpApp(routes)
+          .resource
+    yield ()
