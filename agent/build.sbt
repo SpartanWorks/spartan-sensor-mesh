@@ -12,6 +12,9 @@ lazy val root = project
     scalaVersion := scala3Version,
 
     libraryDependencies ++= Seq(
+      // Domain
+      "fr.davit" %% "scout" % "0.2.1",
+
       // HTTP server
       "org.http4s" %% "http4s-core" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
@@ -27,6 +30,7 @@ lazy val root = project
       // Misc
       "com.typesafe" % "config" % "1.4.2",
       "ch.qos.logback" % "logback-classic" % "1.4.6",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
 
       // Test
       "org.scalameta" %% "munit" % "0.7.29" % Test,
