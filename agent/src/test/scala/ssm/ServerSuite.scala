@@ -9,7 +9,7 @@ import org.http4s.client.UnexpectedStatus
 
 import ssm.domain.ConversionRate
 import ssm.domain.ConversionRate.given
-import ssm.service.{DDGCurrencyApi, DDGBadValue}
+import ssm.service.DDGCurrencyApi
 
 class ServerSuite extends munit.CatsEffectSuite:
   test("Server responds to pings") {
@@ -58,7 +58,7 @@ class ServerSuite extends munit.CatsEffectSuite:
 
     val mockService = new DDGCurrencyApi:
       def latest(base: String, target: String): IO[Double] =
-        IO.raiseError(DDGBadValue("Bad value, I dunno."))
+        IO.raiseError(DDGCurrencyApi.BadValue("Bad value, I dunno."))
 
     Server.routes(mockService).orNotFound.run(request).map { response =>
       assertEquals(response.status, Status.InternalServerError)
