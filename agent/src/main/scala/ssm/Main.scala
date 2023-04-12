@@ -21,9 +21,10 @@ object Main extends ResourceApp.Forever:
       currency = DDGCurrencyApi(client)
       routes = Server.routes(currency).orNotFound
 
+      _ <- mdns.run.start
+
       _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
           .withHttpApp(if config.rest.logRequests then Logger.httpApp(true, true)(routes) else routes)
           .resource
-      _ <- mdns.run
     yield ()
