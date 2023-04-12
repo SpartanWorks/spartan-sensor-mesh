@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicReference
 
 
 trait MDNS {
-  def run: Resource[IO, Unit]
+  def responder(name: String, port: Int, dnsTTL: FiniteDuration): Resource[IO, Unit]
+  def scanner(scanInterval: FiniteDuration): Resource[IO, Unit]
+
   def nodes: IO[Set[MDNS.Node]]
 }
 
@@ -22,19 +24,21 @@ object MDNS {
 
   case class BadAddress(message: String) extends Throwable(message)
 
-  def apply(name: String, serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, dnsTTL: FiniteDuration): MDNS =
-    new MDNSImpl(name, serviceName, serviceType, port, scanInterval, dnsTTL)
+  def apply(serviceName: String, serviceType: String): MDNS =
+    new MDNSImpl(serviceName, serviceType)
 
-  private class MDNSImpl(name: String, serviceName: String, serviceType: String, port: Int, interval: FiniteDuration, ttl: FiniteDuration) extends MDNS {
+  private class MDNSImpl(serviceName: String, serviceType: String) extends MDNS {
     private val service = Zeroconf.Service(serviceName, serviceType)
-    private val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
-    private val ref = new AtomicReference[Set[Node]](Set.empty)
+    private val discoveredNodes = new AtomicReference[Set[Node]](Set.empty)
     private val log = Logger(getClass.getName)
 
-    def run: Resource[IO, Unit] = {
-      val register = Zeroconf.register[IO](instance, ttl = ttl)
+    def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
+      val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
+      log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.")
+      Zeroconf.register[IO](instance, ttl = ttl).compile.resource.drain
 
-      val scan = Zeroconf
+    def scanner(interval: FiniteDuration): Resource[IO, Unit] =
+      val single = Zeroconf
         .scan[IO](service)
         .interruptAfter(interval)
         .compile
@@ -48,15 +52,13 @@ object MDNS {
         }
         .map { nodes =>
           log.debug(s"Updating mesh nodes: ${nodes.toSet}")
-          ref.set(nodes.toSet)
+          discoveredNodes.set(nodes.toSet)
         }
 
-      log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.")
       log.info(s"Scanning for matching nodes every $interval.")
-      Stream.repeatEval(scan).metered(interval).concurrently(register).compile.resource.drain
-     }
+      Stream.repeatEval(single).metered(interval).compile.resource.drain
 
     def nodes: IO[Set[Node]] =
-      IO(ref.get())
+      IO(discoveredNodes.get())
   }
 }
