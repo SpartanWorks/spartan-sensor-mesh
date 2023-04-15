@@ -61,6 +61,15 @@ lazy val root = project
       "-H:+ReportExceptionStackTraces",
     ),
 
+    // Publishing:
+    githubOwner := "SpartanWorks",
+    githubRepository := "spartan-sensor-mesh",
+    githubTokenSource := TokenSource.Or(
+      TokenSource.Environment("GITHUB_TOKEN"),
+      TokenSource.Environment("SHELL"), // NOTE To get around the annoying error when developing locally.
+    ),
+
+    // Misc:
     scalacOptions ++= Seq(
       "-feature", "-unchecked", "-deprecation", "-encoding", "utf8",
       "-Xfatal-warnings"
