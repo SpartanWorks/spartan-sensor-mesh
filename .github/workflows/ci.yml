@@ -104,6 +104,8 @@ jobs:
         uses: coursier/setup-action@v1
 
       - name: Test the code
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./agent
         run: sbt coverage test coverageReport
 
@@ -118,9 +120,13 @@ jobs:
           path: agent/target/test-reports/
 
       - name: Build a Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./agent
         run: sbt Docker/publishLocal
 
       - name: Build a GraalVM native-image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./agent
         run: sbt GraalVMNativeImage/packageBin
