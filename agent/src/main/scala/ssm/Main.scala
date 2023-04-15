@@ -6,6 +6,7 @@ import org.http4s.server.Server
 import org.http4s.server.middleware.Logger
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.server.middleware.*
 import ssm.service.*
 
 import scala.concurrent.duration.*
@@ -19,13 +20,14 @@ object Main extends ResourceApp.Forever:
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, "tcp")
       currency = DDGCurrencyApi(client)
-      routes = Server.routes(currency).orNotFound
+      routes = CORS.policy.withAllowOriginAll(Server.routes(currency).orNotFound)
+      app = if config.rest.logRequests then Logger.httpApp(true, true)(routes) else routes
 
       _ <- mdns.responder(config.mdns.nodeName, config.mdns.port, config.mdns.dnsTTL).start
       _ <- mdns.scanner(config.mdns.scanInterval).start
 
       _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
-          .withHttpApp(if config.rest.logRequests then Logger.httpApp(true, true)(routes) else routes)
+          .withHttpApp(app)
           .resource
     yield ()
