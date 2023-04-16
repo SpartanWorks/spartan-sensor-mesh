@@ -43,3 +43,19 @@ class MDNSSuite extends CatsEffectSuite:
       assertEquals(stored, expected)
     }
   }
+
+  test("Should handle bad instance addresses") {
+    val service = Zeroconf.Service("name", "service")
+    val mdns = mockMDNS(List(
+      Zeroconf.Instance(service, "cloudflare", 23, "cloudflare", Map.empty, Seq.empty),
+    ))
+    val expected = MDNS.CouldNotDetermineAddress
+
+    (for
+      emitted <- mdns.scannerStream(1.second).take(1).compile.lastOrError
+    yield {
+      assert(false)
+    }).handleError { error =>
+      assertEquals(error, expected)
+    }
+  }
