@@ -36,7 +36,7 @@ class MDNSSuite extends CatsEffectSuite:
     )
 
     for
-      emitted <- mdns.scannerStream(1.second).take(1).compile.lastOrError
+      emitted <- mdns.scannerStream(100.millis).take(1).compile.lastOrError
       stored <- mdns.nodes
     yield {
       assertEquals(emitted, expected)
@@ -52,7 +52,7 @@ class MDNSSuite extends CatsEffectSuite:
     val expected = MDNS.CouldNotDetermineAddress
 
     (for
-      emitted <- mdns.scannerStream(1.second).take(1).compile.lastOrError
+      emitted <- mdns.scannerStream(100.millis).take(1).compile.lastOrError
     yield {
       assert(false)
     }).handleError { error =>
