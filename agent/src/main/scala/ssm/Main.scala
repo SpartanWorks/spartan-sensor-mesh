@@ -30,8 +30,8 @@ object Main extends ResourceApp.Forever:
       cors = CORS.policy.withAllowOriginAll(routes)
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
 
-      _ <- mdns.responder(config.mdns.nodeName, config.mdns.port, config.mdns.dnsTTL).compile.resource.drain.start
-      _ <- mdns.scanner(config.mdns.scanInterval).compile.resource.drain.start
+      _ <- mdns.responder(config.mdns.nodeName, config.mdns.port, config.mdns.dnsTTL).start
+      _ <- mdns.scanner(config.mdns.scanInterval).start
 
       _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)

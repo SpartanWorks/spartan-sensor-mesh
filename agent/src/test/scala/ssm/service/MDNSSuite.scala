@@ -11,7 +11,7 @@ import scala.concurrent.duration.*
 import java.net.InetAddress
 
 class MDNSSuite extends CatsEffectSuite:
-  def mockMDNS(instances: List[Zeroconf.Instance]): MDNS =
+  def mockMDNS(instances: List[Zeroconf.Instance]): MDNS.MDNSImpl =
     new MDNS.MDNSImpl("test", "service"):
         override def scanStream: Stream[IO, Zeroconf.Instance] =
           Stream.emits(instances)
@@ -36,7 +36,7 @@ class MDNSSuite extends CatsEffectSuite:
     )
 
     for
-      emitted <- mdns.scanner(1.second).take(1).compile.lastOrError
+      emitted <- mdns.scannerStream(1.second).take(1).compile.lastOrError
       stored <- mdns.nodes
     yield {
       assertEquals(emitted, expected)
