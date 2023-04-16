@@ -17,7 +17,7 @@ object MeshApi:
     case GET -> Root =>
       for
         nodes <- mdns.nodes
-        mesh = nodes.map { n => Mesh(n.hostname, n.address.toString, n.port) }
+        mesh = nodes.map { n => Mesh(n.hostname, n.address.getHostAddress(), n.port) }
         response <- Ok(mesh)
       yield response
 

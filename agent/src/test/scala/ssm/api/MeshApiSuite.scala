@@ -34,9 +34,10 @@ class MeshApiSuite extends munit.CatsEffectSuite:
       MDNS.Node("cloudflare", 80, InetAddress.getByName("1.1.1.1"))
     ))
     val expected = Set(
-      Mesh("google", "/8.8.8.8", 23),
-      Mesh("cloudflare", "/1.1.1.1", 80)
+      Mesh("google", "8.8.8.8", 23),
+      Mesh("cloudflare", "1.1.1.1", 80)
     )
+
     MeshApi.routes(service).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Set[Mesh]].assertEquals(expected)
@@ -45,6 +46,7 @@ class MeshApiSuite extends munit.CatsEffectSuite:
 
   test("Handles empty mesh") {
     val service = mockService(Set.empty[MDNS.Node])
+
     MeshApi.routes(service).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Set[Mesh]].assertEquals(Set.empty[Mesh])
