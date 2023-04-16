@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicReference
 
 
 trait MDNS {
-  def responder(name: String, port: Int, dnsTTL: FiniteDuration): Resource[IO, Unit]
-  def scanner(scanInterval: FiniteDuration): Resource[IO, Unit]
+  def responder(name: String, port: Int, dnsTTL: FiniteDuration): Stream[IO, Unit]
+  def scanner(scanInterval: FiniteDuration): Stream[IO, Set[MDNS.Node]]
 
   def nodes: IO[Set[MDNS.Node]]
 }
@@ -34,15 +34,16 @@ object MDNS {
     private val discoveredNodes = new AtomicReference[Set[Node]](Set.empty)
     private val log = Logger(getClass.getName)
 
+    // NOTE Extracted for mocking in tests.
     protected def scanStream: Stream[IO, Zeroconf.Instance] =
       Zeroconf.scan[IO](service)
 
-    def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
+    def responder(name: String, port: Int, ttl: FiniteDuration): Stream[IO, Unit] =
       val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
       log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.")
-      Zeroconf.register[IO](instance, ttl = ttl).compile.resource.drain
+      Zeroconf.register[IO](instance, ttl = ttl)
 
-    def scanner(interval: FiniteDuration): Resource[IO, Unit] =
+    def scanner(interval: FiniteDuration): Stream[IO, Set[Node]] =
       val single = scanStream
         .interruptAfter(interval)
         .compile
@@ -55,12 +56,14 @@ object MDNS {
           }.sequence
         }
         .map { nodes =>
-          log.debug(s"Updating mesh nodes: ${nodes.toSet}")
-          discoveredNodes.set(nodes.toSet)
+          val s = nodes.toSet
+          log.debug(s"Updating mesh nodes: ${s}")
+          discoveredNodes.set(s)
+          s
         }
 
       log.info(s"Scanning for matching nodes every $interval.")
-      Stream.repeatEval(single).metered(interval).compile.resource.drain
+      Stream.repeatEval(single).metered(interval)
 
     def nodes: IO[Set[Node]] =
       IO(discoveredNodes.get())

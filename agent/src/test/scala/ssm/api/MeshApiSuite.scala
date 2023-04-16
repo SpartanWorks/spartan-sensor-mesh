@@ -2,6 +2,7 @@ package ssm.api
 
 import cats.effect.*
 import cats.syntax.all.*
+import fs2.Stream
 import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
@@ -19,11 +20,11 @@ class MeshApiSuite extends munit.CatsEffectSuite:
   val request = Request[IO](Method.GET, uri"/")
 
   def mockService(expectedNodes: Set[MDNS.Node]) = new MDNS:
-    def responder(name: String, port: Int, dnsTTL: FiniteDuration): Resource[IO, Unit] =
-      Resource.eval(IO.unit)
+    def responder(name: String, port: Int, dnsTTL: FiniteDuration): Stream[IO, Unit] =
+      Stream.unit[IO]
 
-    def scanner(scanInterval: FiniteDuration): Resource[IO, Unit] =
-      Resource.eval(IO.unit)
+    def scanner(scanInterval: FiniteDuration): Stream[IO, Set[MDNS.Node]] =
+      Stream.emits(Seq(Set.empty[MDNS.Node]))
 
     def nodes: IO[Set[MDNS.Node]] =
       IO.pure(expectedNodes)

@@ -35,13 +35,11 @@ class MDNSSuite extends CatsEffectSuite:
       MDNS.Node("cloudflare", 23, InetAddress.getByName("1.1.1.1")),
     )
 
-    // FIXME Flaky-city, population: you.
-    mdns.scanner(100.micros).start.use { f =>
-      for
-        _ <- IO.sleep(1.second)
-        nodes <- mdns.nodes
-        _ = assertEquals(nodes, expected)
-        _ <- f.cancel.use(_ => IO.unit)
-      yield ()
+    for
+      emitted <- mdns.scanner(1.second).take(1).compile.lastOrError
+      stored <- mdns.nodes
+    yield {
+      assertEquals(emitted, expected)
+      assertEquals(stored, expected)
     }
   }
