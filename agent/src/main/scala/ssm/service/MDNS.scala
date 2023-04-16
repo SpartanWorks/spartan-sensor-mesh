@@ -24,13 +24,18 @@ object MDNS {
 
   case class BadAddress(message: String) extends Throwable(message)
 
+  val CouldNotDetermineAddress = BadAddress("Could not determine the address of a node.")
+
   def apply(serviceName: String, serviceType: String): MDNS =
     new MDNSImpl(serviceName, serviceType)
 
-  private class MDNSImpl(serviceName: String, serviceType: String) extends MDNS {
+  private[service] class MDNSImpl(serviceName: String, serviceType: String) extends MDNS {
     private val service = Zeroconf.Service(serviceName, serviceType)
     private val discoveredNodes = new AtomicReference[Set[Node]](Set.empty)
     private val log = Logger(getClass.getName)
+
+    protected def scanStream: Stream[IO, Zeroconf.Instance] =
+      Zeroconf.scan[IO](service)
 
     def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
       val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
@@ -38,15 +43,14 @@ object MDNS {
       Zeroconf.register[IO](instance, ttl = ttl).compile.resource.drain
 
     def scanner(interval: FiniteDuration): Resource[IO, Unit] =
-      val single = Zeroconf
-        .scan[IO](service)
+      val single = scanStream
         .interruptAfter(interval)
         .compile
         .toList
         .flatMap { instances =>
           instances.map { instance =>
             for
-              address <- IO.fromOption(instance.addresses.headOption)(BadAddress("Could not determine the address of a node."))
+              address <- IO.fromOption(instance.addresses.headOption)(CouldNotDetermineAddress)
             yield Node(instance.target, instance.port, address)
           }.sequence
         }
