@@ -9,6 +9,7 @@ import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import ssm.service.Sampler
+import ssm.domain.ObservableReading
 import sw.generated.model.*
 import sw.generated.model.Data.given
 
@@ -17,8 +18,8 @@ import scala.concurrent.duration.FiniteDuration
 class DataApiSuite extends munit.CatsEffectSuite:
   val request = Request[IO](Method.GET, uri"/")
 
-  def mockSampler(mockStatus: Sampler.Status, mockErrors: Sampler.Errors, mockStats: Sampler.Stats) =
-    new Sampler:
+  def mockReading(mockStatus: Sampler.Status, mockErrors: Sampler.Errors, mockStats: Sampler.Stats) =
+    val s = new Sampler:
       def sampler(samplingInterval: FiniteDuration, windowSize: Int): Resource[IO, Unit] =
         Resource.eval(IO.unit)
 
@@ -31,6 +32,8 @@ class DataApiSuite extends munit.CatsEffectSuite:
       def errors: IO[Sampler.Errors] =
         IO.pure(mockErrors)
 
+    new ObservableReading.ObservableReadingImpl("model", "type", "name", "unit", 5, 23, WidgetConfig("test"), s)
+
   test("Handles empty data") {
     DataApi.routes("name", "model", "group", List.empty).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
@@ -38,16 +41,16 @@ class DataApiSuite extends munit.CatsEffectSuite:
     }
   }
 
-  test("Handles sampler data correctly") {
+  test("Handles reading data correctly") {
     val expectedStatus = Sampler.Status.Ok
     val expectedErrors = Sampler.Errors(23, "Oops")
     val expectedStats = Sampler.Stats(1, 2, 3, 4, 5, 6, 7)
-    val sampler = mockSampler(
+    val reading = mockReading(
       expectedStatus,
       expectedErrors,
       expectedStats
     )
-    DataApi.routes("name", "model", "group", List(sampler)).orNotFound.run(request).flatMap { response =>
+    DataApi.routes("name", "model", "group", List(reading)).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Data].map { data =>
         assertEquals(data.readings(0).errors.intValue(), expectedErrors.count)
@@ -65,18 +68,18 @@ class DataApiSuite extends munit.CatsEffectSuite:
     }
   }
 
-  test("Handles multiple samplers correctly") {
-    val sampler1 = mockSampler(
+  test("Handles multiple readings correctly") {
+    val reading1 = mockReading(
       Sampler.Status.Ok,
       Sampler.Errors(23, "Oops"),
       Sampler.Stats(1, 2, 3, 4, 5, 6, 7)
     )
-    val sampler2 = mockSampler(
+    val reading2 = mockReading(
       Sampler.Status.Ok,
       Sampler.Errors(5, "Oof"),
       Sampler.Stats(1, 2, 3, 4, 5, 6, 7)
     )
-    DataApi.routes("name", "model", "group", List(sampler1, sampler2)).orNotFound.run(request).flatMap { response =>
+    DataApi.routes("name", "model", "group", List(reading1, reading2)).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Data].map { data =>
         assertEquals(data.readings.length, 2)

@@ -16,41 +16,18 @@ import org.http4s.implicits.*
 import sw.generated.model.*
 import sw.generated.model.Data.given
 
-import ssm.service.Sampler
+import ssm.domain.ObservableReading
 
 import scala.concurrent.duration.*
 
 object DataApi:
-  def routes(name: String, model: String, group: String, samplers: List[Sampler]) = HttpRoutes.of[IO] {
+  def routes(name: String, model: String, group: String, readings: List[ObservableReading]) = HttpRoutes.of[IO] {
 
     case GET -> Root =>
-      samplers.map { s =>
-        for
-          status <- s.status
-          errors <- s.errors
-          stats <- s.stats
-        yield Reading(
-          "currency",
-          "currency",
-          "USD",
-          status.toString.toLowerCase,
-          errors.count,
-          errors.lastMessage,
-          stats.total,
-          ReadingValue(
-            stats.latest,
-            "PLN",
-            ReadingValueStats(stats.mean, stats.variance, stats.count, Some(stats.min), Some(stats.max)),
-            ReadingValueRange(4.0, 4.5)
-          ),
-          WidgetConfig("gauge")
-        )
-      }.sequence.flatMap { readings =>
-        Ok(Data(
-          model,
-          group,
-          name,
-          readings
-        ))
-      }
+      for
+        rs <- readings.map(_.reading).sequence
+        data = Data(model, group, name, rs)
+        resp <- Ok(data)
+      yield resp
+
   }
