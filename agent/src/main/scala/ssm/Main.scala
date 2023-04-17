@@ -22,9 +22,11 @@ object Main extends ResourceApp.Forever:
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, "tcp")
       currency = DDGCurrencyApi(client)
+      usd = Sampler("USD", currency.latest("USD", "PLN"))
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
+        "/api/data" -> DataApi.routes("Scala Agent", "jvm", "jvm", List(usd)),
         "/" -> Server.routes(currency)
       ).orNotFound
       cors = CORS.policy.withAllowOriginAll(routes)
@@ -32,6 +34,7 @@ object Main extends ResourceApp.Forever:
 
       _ <- mdns.responder(config.mdns.nodeName, config.mdns.port, config.mdns.dnsTTL).start
       _ <- mdns.scanner(config.mdns.scanInterval).start
+      _ <- usd.sampler(10.seconds, 100).start
 
       _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
