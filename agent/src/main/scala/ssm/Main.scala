@@ -27,7 +27,6 @@ object Main extends ResourceApp.Forever:
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
         "/api/data" -> DataApi.routes("Scala Agent", "jvm", "jvm", List(usd)),
-        "/" -> Server.routes(currency)
       ).orNotFound
       cors = CORS.policy.withAllowOriginAll(routes)
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
