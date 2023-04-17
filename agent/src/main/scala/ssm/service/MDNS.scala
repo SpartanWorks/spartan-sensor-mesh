@@ -9,7 +9,6 @@ import fr.davit.scout.Zeroconf
 import scala.concurrent.duration.FiniteDuration
 
 import java.net.InetAddress
-import java.util.concurrent.atomic.AtomicReference
 
 
 trait MDNS {
@@ -31,7 +30,7 @@ object MDNS {
 
   private[service] class MDNSImpl(serviceName: String, serviceType: String) extends MDNS {
     private val service = Zeroconf.Service(serviceName, serviceType)
-    private val discoveredNodes = new AtomicReference[Set[Node]](Set.empty)
+    private val discoveredNodes = Ref.unsafe[IO, Set[Node]](Set.empty)
     private val log = Logger(getClass.getName)
 
     // NOTE These are extracted for mocking in tests.
@@ -44,23 +43,20 @@ object MDNS {
       Zeroconf.register[IO](instance, ttl = ttl)
 
     protected[service] def scannerStream(interval: FiniteDuration): Stream[IO, Set[Node]] =
-      val single = scanStream
-        .interruptAfter(interval)
-        .compile
-        .toList
-        .flatMap { instances =>
-          instances.map { instance =>
+      val single = for
+        instances <- scanStream
+          .interruptAfter(interval)
+          .compile
+          .toList
+        nodes <- instances.map { instance =>
             for
               address <- IO.fromOption(instance.addresses.headOption)(CouldNotDetermineAddress)
             yield Node(instance.target, instance.port, address)
           }.sequence
-        }
-        .map { nodes =>
-          val s = nodes.toSet
-          log.debug(s"Updating mesh nodes: ${s}")
-          discoveredNodes.set(s)
-          s
-        }
+        uniq = nodes.toSet
+        _ = log.debug(s"Updating mesh nodes: ${uniq}")
+        _ <- discoveredNodes.set(uniq)
+      yield uniq
 
       log.info(s"Scanning for matching nodes every $interval.")
       Stream.repeatEval(single).metered(interval)
@@ -72,6 +68,6 @@ object MDNS {
       scannerStream(interval).compile.resource.drain
 
     def nodes: IO[Set[Node]] =
-      IO(discoveredNodes.get())
+      discoveredNodes.get
   }
 }
