@@ -10,8 +10,8 @@ import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import ssm.service.Sampler
 import ssm.domain.ObservableReading
-import sw.generated.model.*
-import sw.generated.model.Data.given
+import ssm.model.generated.*
+import ssm.model.generated.Data.given
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -32,7 +32,7 @@ class DataApiSuite extends munit.CatsEffectSuite:
       def errors: IO[Sampler.Errors] =
         IO.pure(mockErrors)
 
-    new ObservableReading.ObservableReadingImpl("model", "type", "name", "unit", 5, 23, WidgetConfig("test"), s)
+    new ObservableReading.ObservableReadingImpl("model", "type", "name", "unit", 5, 23, Map.empty, s)
 
   test("Handles empty data") {
     DataApi.routes("name", "model", "group", List.empty).orNotFound.run(request).flatMap { response =>

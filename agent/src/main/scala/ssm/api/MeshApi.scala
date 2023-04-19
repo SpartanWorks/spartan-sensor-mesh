@@ -6,8 +6,8 @@ import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 import org.http4s.dsl.io.*
 
-import sw.generated.model.Mesh
-import sw.generated.model.Mesh.given
+import ssm.model.generated.Mesh
+import ssm.model.generated.Mesh.given
 import ssm.service.MDNS
 
 object MeshApi:

@@ -9,8 +9,8 @@ import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 
-import sw.generated.model.Mesh
-import sw.generated.model.Mesh.given
+import ssm.model.generated.Mesh
+import ssm.model.generated.Mesh.given
 import ssm.service.MDNS
 
 import scala.concurrent.duration.FiniteDuration

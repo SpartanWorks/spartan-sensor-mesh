@@ -14,7 +14,7 @@ lazy val root = project
     resolvers += Resolver.githubPackages("SpartanWorks"),
     libraryDependencies ++= Seq(
       // Domain
-      "spartan.works" %% "ssm-client" % "0.0.1",
+      "spartan.works" %% "ssm-client" % "0.0.3",
       "fr.davit" %% "scout" % "0.2.1",
 
       // HTTP server

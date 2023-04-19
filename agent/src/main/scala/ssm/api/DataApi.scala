@@ -13,9 +13,8 @@ import org.http4s.client.UnexpectedStatus
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 
-import sw.generated.model.*
-import sw.generated.model.Data.given
-
+import ssm.model.generated.*
+import ssm.model.generated.Data.given
 import ssm.domain.ObservableReading
 
 import scala.concurrent.duration.*

@@ -5,7 +5,6 @@ import fs2.Stream
 import com.typesafe.scalalogging.Logger
 import ssm.domain.ReadingOps
 import ssm.domain.ReadingOps.withStats
-import sw.generated.model.Reading
 
 import scala.concurrent.duration.FiniteDuration
 
