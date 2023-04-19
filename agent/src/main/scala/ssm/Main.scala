@@ -11,16 +11,20 @@ import org.http4s.server.middleware.*
 
 import ssm.api.*
 import ssm.domain.*
+import ssm.Log.*
 import ssm.service.*
 
 import scala.concurrent.duration.*
 
 object Main extends ResourceApp.Forever:
+  private val log = getLogger
 
   override def run(args: List[String]): Resource[IO, Unit] =
     for
+      _ <- log.info("Loading configuration...").background
       config <- Config.load()
 
+      _ <- log.info("Booting services...").background
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, config.mdns.serviceType)
       currency = DDGCurrencyApi(client)
@@ -44,8 +48,11 @@ object Main extends ResourceApp.Forever:
       cors = CORS.policy.withAllowOriginAll(routes)
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
 
+      _ <- log.info("Starting mDNS responder...").background
       _ <- mdns.responder(config.node.name, config.mdns.port, config.mdns.dnsTTL).start
       _ <- mdns.scanner(config.mdns.scanInterval).start
+
+      _ <- log.info("Starting observers...").background
       _ <- usd.observer(1.hour, 3).start
       _ <- eur.observer(1.hour, 3).start
       _ <- gbp.observer(1.hour, 3).start
@@ -53,6 +60,7 @@ object Main extends ResourceApp.Forever:
       _ <- xau.observer(1.hour, 3).start
       _ <- btc.observer(1.hour, 3).start
 
+      _ <- log.info("Starting HTTP server...").background
       _ <- BlazeServerBuilder[IO]
           .bindHttp(config.rest.port, config.rest.host)
           .withHttpApp(app)

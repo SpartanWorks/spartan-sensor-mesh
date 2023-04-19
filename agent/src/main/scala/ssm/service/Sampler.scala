@@ -2,9 +2,9 @@ package ssm.service
 
 import cats.effect.*
 import fs2.Stream
-import com.typesafe.scalalogging.Logger
 import ssm.domain.ReadingOps
 import ssm.domain.ReadingOps.withStats
+import ssm.Log.*
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -27,7 +27,7 @@ object Sampler:
     new SamplerImpl(name, sample)
 
   private[service] class SamplerImpl(name: String, sample: IO[Double]) extends Sampler:
-    private val log = Logger(getClass.getName)
+    private val log = getLogger
     private val statusRef = Ref.unsafe[IO, Status](Status.Init)
     private val statsRef = Ref.unsafe[IO, Stats](Stats(0, 0, 0, 0, 0, 0, 0))
     private val errorsRef = Ref.unsafe[IO, Errors](Errors(0, ""))
@@ -40,13 +40,14 @@ object Sampler:
             curr <- errorsRef.get
             _ <- errorsRef.set(Errors(curr.count + 1, e.getMessage))
             _ <- statusRef.set(Status.Error)
+            _ <- log.error(s"Could not sample a value: ${e.getMessage}")
           yield None
       }).meteredStartImmediately(samplingInterval)
         .unNone
 
     protected[service] def samplerStream(samplingInterval: FiniteDuration, windowSize: Int): Stream[IO, Unit] =
-      log.info(s"Sampling $name every $samplingInterval.")
       for
+        _ <- log.info(s"Sampling $name every $samplingInterval.").stream
         stats <- sampleStream(samplingInterval).withStats(windowSize)
         _ <- Stream.eval(statsRef.set(stats))
         _ <- Stream.eval(statusRef.set(Status.Ok))

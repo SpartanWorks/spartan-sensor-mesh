@@ -2,9 +2,11 @@ package ssm.service
 
 import cats.effect.*
 import cats.implicits.*
-import com.typesafe.scalalogging.Logger
 import fs2.Stream
 import fr.davit.scout.Zeroconf
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.slf4j.*
+import ssm.Log.*
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -29,9 +31,10 @@ object MDNS {
     new MDNSImpl(serviceName, serviceType)
 
   private[service] class MDNSImpl(serviceName: String, serviceType: String) extends MDNS {
+    private val log = getLogger
+
     private val service = Zeroconf.Service(serviceName, serviceType)
     private val discoveredNodes = Ref.unsafe[IO, Set[Node]](Set.empty)
-    private val log = Logger(getClass.getName)
 
     // NOTE These are extracted for mocking in tests.
     protected[service] def scanStream: Stream[IO, Zeroconf.Instance] =
@@ -39,8 +42,10 @@ object MDNS {
 
     protected[service] def responderStream(name: String, port: Int, ttl: FiniteDuration): Stream[IO, Unit] =
       val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
-      log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.")
-      Zeroconf.register[IO](instance, ttl = ttl)
+      for
+        _ <- log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.").stream
+        _ <- Zeroconf.register[IO](instance, ttl = ttl)
+      yield ()
 
     protected[service] def scannerStream(interval: FiniteDuration): Stream[IO, Set[Node]] =
       val single = for
@@ -54,12 +59,14 @@ object MDNS {
             yield Node(instance.target, instance.port, address)
           }.sequence
         uniq = nodes.toSet
-        _ = log.debug(s"Updating mesh nodes: ${uniq}")
+        _ <- log.debug(s"Updating mesh nodes: ${uniq}")
         _ <- discoveredNodes.set(uniq)
       yield uniq
 
-      log.info(s"Scanning for matching nodes every $interval.")
-      Stream.repeatEval(single).meteredStartImmediately(interval)
+      for
+        _ <- log.info(s"Scanning for matching nodes every $interval.").stream
+        scanner <- Stream.repeatEval(single).meteredStartImmediately(interval)
+      yield scanner
 
     def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
       responderStream(name, port, ttl).compile.resource.drain

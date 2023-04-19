@@ -32,7 +32,8 @@ lazy val root = project
       // Misc
       "com.typesafe" % "config" % "1.4.2",
       "ch.qos.logback" % "logback-classic" % "1.4.6",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+      "org.typelevel" %% "log4cats-core" % "2.5.0",
+      "org.typelevel" %% "log4cats-slf4j" % "2.5.0",
 
       // Test
       "org.scalameta" %% "munit" % "0.7.29" % Test,
