@@ -1,6 +1,6 @@
 # Spartan Sensor Mesh
 
-This project uses several connected ESP8266 boards to display various sensor readings in a clean and configurable way.
+This project uses several connected agents (ESP8266/ESP32 devices or JVM agents) to display various readings in a clean and configurable way.
 [Here's](http://idorobots.github.io/spartan-sensor-mesh/) a live demo of the UI, and [some](./landscape.png) [images](./portrait.png).
 
 ## Building
@@ -44,6 +44,13 @@ The `device` backend expects two configuration files to be present in its filesy
   "group": string,
   "name": string,
   "password": string (password for the AP and the configuration part of the UI),
+  "log": {
+    "level": string (one of: debug, info, warning, error, critical),
+    "console": {
+      "bus": string (should be one of the available UART busses),
+      "other properties": any (arguments for the bus, depends on the bus)
+    }
+  },
   "sensors": [
     {
       "type": string (names the sensor to use),
@@ -52,10 +59,12 @@ The `device` backend expects two configuration files to be present in its filesy
         "bus": string (depends on the sensor),
         "other properties": any (arguments for the bus, depends on the sensor)
       },
-      "capabilities": [
+      "readings": [
         {
-          "reading": string (type of supported reading),
-          "name": string (name of the reading to use)
+          "type": string (type of supported reading),
+          "name": string (name of the reading to use),
+          "averaging": number,
+          "widget": json (display widget specific configuration, used to guide the UI)
         }
       ],
       "other properties": any (any extra arguments to configure the sensor, such as precission, etc)
