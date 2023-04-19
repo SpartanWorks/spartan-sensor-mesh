@@ -25,14 +25,17 @@ object Main extends ResourceApp.Forever:
       mdns = MDNS(config.mdns.serviceName, "tcp")
       currency = DDGCurrencyApi(client)
 
-      displayConfig = Map("type" -> Json.fromString("gauge"))
+      displayConfig = (color: String) => Map(
+        "type" -> Json.fromString("gauge"),
+        "color" -> Json.fromString(color)
+      )
 
-      usd = ObservableReading("ddg", "currency", "USD", currency.latest("USD", "PLN"), "PLN", 4.0, 5.0, displayConfig)
-      eur = ObservableReading("ddg", "currency", "EUR", currency.latest("EUR", "PLN"), "PLN", 4.0, 5.0, displayConfig)
-      gbp = ObservableReading("ddg", "currency", "GBP", currency.latest("GBP", "PLN"), "PLN", 4.0, 6.0, displayConfig)
-      xag = ObservableReading("ddg", "currency", "XAG", currency.latest("XAG", "PLN"), "PLN", 50.0, 200.0, displayConfig)
-      xau = ObservableReading("ddg", "currency", "XAU", currency.latest("XAU", "PLN"), "PLN", 6000.0, 10000.0, displayConfig)
-      btc = ObservableReading("ddg", "currency", "BTC", currency.latest("XBT", "PLN"), "PLN", 100000.0, 200000.0, displayConfig)
+      usd = ObservableReading("ddg", "currency", "USD", currency.latest("USD", "PLN"), "PLN", 4.0, 5.0, displayConfig("green"))
+      eur = ObservableReading("ddg", "currency", "EUR", currency.latest("EUR", "PLN"), "PLN", 4.0, 5.0, displayConfig("blue"))
+      gbp = ObservableReading("ddg", "currency", "GBP", currency.latest("GBP", "PLN"), "PLN", 4.0, 6.0, displayConfig("purple"))
+      xag = ObservableReading("ddg", "currency", "XAG", currency.latest("XAG", "PLN"), "PLN", 50.0, 200.0, displayConfig("gold"))
+      xau = ObservableReading("ddg", "currency", "XAU", currency.latest("XAU", "PLN"), "PLN", 6000.0, 10000.0, displayConfig("silver"))
+      btc = ObservableReading("ddg", "currency", "BTC", currency.latest("XBT", "PLN").map(_ / 1000.0), "kPLN", 100.0, 200.0, displayConfig("gray"))
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
