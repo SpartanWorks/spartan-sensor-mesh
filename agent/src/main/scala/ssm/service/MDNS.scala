@@ -59,7 +59,7 @@ object MDNS {
       yield uniq
 
       log.info(s"Scanning for matching nodes every $interval.")
-      Stream.repeatEval(single).metered(interval)
+      Stream.repeatEval(single).meteredStartImmediately(interval)
 
     def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
       responderStream(name, port, ttl).compile.resource.drain
