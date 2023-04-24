@@ -24,12 +24,11 @@ object Main extends ResourceApp.Forever:
       _ <- log.info("Booting services...").background
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, config.mdns.serviceType)
-      currency = DDGCurrencyApi(client)
-      system = System.assemble(config.node, mdns, currency)
+      node = Node(config.node, DDGCurrencyApi(client))
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
-        "/api/data" -> DataApi.routes(config.node.name, config.node.model, config.node.group, system),
+        "/api/data" -> DataApi.routes(node),
       ).orNotFound
       cors = CORS.policy.withAllowOriginAll(routes)
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
@@ -39,7 +38,7 @@ object Main extends ResourceApp.Forever:
       _ <- mdns.scanner(config.mdns.scanInterval).start
 
       _ <- log.info("Starting reading observers...").background
-      _ <- system.observer.start
+      _ <- node.observer.start
 
       _ <- log.info("Starting HTTP server...").background
       _ <- BlazeServerBuilder[IO]

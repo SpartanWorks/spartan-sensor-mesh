@@ -1,26 +1,27 @@
-package ssm.domain
+package ssm.service
 
 import cats.effect.*
 import cats.implicits.*
 import io.circe.Json
 import ssm.model.generated.*
-import ssm.service.*
+import ssm.domain.*
 
 import scala.concurrent.duration.*
 
-trait System:
+trait Node:
   def observer: Resource[IO, Unit]
   def readings: IO[List[Reading]]
+  def data: IO[Data]
 
-object System:
-  def assemble(config: Config, mdns: MDNS, currencyApi: DDGCurrencyApi): System =
-    new SystemImpl(config, mdns, currencyApi)
+object Node:
+  def apply(config: Config, currencyApi: DDGCurrencyApi): Node =
+    new NodeImpl(config, currencyApi)
 
-  private case class ObservableReadingConfig(reading: ObservableReading, samplingInterval: FiniteDuration, windowSize: Int)
+  private[service] case class ObservableReadingConfig(reading: ObservableReading, samplingInterval: FiniteDuration, windowSize: Int)
 
-  private class SystemImpl(config: Config, mdns: MDNS, currencyApi: DDGCurrencyApi) extends System:
+  private[service] class NodeImpl(config: Config, currencyApi: DDGCurrencyApi) extends Node:
 
-    private val system: List[ObservableReadingConfig] = config.sensors.map {
+    private val readingsConf: List[ObservableReadingConfig] = config.sensors.map {
       case ConfigSensorsInner("currency", true, samplingInterval, _, readings) =>
         readings.map { case ReadingConfig(target, source, averaging, widgetConfig) =>
           ObservableReadingConfig(
@@ -34,11 +35,16 @@ object System:
     }.flatten
 
     override def observer: Resource[IO, Unit] =
-      system.map { conf =>
+      readingsConf.map { conf =>
         conf.reading.observer(conf.samplingInterval, conf.windowSize)
       }.parSequence.map(_ => ())
 
     override def readings: IO[List[Reading]] =
-      system.map { conf =>
+      readingsConf.map { conf =>
         conf.reading.reading
       }.sequence
+
+    override def data: IO[Data] =
+      readings.map { rs =>
+        Data(config.model, config.group, config.name, rs)
+      }

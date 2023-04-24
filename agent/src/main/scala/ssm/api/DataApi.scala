@@ -14,17 +14,16 @@ import org.http4s.implicits.*
 
 import ssm.model.generated.*
 import ssm.model.generated.Data.given
-import ssm.domain.System
+import ssm.service.Node
 
 import scala.concurrent.duration.*
 
 object DataApi:
-  def routes(name: String, model: String, group: String, system: System) = HttpRoutes.of[IO] {
+  def routes(node: Node) = HttpRoutes.of[IO] {
 
     case GET -> Root =>
       for
-        rs <- system.readings
-        data = Data(model, group, name, rs)
+        data <- node.data
         resp <- Ok(data)
       yield resp
 
