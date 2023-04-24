@@ -9,7 +9,7 @@ import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import ssm.service.Sampler
-import ssm.domain.ObservableReading
+import ssm.domain.{ObservableReading, System}
 import ssm.model.generated.*
 import ssm.model.generated.Data.given
 
@@ -34,8 +34,15 @@ class DataApiSuite extends munit.CatsEffectSuite:
 
     new ObservableReading.ObservableReadingImpl("model", "type", "name", "unit", 5, 23, Map.empty, s)
 
+  def mockSystem(rs: List[ObservableReading]): System =
+    new System:
+      def observer: Resource[IO, Unit] =
+        Resource.never
+      def readings: IO[List[Reading]] =
+        rs.map(_.reading).sequence
+
   test("Handles empty data") {
-    DataApi.routes("name", "model", "group", List.empty).orNotFound.run(request).flatMap { response =>
+    DataApi.routes("name", "model", "group", mockSystem(List.empty)).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Data].assertEquals(Data("model", "group", "name", List.empty))
     }
@@ -50,7 +57,7 @@ class DataApiSuite extends munit.CatsEffectSuite:
       expectedErrors,
       expectedStats
     )
-    DataApi.routes("name", "model", "group", List(reading)).orNotFound.run(request).flatMap { response =>
+    DataApi.routes("name", "model", "group", mockSystem(List(reading))).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Data].map { data =>
         assertEquals(data.readings(0).errors.intValue(), expectedErrors.count)
@@ -79,7 +86,7 @@ class DataApiSuite extends munit.CatsEffectSuite:
       Sampler.Errors(5, "Oof"),
       Sampler.Stats(1, 2, 3, 4, 5, 6, 7)
     )
-    DataApi.routes("name", "model", "group", List(reading1, reading2)).orNotFound.run(request).flatMap { response =>
+    DataApi.routes("name", "model", "group", mockSystem(List(reading1, reading2))).orNotFound.run(request).flatMap { response =>
       assertEquals(response.status, Status.Ok)
       response.as[Data].map { data =>
         assertEquals(data.readings.length, 2)
@@ -94,7 +101,7 @@ class DataApiSuite extends munit.CatsEffectSuite:
   test("Doesn't handle other requsets") {
     val request = Request[IO](Method.GET, uri"/mesh")
 
-    DataApi.routes("name", "model", "group", List.empty).orNotFound.run(request).map { response =>
+    DataApi.routes("name", "model", "group", mockSystem(List.empty)).orNotFound.run(request).map { response =>
       assertEquals(response.status, Status.NotFound)
     }
   }
