@@ -21,6 +21,7 @@ object Main extends ResourceApp.Forever:
     for
       _ <- log.info("Loading configuration...").background
       config <- Config.load()
+      _ = Log.setLevel(config.node.log.level)
 
       _ <- log.info("Booting services...").background
       client <- BlazeClientBuilder[IO].resource
