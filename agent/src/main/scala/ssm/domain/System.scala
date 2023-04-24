@@ -16,27 +16,29 @@ object System:
   def assemble(config: Config, mdns: MDNS, currencyApi: DDGCurrencyApi): System =
     new SystemImpl(config, mdns, currencyApi)
 
+  private case class ObservableReadingConfig(reading: ObservableReading, samplingInterval: FiniteDuration, windowSize: Int)
+
   private class SystemImpl(config: Config, mdns: MDNS, currencyApi: DDGCurrencyApi) extends System:
 
-    private val system: List[ObservableReading] = {
+    private val system: List[ObservableReadingConfig] = config.sensors.map {
+      case ConfigSensorsInner("currency", true, samplingInterval, _, readings) =>
+        readings.map { case ReadingConfig(target, source, averaging, widgetConfig) =>
+          ObservableReadingConfig(
+            ObservableReading("ddg", "currency", source, currencyApi.latest(source, target), target, 0, 1000, widgetConfig),
+            samplingInterval.toInt.millis,
+            averaging.toInt
+          )
+        }
 
-      val displayConfig = (color: String) => Map(
-        "type" -> Json.fromString("gauge"),
-        "color" -> Json.fromString(color)
-      )
-
-      val usd = ObservableReading("ddg", "currency", "USD", currencyApi.latest("USD", "PLN"), "PLN", 4.0, 5.0, displayConfig("green"))
-      val eur = ObservableReading("ddg", "currency", "EUR", currencyApi.latest("EUR", "PLN"), "PLN", 4.0, 5.0, displayConfig("blue"))
-      val gbp = ObservableReading("ddg", "currency", "GBP", currencyApi.latest("GBP", "PLN"), "PLN", 4.0, 6.0, displayConfig("purple"))
-      val xag = ObservableReading("ddg", "currency", "XAG", currencyApi.latest("XAG", "PLN"), "PLN", 50.0, 200.0, displayConfig("silver"))
-      val xau = ObservableReading("ddg", "currency", "XAU", currencyApi.latest("XAU", "PLN"), "PLN", 6000.0, 10000.0, displayConfig("gold"))
-      val btc = ObservableReading("ddg", "currency", "BTC", currencyApi.latest("XBT", "PLN").map(_ / 1000.0), "kPLN", 100.0, 200.0, displayConfig("gray"))
-
-      List(usd, eur, gbp, xag, xau)
-    }
+      case _ => Nil
+    }.flatten
 
     override def observer: Resource[IO, Unit] =
-      system.map(_.observer(1.hour, 3)).sequence.map(_ => ())
+      system.map { conf =>
+        conf.reading.observer(conf.samplingInterval, conf.windowSize)
+      }.parSequence.map(_ => ())
 
     override def readings: IO[List[Reading]] =
-      system.map(_.reading).sequence
+      system.map { conf =>
+        conf.reading.reading
+      }.sequence

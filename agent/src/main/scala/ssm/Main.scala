@@ -25,7 +25,7 @@ object Main extends ResourceApp.Forever:
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, config.mdns.serviceType)
       currency = DDGCurrencyApi(client)
-      system = System.assemble(???, mdns, currency)
+      system = System.assemble(config.node, mdns, currency)
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),

@@ -4,12 +4,11 @@ import cats.effect.*
 import com.typesafe.config.ConfigFactory
 import io.circe.generic.auto.*
 import io.circe.config.syntax.*
+import ssm.model.generated.{ Config => Node}
 
 import scala.concurrent.duration.FiniteDuration
 
 case class Rest(host: String, port: Int, logRequests: Boolean)
-
-case class Node(name: String, model: String, group: String)
 
 case class MDNS(serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, dnsTTL: FiniteDuration)
 
