@@ -77,8 +77,8 @@ class SamplerSuite extends CatsEffectSuite:
       errors <- sampler.errors
       stats <- sampler.stats
     yield {
-      //assertEquals(status, Sampler.Status.Ok)
-      //assertEquals(errors, Sampler.Errors(2, "Oops"))
+      assertEquals(status, Sampler.Status.Ok)
+      assertEquals(errors, Sampler.Errors(2, "Oops"))
       assertEquals(stats, Sampler.Stats(3.0, 2.0, 2.0, 3, 1.0, 3.0, 3))
     }
   }
