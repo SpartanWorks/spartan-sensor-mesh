@@ -10,6 +10,7 @@ import org.http4s.server.middleware.*
 
 import ssm.api.*
 import ssm.domain.*
+import ssm.integrations.*
 import ssm.Log.*
 import ssm.service.*
 

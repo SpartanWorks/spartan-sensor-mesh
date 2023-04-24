@@ -8,8 +8,8 @@ import org.http4s.circe.*
 import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
 import org.http4s.implicits.*
-import ssm.service.{Sampler, Node}
-import ssm.domain.ObservableReading
+import ssm.service.Node
+import ssm.domain.{ObservableReading, Sampler}
 import ssm.model.generated.*
 import ssm.model.generated.Data.given
 

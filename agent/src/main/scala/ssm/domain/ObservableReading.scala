@@ -3,7 +3,6 @@ package ssm.domain
 import cats.effect.*
 import io.circe.Json
 import ssm.model.generated.*
-import ssm.service.Sampler
 
 import scala.concurrent.duration.FiniteDuration
 

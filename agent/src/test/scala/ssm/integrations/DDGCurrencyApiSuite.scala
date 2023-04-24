@@ -1,4 +1,4 @@
-package ssm.service
+package ssm.integrations
 
 import cats.effect.*
 import io.circe.*

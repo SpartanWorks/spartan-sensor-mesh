@@ -1,4 +1,4 @@
-package ssm.service
+package ssm.domain
 
 import cats.effect.*
 import cats.implicits.*

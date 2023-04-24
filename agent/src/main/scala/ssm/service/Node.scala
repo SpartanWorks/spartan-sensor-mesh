@@ -3,8 +3,9 @@ package ssm.service
 import cats.effect.*
 import cats.implicits.*
 import io.circe.Json
-import ssm.model.generated.*
 import ssm.domain.*
+import ssm.integrations.DDGCurrencyApi
+import ssm.model.generated.*
 
 import scala.concurrent.duration.*
 

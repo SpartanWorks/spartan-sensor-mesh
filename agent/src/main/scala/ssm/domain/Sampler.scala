@@ -1,8 +1,7 @@
-package ssm.service
+package ssm.domain
 
 import cats.effect.*
 import fs2.Stream
-import ssm.domain.ReadingOps
 import ssm.domain.ReadingOps.withStats
 import ssm.Log.*
 
@@ -26,14 +25,14 @@ object Sampler:
   def apply(name: String, sample: IO[Double]): Sampler =
     new SamplerImpl(name, sample)
 
-  private[service] class SamplerImpl(name: String, sample: IO[Double]) extends Sampler:
+  private[domain] class SamplerImpl(name: String, sample: IO[Double]) extends Sampler:
     private val log = getLogger
     private val statusRef = Ref.unsafe[IO, Status](Status.Init)
     private val statsRef = Ref.unsafe[IO, Stats](Stats(0, 0, 0, 0, 0, 0, 0))
     private val errorsRef = Ref.unsafe[IO, Errors](Errors(0, ""))
 
     // NOTE These are extracted for mocking in tests.
-    protected[service] def sampleStream(samplingInterval: FiniteDuration): Stream[IO, Double] =
+    protected[domain] def sampleStream(samplingInterval: FiniteDuration): Stream[IO, Double] =
       Stream.repeatEval(
         sample.map { s => Some(s) }.handleErrorWith { e =>
           for
@@ -45,7 +44,7 @@ object Sampler:
       }).meteredStartImmediately(samplingInterval)
         .unNone
 
-    protected[service] def samplerStream(samplingInterval: FiniteDuration, windowSize: Int): Stream[IO, Unit] =
+    protected[domain] def samplerStream(samplingInterval: FiniteDuration, windowSize: Int): Stream[IO, Unit] =
       for
         _ <- log.info(s"Sampling $name every $samplingInterval.").stream
         stats <- sampleStream(samplingInterval).withStats(windowSize)
