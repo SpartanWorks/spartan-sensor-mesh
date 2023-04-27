@@ -19,14 +19,16 @@ object Main extends ResourceApp.Forever:
 
   override def run(args: List[String]): Resource[IO, Unit] =
     for
+      _ <- log.info(s"Started with: ${args.mkString(" ")}").background
       _ <- log.info("Loading configuration...").background
       config <- Config.load()
-      _ = Log.setLevel(config.node.log.level)
+      nodeConfig <- Config.loadNodeConfigWithFallback(args.headOption)
+      _ = Log.setLevel(nodeConfig.log.level)
 
       _ <- log.info("Booting services...").background
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, config.mdns.serviceType)
-      node = Node(config.node, DDGCurrencyApi(client))
+      node = Node(nodeConfig, DDGCurrencyApi(client))
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
@@ -36,7 +38,7 @@ object Main extends ResourceApp.Forever:
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
 
       _ <- log.info("Starting mDNS responder...").background
-      _ <- mdns.responder(config.node.name, config.mdns.port, config.mdns.dnsTTL).start
+      _ <- mdns.responder(nodeConfig.name, config.mdns.port, config.mdns.dnsTTL).start
       _ <- mdns.scanner(config.mdns.scanInterval).start
 
       _ <- log.info("Starting reading observers...").background
