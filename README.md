@@ -1,7 +1,7 @@
 # Spartan Sensor Mesh
 
 This project uses several connected agents (ESP8266/ESP32 devices or JVM agents) to display various readings in a clean and configurable way.
-[Here's](http://idorobots.github.io/spartan-sensor-mesh/) a live demo of the UI, and [some](./landscape.png) [images](./portrait.png).
+[Here's](http://ssn.idorobots.org) a live demo of the UI, and [some](./landscape.png) [images](./portrait.png).
 
 ## Building
 
