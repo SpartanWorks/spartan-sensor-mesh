@@ -38,7 +38,7 @@ object Main extends ResourceApp.Forever:
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors
 
       _ <- log.info("Starting mDNS responder...").background
-      _ <- mdns.responder(nodeConfig.name, config.mdns.port, config.mdns.dnsTTL).start
+      _ <- mdns.responder(nodeConfig.name, config.mdns.port, config.mdns.dnsTTL, config.mdns.retryInterval).start
       _ <- mdns.scanner(config.mdns.scanInterval).start
 
       _ <- log.info("Starting reading observers...").background

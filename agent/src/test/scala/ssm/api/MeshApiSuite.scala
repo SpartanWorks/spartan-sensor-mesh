@@ -20,7 +20,7 @@ class MeshApiSuite extends munit.CatsEffectSuite:
   val request = Request[IO](Method.GET, uri"/")
 
   def mockService(expectedNodes: Set[MDNS.Node]) = new MDNS:
-    def responder(name: String, port: Int, dnsTTL: FiniteDuration): Resource[IO, Unit] =
+    def responder(name: String, port: Int, dnsTTL: FiniteDuration, retryInterval: FiniteDuration): Resource[IO, Unit] =
       Resource.eval(IO.unit)
 
     def scanner(scanInterval: FiniteDuration): Resource[IO, Unit] =
