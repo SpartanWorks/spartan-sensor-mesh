@@ -14,7 +14,7 @@ import java.net.InetAddress
 
 
 trait MDNS {
-  def responder(name: String, port: Int, dnsTTL: FiniteDuration): Resource[IO, Unit]
+  def responder(name: String, port: Int, dnsTTL: FiniteDuration, retryInterval: FiniteDuration): Resource[IO, Unit]
   def scanner(scanInterval: FiniteDuration): Resource[IO, Unit]
 
   def nodes: IO[Set[MDNS.Node]]
@@ -40,14 +40,21 @@ object MDNS {
     protected[service] def scanStream: Stream[IO, Zeroconf.Instance] =
       Zeroconf.scan[IO](service)
 
-    protected[service] def responderStream(name: String, port: Int, ttl: FiniteDuration): Stream[IO, Unit] =
+    protected[service] def registerStream(name: String, port: Int, ttl: FiniteDuration): Stream[IO, Unit] =
+      val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
+      Zeroconf.register[IO](instance, ttl = ttl)
+
+    private[service] def responderStream(name: String, port: Int, ttl: FiniteDuration, retryInterval: FiniteDuration): Stream[IO, Unit] =
       val instance = Zeroconf.Instance(service, name, port, name, Map.empty, Seq.empty)
       for
         _ <- log.info(s"Registering service $serviceName ($serviceType:$port) under the name '$name'.").stream
-        _ <- Zeroconf.register[IO](instance, ttl = ttl)
+        att <- registerStream(name, port, ttl).attempts(Stream.constant(retryInterval))
+        _ <- att.fold({ error =>
+          log.error(s"mDNS responder failed: $error").stream
+        }, _ => Stream.unit)
       yield ()
 
-    protected[service] def scannerStream(interval: FiniteDuration): Stream[IO, Set[Node]] =
+    private[service] def scannerStream(interval: FiniteDuration): Stream[IO, Set[Node]] =
       val single = for
         instances <- scanStream
           .interruptAfter(interval)
@@ -68,8 +75,8 @@ object MDNS {
         scanner <- Stream.repeatEval(single).meteredStartImmediately(interval)
       yield scanner
 
-    def responder(name: String, port: Int, ttl: FiniteDuration): Resource[IO, Unit] =
-      responderStream(name, port, ttl).compile.resource.drain
+    def responder(name: String, port: Int, ttl: FiniteDuration, retryInterval: FiniteDuration): Resource[IO, Unit] =
+      responderStream(name, port, ttl, retryInterval).compile.resource.drain
 
     def scanner(interval: FiniteDuration): Resource[IO, Unit] =
       scannerStream(interval).compile.resource.drain

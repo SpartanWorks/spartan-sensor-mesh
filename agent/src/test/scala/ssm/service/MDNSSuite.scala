@@ -59,3 +59,22 @@ class MDNSSuite extends CatsEffectSuite:
       assertEquals(error, expected)
     }
   }
+
+  test("Should handle Zeroconf registration errors") {
+    var errorCount = 0
+
+    val mdns = new MDNS.MDNSImpl("test", "service"):
+        override def registerStream(name: String, port: Int, ttl: FiniteDuration): Stream[IO, Unit] =
+          Stream.unit.flatMap { _ =>
+            errorCount = errorCount + 1
+            Stream.raiseError(new Throwable("Oops!"))
+          }
+
+    val expected = 5
+
+    for
+      _ <- mdns.responderStream("test", 8080, 1.minute, 10.millis).take(expected).compile.toVector
+    yield {
+      assertEquals(errorCount, expected)
+    }
+  }

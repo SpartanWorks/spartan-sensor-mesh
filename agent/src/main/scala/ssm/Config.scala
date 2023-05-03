@@ -16,7 +16,7 @@ import scala.concurrent.duration.FiniteDuration
 
 case class Rest(host: String, port: Int, logRequests: Boolean)
 
-case class MDNS(serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, dnsTTL: FiniteDuration)
+case class MDNS(serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, retryInterval: FiniteDuration, dnsTTL: FiniteDuration)
 
 case class Config(rest: Rest, mdns: MDNS)
 
