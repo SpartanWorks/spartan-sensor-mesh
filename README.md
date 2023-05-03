@@ -1,11 +1,11 @@
 # Spartan Sensor Mesh
 
-This project uses several connected ESP8266 boards to display various sensor readings in a clean and configurable way.
+This project uses several connected agents (ESP8266/ESP32 devices or JVM agents) to display various readings in a clean and configurable way.
 [Here's](http://idorobots.github.io/spartan-sensor-mesh/) a live demo of the UI, and [some](./landscape.png) [images](./portrait.png).
 
 ## Building
 
-The UI is a run-of-the-mill TypeScript app. To build it:
+The `ui` is a run-of-the-mill TypeScript app. To build it:
 
 ```
 npm i
@@ -22,6 +22,14 @@ pio run -t uploadfs
 pio run -t upload
 ```
 
+The `agent` is a JVM-based variant of the sensing service, currently also supporting GraalVM native-image compilation & Docker. To build the `agent` backend run the following commands:
+
+```
+sbt assembly # Creates a runnable uberjar.
+sbt Docker/publishLocal # Creates a runnable container image.
+sbt GraalVMNativeImage/packageBin # Creates a native binary for your system.
+```
+
 ## Configuration
 
 The `device` backend expects two configuration files to be present in its filesystem:
@@ -36,6 +44,13 @@ The `device` backend expects two configuration files to be present in its filesy
   "group": string,
   "name": string,
   "password": string (password for the AP and the configuration part of the UI),
+  "log": {
+    "level": string (one of: debug, info, warning, error, critical),
+    "console": {
+      "bus": string (should be one of the available UART busses),
+      "other properties": any (arguments for the bus, depends on the bus)
+    }
+  },
   "sensors": [
     {
       "type": string (names the sensor to use),
@@ -44,10 +59,12 @@ The `device` backend expects two configuration files to be present in its filesy
         "bus": string (depends on the sensor),
         "other properties": any (arguments for the bus, depends on the sensor)
       },
-      "capabilities": [
+      "readings": [
         {
-          "reading": string (type of supported reading),
-          "name": string (name of the reading to use)
+          "type": string (type of supported reading),
+          "name": string (name of the reading to use),
+          "averaging": number,
+          "widget": json (display widget specific configuration, used to guide the UI)
         }
       ],
       "other properties": any (any extra arguments to configure the sensor, such as precission, etc)
@@ -70,4 +87,12 @@ The `device` backend can be monitored by hooking it up with a serial cable, and 
 
 ```
 pio run -t monitor
+```
+
+The `agent` backend can be run in debug mode (ideally via a language server protocol implementation), and utilizes the following extra commands for convenience:
+
+```
+sbt scalafm
+sbt sacalfixAll
+sbt coverage test coverageReport
 ```

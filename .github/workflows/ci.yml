@@ -14,28 +14,31 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Check which part is affected
         id: source-affected
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            device:
-              - 'device/**'
             ui:
               - 'ui/**'
+            device:
+              - 'device/**'
+            agent:
+              - 'agent/**'
 
     outputs:
-      deviceAffected: ${{ steps.source-affected.outputs.device }}
       uiAffected: ${{ steps.source-affected.outputs.ui }}
+      deviceAffected: ${{ steps.source-affected.outputs.device }}
+      agentAffected: ${{ steps.source-affected.outputs.agent }}
 
   ci-ui:
     needs: setup
     if: ${{ needs.setup.outputs.uiAffected == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
         with:
@@ -62,7 +65,7 @@ jobs:
           - esp12e
           - esp01
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
         with:
@@ -81,3 +84,49 @@ jobs:
       - name: Build the code
         working-directory: ./device
         run: pio run -e ${{ matrix.board }}
+
+  ci-agent:
+    needs: setup
+    if: ${{ needs.setup.outputs.agentAffected == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - uses: coursier/cache-action@v6
+
+      - name: Install Coursier & SBT
+        uses: coursier/setup-action@v1
+
+      - name: Test the code
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./agent
+        run: sbt coverage test coverageReport
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: agent/target/scala-3.2.2/scoverage-report/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: agent/target/test-reports/
+
+      - name: Build a Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./agent
+        run: sbt Docker/publishLocal
+
+      - name: Build a GraalVM native-image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./agent
+        run: sbt GraalVMNativeImage/packageBin
