@@ -7,6 +7,8 @@ import cats.implicits.*
 import fs2.io.process.ProcessBuilder
 import fs2.text
 
+import ssm.Log.*
+
 
 trait NUTCli:
   def fetchAll(ups: String): IO[List[NUTCli.NUTVariable]]
@@ -22,6 +24,8 @@ object NUTCli:
     new NUTCliImpl()
 
   private class NUTCliImpl() extends NUTCli:
+    private val log = getLogger
+
     private def parseValue(value: String): IO[Double] =
       IO.fromTry(Try(value.toDouble))
 
@@ -31,18 +35,21 @@ object NUTCli:
          case _ => IO.raiseError(BadVariable(s"Could not parse variable value: ${line}"))
        }
 
+    private def run(cmd: String, args: String*): IO[String] =
+      ProcessBuilder(cmd, args.toList).spawn[IO].use { process =>
+        process.stdout.through(text.utf8.decode).compile.string
+      }.flatTap { output =>
+        log.debug(s"Command '$cmd $args' resulted in: '$output'")
+      }
+
     def fetchAll(ups: String): IO[List[NUTVariable]] =
       for
-        output <- ProcessBuilder("upsc", s"${ups}").spawn[IO].use { process =>
-          process.stdout.through(text.utf8.decode).compile.string
-        }
+        output <- run("upsc", ups)
         variables <- output.split("\n").toList.map(parseLine).sequence
       yield variables
 
     def fetch(ups: String, variable: String): IO[Double] =
       for
-        output <- ProcessBuilder("upsc", s"${ups} ${variable}").spawn[IO].use { process =>
-          process.stdout.through(text.utf8.decode).compile.string
-        }
+        output <- run("upsc", ups, variable)
         value <- parseValue(output)
       yield value
