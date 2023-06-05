@@ -34,20 +34,22 @@ object Node:
               )
           }
         case ConfigSensorsInner("network-ups-tools", true, samplingInterval, connection, readings) =>
-          // FIXME This is pretty fragile, could use a better way to pass config to the integrations.
-          val upsName = connection("upsName").as[String]
-          val upsHost = connection("host").as[String]
-          val ups = s"$upsName@$upsHost"
-          readings.map {
-            case ReadingConfig(variable, name, averaging, widgetConfig) =>
-              // FIXME It should be left to the widget config.
-              val unit = ""
-              ObservableReadingConfig(
-                // TODO Could actually populate the model name and type using the UPS provided values.
-                ObservableReading("nut", "ups", name, nutCli.fetch(ups, variable), unit, 0, 100, widgetConfig),
-                samplingInterval.toInt.millis,
-                averaging.toInt
-              )
+          (for
+            // FIXME This is pretty fragile, could use a better way to pass config to the integrations.
+            upsName <- connection("upsName").as[String]
+            upsHost <- connection("host").as[String]
+          yield s"$upsName@$upsHost").toSeq.flatMap { ups =>
+            readings.map {
+              case ReadingConfig(variable, name, averaging, widgetConfig) =>
+                // FIXME It should be left to the widget config.
+                val unit = ""
+                ObservableReadingConfig(
+                  // TODO Could actually populate the model name and type using the UPS provided values.
+                  ObservableReading("nut", "ups", name, nutCli.fetch(ups, variable), unit, 0, 100, widgetConfig),
+                  samplingInterval.toInt.millis,
+                  averaging.toInt
+                )
+            }
           }
 
         case _ => Nil
