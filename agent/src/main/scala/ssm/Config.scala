@@ -43,7 +43,7 @@ object Config:
       }
       .compile
       .resource
-     .lastOrError
+      .lastOrError
 
   def loadNodeConfigWithFallback(filename: Option[String]): Resource[IO, Node] =
     val n = filename.map(Config.loadFromFile(_)).sequence

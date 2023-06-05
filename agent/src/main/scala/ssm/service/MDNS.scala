@@ -76,10 +76,10 @@ object MDNS {
       yield scanner
 
     def responder(name: String, port: Int, ttl: FiniteDuration, retryInterval: FiniteDuration): Resource[IO, Unit] =
-      responderStream(name, port, ttl, retryInterval).compile.resource.drain
+      responderStream(name, port, ttl, retryInterval).compile.drain.background.map(_ => ())
 
     def scanner(interval: FiniteDuration): Resource[IO, Unit] =
-      scannerStream(interval).compile.resource.drain
+      scannerStream(interval).compile.drain.background.map(_ => ())
 
     def nodes: IO[Set[Node]] =
       discoveredNodes.get

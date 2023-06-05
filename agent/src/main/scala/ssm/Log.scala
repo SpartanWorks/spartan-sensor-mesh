@@ -24,3 +24,7 @@ object Log:
     def stream: Stream[IO, T] =
       Stream.eval(log)
 
+  extension [T](log: IO[T])
+    def resource: Resource[IO, T] =
+      Resource.eval(log)
+
