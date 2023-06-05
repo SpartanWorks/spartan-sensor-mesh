@@ -4,7 +4,7 @@ import cats.effect.*
 import cats.implicits.*
 import munit.*
 import ssm.domain.ObservableReading
-import ssm.integrations.DDGCurrencyApi
+import ssm.integrations.*
 import ssm.model.generated.*
 
 import scala.concurrent.duration.*
@@ -13,12 +13,17 @@ class NodeSuite extends CatsEffectSuite:
 
   def mockCurrencyApi(): DDGCurrencyApi =
     new DDGCurrencyApi {
-      override def latest(base: String, targets: String): IO[Double] =
-        IO.never
+      override def latest(base: String, targets: String): IO[Double] = IO.never
+    }
+
+  def mockNutCli(): NUTCli =
+    new NUTCli {
+      override def fetchAll(ups: String): IO[List[NUTCli.NUTVariable]] = IO.never
+      override def fetch(ups: String, variable: String): IO[Double] = IO.never
     }
 
   def mockReadings(rs: List[Node.ObservableReadingConfig]): Node.ReadingsBuilder =
-    new Node.ReadingsBuilder(List.empty, mockCurrencyApi()) {
+    new Node.ReadingsBuilder(List.empty, mockCurrencyApi(), mockNutCli()) {
       override def build = rs
     }
 
@@ -106,7 +111,7 @@ class NodeSuite extends CatsEffectSuite:
     )
 
     configs.foreach { (config, expected) =>
-      val builder = Node.ReadingsBuilder(config, mockCurrencyApi())
+      val builder = Node.ReadingsBuilder(config, mockCurrencyApi(), mockNutCli())
       assertEquals(builder.build.length, expected)
     }
   }
