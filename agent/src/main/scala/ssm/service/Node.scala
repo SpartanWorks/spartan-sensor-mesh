@@ -42,7 +42,12 @@ object Node:
             readings.map {
               case ReadingConfig(variable, name, averaging, widgetConfig) =>
                 // FIXME It should be left to the widget config.
-                val unit = ""
+                val unit = variable match {
+                  case "battery.charge" | "ups.load" => "%"
+                  case "battery.voltage" | "input.voltage" | "output.voltage" => "V"
+                  case "battery.runtime" => "s"
+                  case _ => ""
+                }
                 ObservableReadingConfig(
                   // TODO Could actually populate the model name and type using the UPS provided values.
                   ObservableReading("nut", "ups", name, nutCli.fetch(ups, variable), unit, 0, 100, widgetConfig),
