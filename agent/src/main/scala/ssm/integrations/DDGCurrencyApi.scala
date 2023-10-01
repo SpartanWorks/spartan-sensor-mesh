@@ -18,12 +18,13 @@ trait DDGCurrencyApi:
   def latest(base: String, targets: String): IO[Double]
 
 object DDGCurrencyApi:
-  private case class Conversion(`from-currency-symbol`: String, `to-currency-symbol`: String, `converted-amount`: String)
-  private case class CurrencyApiResult(conversion: Conversion)
+  private case class Conversion(quotecurrency: String, mid: Double)
+  private case class CurrencyApiResult(from: String, to: List[Conversion])
 
   case class BadValue(message: String) extends Throwable(message)
 
   val CouldNotExtractResponse = BadValue("Could not extract the response data from DDG spice API.")
+  val CouldNotExtractConversionRate = BadValue("Could not extract the conversion rate data from DDG spice API response.")
 
   def apply(client: Client[IO]): DDGCurrencyApi =
     new DDGCurrencyApiImpl(client)
@@ -41,5 +42,5 @@ object DDGCurrencyApi:
         matched <- IO.fromOption(Spice.findFirstMatchIn(flat))(DDGCurrencyApi.CouldNotExtractResponse)
         stripped <- IO.fromTry(Try(matched.group(1).strip).recoverWith(_ => Failure(DDGCurrencyApi.CouldNotExtractResponse)))
         parsed <- IO.fromEither(decode[CurrencyApiResult](stripped))
-        value <- IO.fromTry(Try(parsed.conversion.`converted-amount`.toDouble))
-      yield value
+        first <- IO.fromOption(parsed.to.headOption)(DDGCurrencyApi.CouldNotExtractConversionRate)
+      yield first.mid

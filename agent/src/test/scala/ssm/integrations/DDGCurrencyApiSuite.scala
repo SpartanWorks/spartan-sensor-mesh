@@ -23,39 +23,15 @@ class DDGCurrencyApiSuite extends CatsEffectSuite:
       val resp = """
            | ddg_spice_currency(
            |   {
-           |     "headers":{
-           |       "encoding": "utf-8",
-           |       "language": "en",
-           |       "legal-warning": "Use of this service is subject to the terms of use at http://www.xe.com/legal/",
-           |       "help-notice": "For help using this service, please see: http://www.xe.com/tmi/help.php",
-           |       "utc-timestamp": "2023-04-10 07:41:43",
-           |       "status":"0",
-           |       "output-format":"json",
-           |       "description": ""
-           |     },
-           |     "conversion":{
-           |       "rate-utc-timestamp": "2023-04-09 16:00 GMT",
-           |       "rate-frequency": "daily rates",
-           |       "from-amount": "1",
-           |       "from-currency-symbol": "XAU",
-           |       "from-currency-name": "Gold Ounces",
-           |       "converted-amount": "8599.03",
-           |       "to-currency-symbol": "PLN",
-           |       "to-currency-name": "Poland Zlotych",
-           |       "conversion-rate": "1 XAU = 8599.03 PLN",
-           |       "conversion-inverse": "1 PLN = 0.000116 XAU"
-           |     },
-           |     "topConversions":[
+           |     "terms":"",
+           |     "privacy":"",
+           |     "from":"USD",
+           |     "amount":1.0,
+           |     "timestamp":"2023-10-01T20:08:00Z",
+           |     "to": [
            |       {
-           |         "rate-utc-timestamp": "2023-04-09 16:00 GMT",
-           |         "from-amount": "1",
-           |         "from-currency-symbol": "XAU",
-           |         "from-currency-name": "Gold Ounces",
-           |         "converted-amount": "2007.77",
-           |         "to-currency-symbol": "USD",
-           |         "to-currency-name": "United States Dollars",
-           |         "conversion-rate": "1 XAU = 2007.77 USD",
-           |         "conversion-inverse": "1 USD = 0.000498 XAU"
+           |         "quotecurrency":"PLN",
+           |         "mid":4.3713939758
            |       }
            |     ]
            |   }
