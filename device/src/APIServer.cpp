@@ -85,7 +85,9 @@ void APIServer::handleApiConfig() {
 void APIServer::handleApiData() {
   log.debug("Serving /api/data");
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
-  this->send(200, APPLICATION_JSON, this->device.toJSON());
+
+  JSONVar body = this->device.toJSONVar();
+  this->sendJSON(200, body);
 }
 
 void APIServer::handleApiMesh() {
@@ -117,7 +119,7 @@ void APIServer::handleApiMesh() {
   }
 
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
-  this->send(200, APPLICATION_JSON, JSON.stringify(mesh));
+  this->sendJSON(200, mesh);
 }
 
 void APIServer::handleWildcard() {
@@ -161,3 +163,94 @@ void APIServer::begin() {
   this->onNotFound(                     [this]() { this->handleWildcard(); });
   this->serveStatic("/static/",         this->files, "/static/", "max-age=86400");
 }
+
+#ifdef ESP8266
+size_t JSONsize(JSONVar& json) {
+  String type = JSON.typeof_(json);
+
+  if (type == "object") {
+    JSONVar keys = json.keys();
+    int len = keys.length();
+
+    size_t size = 0;
+
+    for (uint16_t i = 0; i < len; i++) {
+      JSONVar key = keys[i];
+      size += JSON.stringify(key).length() + 1; // key name, quotes and collon.
+      JSONVar value = json[key];
+      size += JSONsize(value);
+    }
+
+    return size + 2 + max(0, len - 1); // {} plus len-1 comas between properties.
+  } else if (type == "array") {
+    int len = json.length();
+
+    size_t size = 0;
+    for (uint16_t i = 0; i < len; i++) {
+      JSONVar value = json[i];
+      size += JSONsize(value);
+    }
+
+    return size + 2 + max(0, len - 1); // [] plus len-1 comas between items.
+  } else {
+    return JSON.stringify(json).length();
+  }
+}
+
+void streamJSON(WiFiClient& client, JSONVar& json) {
+  String type = JSON.typeof(json);
+
+  if (type == "object") {
+    client.write("{");
+
+    JSONVar keys = json.keys();
+    int len = keys.length();
+
+    for (uint16_t i = 0; i < len; i++) {
+      JSONVar key = keys[i];
+
+      String head = JSON.stringify(key) + ":";
+      client.write(head.c_str());
+      JSONVar value = json[key];
+      streamJSON(client, value);
+
+      if (i < len - 1) {
+        client.write(",");
+      }
+    }
+
+    client.write("}");
+  } else if (type == "array") {
+    client.write("[");
+
+    int len = json.length();
+    for (uint16_t i = 0; i < len; i++) {
+      JSONVar value = json[i];
+      streamJSON(client, value);
+
+      if (i < len - 1) {
+        client.write(",");
+      }
+    }
+
+    client.write("]");
+  } else {
+    client.write(JSON.stringify(json).c_str());
+  }
+
+  client.flush();
+}
+
+void APIServer::sendJSON(int code, JSONVar& json) {
+  size_t size = JSONsize(json);
+  this->setContentLength(size);
+  this->send(200, APPLICATION_JSON, "");
+  streamJSON(this->client(), json);
+}
+#endif
+
+#ifdef ESP32
+void APIServer::sendJSON(int code, JSONVar& json) {
+  this->send(200, APPLICATION_JSON, JSON.stringify(json));
+}
+#endif

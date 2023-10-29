@@ -54,20 +54,21 @@ String Device::group() const {
 
 JSONVar Device::toJSONVar() const {
   JSONVar json;
+
   json["model"] = this->model();
   json["name"] = this->name();
   json["group"] = this->group();
 
   JSONVar readings;
+  json["readings"] = readings;
+
   uint16_t i = 0;
 
-  foreach<const Reading<float>*>(list, [&readings, &i](const Reading<float> *r) {
+  foreach<const Reading<float>*>(list, [&json, &i](const Reading<float> *r) {
     JSONVar reading = r->toJSONVar();
-    readings[i] = reading;
+    json["readings"][i] = reading;
     i++;
   });
-
-  json["readings"] = readings;
 
   return json;
 }

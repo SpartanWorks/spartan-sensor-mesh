@@ -57,6 +57,7 @@ private:
   void handleWildcard();
 
   void restoreWiFiConfig();
+  void sendJSON(int code, JSONVar& json);
 
 public:
   APIServer(const Device &d, Log &log, FS &fs);
