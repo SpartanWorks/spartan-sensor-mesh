@@ -99,6 +99,7 @@ function renderReadings(device: DeviceData) {
   const recombined = Array.from(grouped.values())
     .map(reduceReadings)
     .reduce((acc, sensors) => acc.concat(sensors), [] as SensorReading[])
+    .slice()
     .sort((a, b) => (a.type > b.type ? 1 : -1));
 
   return (
@@ -118,7 +119,7 @@ export class Dashboard extends preact.Component<Props, {}> {
           {
             !this.props.store.dataLoaded
             ? <Spinner/>
-            : this.props.store.data.sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderReadings)
+            : this.props.store.data.slice().sort((a, b) => (deviceTag(a) > deviceTag(b) ? 1 : -1)).map(renderReadings)
           }
         </div>
         <RedirectButton to={"/config"} icon={iconCogs} tooltip="Change configuration parameters."/>
