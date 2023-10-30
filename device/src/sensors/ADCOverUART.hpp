@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "SoftwareSerial.h"
+#include "ADCBackend.hpp"
 
 // Protocol
 #define ADC_OVER_UART_BAUDRATE 9600
@@ -20,11 +21,11 @@
 
 #define MAX_CHANNELS 5
 
-// 3.3 ADC rail & 16-bit resolution.
-#define MAX_RAW_READING_VALUE ((uint32_t)(1<<16))
+// 3V3 ADC rail & 16-bit resolution.
+#define MAX_RAW_READING_VALUE ((uint32_t)(1<<16)-1)
 #define MAX_READING_VALUE 3.3
 
-class ADCOverUART {
+class ADCOverUART : public ADCBackend {
 private:
   SoftwareSerial *serial;
   uint8_t numChannels;

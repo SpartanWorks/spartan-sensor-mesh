@@ -2,7 +2,9 @@
 #define __ADC_HPP__
 
 #include <Arduino.h>
+#include "ADCBackend.hpp"
 #include "ADCOverUART.hpp"
+#include "BuiltInADC.hpp"
 #include "System.hpp"
 
 struct ADCChannel {
@@ -28,11 +30,12 @@ struct ADCChannel {
 
 class ADC: public Sensor {
 private:
-  ADCOverUART sensor;
   uint16_t sampleInterval;
+  ADCBackend *sensor;
   List<ADCChannel> *channels = nullptr;
 
   ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval);
+  ADC(uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval);
 
 public:
   ~ADC();
