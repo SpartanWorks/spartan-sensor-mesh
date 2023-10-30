@@ -105,10 +105,10 @@ void setup(void){
 
   // SERVICE DISCOVERY
   MDNS.begin(ssn.device().name().c_str());
-  MDNS.addService("ssn", "tcp", SSN_PORT);
-  ssn.scheduler().spawn("scan SSN services", 125, [](Task *t) {
-      ssn.log().debug("Querying for SSN services via mDNS.");
-      MDNS.queryService("ssn", "tcp");
+  MDNS.addService("ssm", "tcp", SSM_PORT);
+  ssn.scheduler().spawn("scan SSM services", 125, [](Task *t) {
+      ssn.log().debug("Querying for SSM services via mDNS.");
+      MDNS.queryService("ssm", "tcp");
       t->sleep(SERVICE_QUERY_INTERVAL);
   });
 #ifdef ESP8266
@@ -125,7 +125,7 @@ void setup(void){
     server->handleClient();
   });
 
-  MDNS.addService("http", "tcp", SSN_PORT);
+  MDNS.addService("http", "tcp", SSM_PORT);
   ssn.log().info("API server initialized");
 }
 

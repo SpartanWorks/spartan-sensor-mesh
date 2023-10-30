@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(const Device &d, Log &l, FS &fs): WebServer(SSN_PORT), device(d), log(l), files(fs) {
+APIServer::APIServer(const Device &d, Log &l, FS &fs): WebServer(SSM_PORT), device(d), log(l), files(fs) {
 }
 
 bool waitForConnection(Log &log, uint32_t timeout) {
@@ -98,7 +98,7 @@ void APIServer::handleApiMesh() {
 
   self["hostname"] = this->device.name();
   self["ip"] = WiFi.localIP().toString();
-  self["port"] = SSN_PORT;
+  self["port"] = SSM_PORT;
 
   mesh[0] = self;
 

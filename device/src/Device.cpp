@@ -18,7 +18,7 @@ Device::Device(String m, String g, String n, String p): dModel(m), dName(n), dPa
   uint32_t chipId = (uint32_t)ESP.getChipId();
 #endif
 
-  dName = (dName == "") ? String("SSN-") + String(chipId, HEX) : dName;
+  dName = (dName == "") ? String("SSM-") + String(chipId, HEX) : dName;
   dGroup = (dGroup == "") ? dName : dGroup;
 }
 

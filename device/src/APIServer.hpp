@@ -22,7 +22,7 @@
 #include "Device.hpp"
 #include "Log.hpp"
 
-#define SSN_PORT 80
+#define SSM_PORT 80
 
 #define WIFI_CONNECTION_TIMEOUT 20000 // 20 seconds
 
