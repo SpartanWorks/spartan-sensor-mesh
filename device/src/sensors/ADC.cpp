@@ -34,8 +34,14 @@ void ADCChannel::setError(String error) {
   if (this->raw != nullptr) this->raw->setError(error);
 }
 
+ADC::ADC(uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval):
+    sensor(new BuiltInADC(numChannels)),
+    sampleInterval(interval),
+    channels(channels)
+{}
+
 ADC::ADC(uint8_t rx, uint8_t tx, uint8_t numChannels, List<ADCChannel> *channels, uint16_t interval):
-    sensor(ADCOverUART(rx, tx, numChannels)),
+    sensor(new ADCOverUART(rx, tx, numChannels)),
     sampleInterval(interval),
     channels(channels)
 {}
@@ -48,18 +54,18 @@ ADC::~ADC() {
     });
     delete this->channels;
   }
+
+  if (this->sensor != nullptr) delete this->sensor;
 }
 
 ADC* ADC::create(JSONVar &config) {
   uint16_t interval = (int) config["samplingInterval"];
   JSONVar conn = config["connection"];
   String bus = (const char*) conn["bus"];
-  uint16_t rx = (int) conn["rx"];
-  uint16_t tx = (int) conn["tx"];
 
   JSONVar readings = config["readings"];
 
-  if(conn == undefined || readings == undefined || bus != "software-uart") {
+  if (conn == undefined || readings == undefined || ((bus != "software-uart") && (bus != "gpio"))) {
     return nullptr;
   }
 
@@ -67,7 +73,7 @@ ADC* ADC::create(JSONVar &config) {
 
   List<ADCChannel> *channels = nullptr;
 
-  for(uint16_t i = 0; i < readings.length(); i++) {
+  for (uint16_t i = 0; i < readings.length(); i++) {
     String type = (const char*) readings[i]["type"];
     String name = (const char*) readings[i]["name"];
     String unit = (const char*) readings[i]["unit"];
@@ -91,13 +97,22 @@ ADC* ADC::create(JSONVar &config) {
     channels = new List<ADCChannel>(ADCChannel(channel, scaled, raw), channels);
   }
 
-  return new ADC(rx, tx, numChannels + 1, channels, interval);
+  if (bus == "software-uart") {
+    uint16_t rx = (int) conn["rx"];
+    uint16_t tx = (int) conn["tx"];
+
+    return new ADC(rx, tx, numChannels + 1, channels, interval);
+  } else if (bus == "gpio") {
+    return new ADC(numChannels + 1, channels, interval);
+  } else {
+    return nullptr;
+  }
 }
 
 void ADC::begin(System &system) {
   system.device().attach(this);
 
-  if(!this->sensor.begin()) {
+  if(!this->sensor->begin()) {
     foreach<ADCChannel>(this->channels, [=](ADCChannel c) {
       c.setError("Failed to initialize the sensor.");
     });
@@ -105,9 +120,9 @@ void ADC::begin(System &system) {
   }
 
   foreach<ADCChannel>(this->channels, [=](ADCChannel c) {
-    if(!this->sensor.setSamplingInterval(c.index, c.samplingInterval)
-       || !this->sensor.setSamplingTime(c.index, c.samplingTime)
-       || !this->sensor.setDeltaTime(c.index, c.deltaTime)) {
+    if(!this->sensor->setSamplingInterval(c.index, c.samplingInterval)
+       || !this->sensor->setSamplingTime(c.index, c.samplingTime)
+       || !this->sensor->setDeltaTime(c.index, c.deltaTime)) {
       c.setError(String("Failed to initialize ADC channel: .") + c.index);
     }
   });
@@ -121,8 +136,8 @@ void ADC::begin(System &system) {
 
 void ADC::update() {
   foreach<ADCChannel>(this->channels, [=](ADCChannel c) {
-    if (this->sensor.read(c.index)) {
-      c.add(this->sensor.getReading(c.index), this->sensor.getVoltage(c.index));
+    if (this->sensor->read(c.index)) {
+      c.add(this->sensor->getReading(c.index), this->sensor->getVoltage(c.index));
     } else {
       c.setError(String("Failed to read data from ADC channel: ") + c.index);
     }
