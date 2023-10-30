@@ -62,8 +62,9 @@ jobs:
       matrix:
         board:
           - esp32dev
-          - esp12e
           - esp01
+          - esp07
+          - esp12e
     steps:
       - uses: actions/checkout@v3
 
