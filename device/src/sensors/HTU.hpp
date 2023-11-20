@@ -2,14 +2,14 @@
 #define __HTU_HPP__
 
 #include <Wire.h>
-#include <SparkFunHTU21D.h>
+#include <Adafruit_HTU21DF.h>
 #include "System.hpp"
 
 class HTU: public Sensor {
 private:
   TwoWire *i2c;
   uint8_t address;
-  HTU21D sensor;
+  Adafruit_HTU21DF sensor;
   uint16_t sampleInterval;
   Reading<float> *humidity;
   Reading<float> *temperature;

@@ -3,7 +3,7 @@
 HTU::HTU(TwoWire *i2c, uint8_t addr, uint16_t interval):
     i2c(i2c),
     address(addr),
-    sensor(HTU21D()),
+    sensor(Adafruit_HTU21DF()),
     sampleInterval(interval),
     humidity(nullptr),
     temperature(nullptr),
@@ -46,7 +46,7 @@ HTU* HTU::create(JSONVar &config) {
 }
 
 void HTU::begin(System &system) {
-  this->sensor.begin(*(this->i2c));
+  this->sensor.begin(this->i2c);
 
   system.device().attach(this);
 
@@ -62,7 +62,7 @@ void HTU::update() {
 
   if (this->humidity != nullptr) {
     hum = this->sensor.readHumidity();
-    if (hum == ERROR_I2C_TIMEOUT || hum == ERROR_BAD_CRC) {
+    if (hum == NAN) {
       this->humidity->setError(String("Could not read sensor. Response: ") + String(hum));
     } else {
       this->humidity->add(hum);
@@ -73,7 +73,7 @@ void HTU::update() {
 
   if (this->temperature != nullptr) {
     temp = this->sensor.readTemperature();
-    if (temp == ERROR_I2C_TIMEOUT || temp == ERROR_BAD_CRC) {
+    if (temp == NAN) {
       this->temperature->setError(String("Could not read sensor. Response: ") + String(temp));
     } else {
       this->temperature->add(temp);
@@ -81,11 +81,9 @@ void HTU::update() {
   }
 
   if (this->temperature != nullptr
-      && temp != ERROR_I2C_TIMEOUT
-      && temp != ERROR_BAD_CRC
+      && temp != NAN
       && this->humidity != nullptr
-      && hum != ERROR_I2C_TIMEOUT
-      && hum != ERROR_BAD_CRC) {
+      && hum != NAN) {
     foreach<Sensor*>(this->toCompensate, [=](Sensor *s) {
       s->setCompensationParameters(temp, hum);
     });
