@@ -121,7 +121,7 @@ void setup(void){
   // API
   APIServer *server = new APIServer(ssn.device(), ssn.log(), FSImplementation);
   server->begin();
-  ssn.scheduler().spawn("handle API", 110, [server](Task *t) {
+  ssn.scheduler().spawn("handle API", 100, [server](Task *t) {
     server->handleClient();
   });
 
