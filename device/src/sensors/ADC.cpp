@@ -12,12 +12,26 @@ ADCChannel::ADCChannel(JSONVar &config, Reading<float> *s, Reading<float> *r):
   this->min = (double) config["min"];
   this->offset = (double) config["offset"];
   this->factor = (double) config["factor"];
+  if (config["factorSquared"] == undefined) {
+    this->factorSquared = 0;
+  } else {
+    this->factorSquared = (double) config["factorSquared"];
+  }
+  if (config["factorCubed"] == undefined) {
+    this->factorCubed = 0;
+  } else {
+    this->factorCubed = (double) config["factorCubed"];
+  }
   this->baseline = 0;
 }
 
 void ADCChannel::add(uint16_t raw, float volts) {
   if (this->scaled != nullptr) {
-    float result = this->factor * volts + this->offset + this->baseline;
+    float result = this->factorCubed * volts * volts * volts +
+                   this->factorSquared * volts * volts +
+                   this->factor * volts +
+                   this->offset +
+                   this->baseline;
 
     if (result < this->min) {
       this->baseline += this->min - result;
