@@ -90,7 +90,16 @@ ADC* ADC::create(JSONVar &config) {
 
     if (readings[i].hasOwnProperty("includeRaw") && (bool) readings[i]["includeRaw"]) {
       JSONVar rawCfg = readings[i]["rawWidget"];
-      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float>(window, "", 0, MAX_RAW_READING_VALUE), rawCfg);
+
+      float max = 0;
+      if (bus == "software-uart") {
+        max = ADC_OVER_UART_MAX_RAW_READING_VALUE;
+      } else if (bus == "gpio") {
+        max = BUILT_IN_ADC_MAX_RAW_READING_VALUE;
+      } else {
+        max = 0;
+      }
+      raw = new Reading<float>(name, "ADC", "raw", new WindowedValue<float>(window, "", 0, max), rawCfg);
     }
 
     numChannels = max(numChannels, (int) channel["number"]);

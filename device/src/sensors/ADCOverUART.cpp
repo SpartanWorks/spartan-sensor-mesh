@@ -43,7 +43,7 @@ uint16_t ADCOverUART::getReading(uint8_t channel) {
 }
 
 float ADCOverUART::getVoltage(uint8_t channel) {
-  return this->results[channel] * MAX_READING_VALUE / MAX_RAW_READING_VALUE;
+  return this->results[channel] * ADC_OVER_UART_MAX_READING_VALUE / ADC_OVER_UART_MAX_RAW_READING_VALUE;
 }
 
 bool ADCOverUART::send(uint8_t command) {
