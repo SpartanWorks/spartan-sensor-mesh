@@ -22,8 +22,8 @@
 #define MAX_CHANNELS 5
 
 // 3V3 ADC rail & 16-bit resolution.
-#define MAX_RAW_READING_VALUE ((uint32_t)(1<<16)-1)
-#define MAX_READING_VALUE 3.3
+#define ADC_OVER_UART_MAX_RAW_READING_VALUE ((uint32_t)(1<<16)-1)
+#define ADC_OVER_UART_MAX_READING_VALUE 3.3
 
 class ADCOverUART : public ADCBackend {
 private:

@@ -11,7 +11,7 @@ BuiltInADC::~BuiltInADC() {
 }
 
 bool BuiltInADC::read(uint8_t channel) {
-  this->results[channel] = analogRead(channel);
+  this->results[channel] = analogRead(A0 + channel);
   return true;
 }
 
@@ -20,5 +20,5 @@ uint16_t BuiltInADC::getReading(uint8_t channel) {
 }
 
 float BuiltInADC::getVoltage(uint8_t channel) {
-  return this->results[channel] * MAX_READING_VALUE / MAX_RAW_READING_VALUE;
+  return this->results[channel] * BUILT_IN_ADC_MAX_READING_VALUE / BUILT_IN_ADC_MAX_RAW_READING_VALUE;
 }
