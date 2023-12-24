@@ -7,6 +7,7 @@ import org.http4s.server.middleware.Logger
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.server.middleware.*
+import org.http4s.server.staticcontent.*
 
 import ssm.api.*
 import ssm.domain.*
@@ -33,6 +34,7 @@ object Main extends ResourceApp.Forever:
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
         "/api/data" -> DataApi.routes(node),
+        "/" -> fileService(FileService.Config(config.rest.dataPath))
       ).orNotFound
       cors = CORS.policy.withAllowOriginAll(routes)
       app = if config.rest.logRequests then Logger.httpApp(true, true)(cors) else cors

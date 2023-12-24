@@ -14,7 +14,7 @@ import ssm.model.generated.{ Config => Node}
 
 import scala.concurrent.duration.FiniteDuration
 
-case class Rest(host: String, port: Int, logRequests: Boolean)
+case class Rest(host: String, port: Int, logRequests: Boolean, dataPath: String)
 
 case class MDNS(serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, retryInterval: FiniteDuration, dnsTTL: FiniteDuration)
 
