@@ -5,8 +5,6 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-#define FSImplementation SPIFFS // FIXME Deprecated, replace with LittleFS.
-
 const int SDA_PIN = 4;
 const int SCL_PIN = 5;
 #endif
@@ -15,9 +13,6 @@ const int SCL_PIN = 5;
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
-#include <SPIFFS.h>
-
-#define FSImplementation SPIFFS
 
 const int SDA_PIN = 21;
 const int SCL_PIN = 22;
@@ -25,10 +20,12 @@ const int SCL_PIN = 22;
 
 #include <Arduino_JSON.h>
 #include <WiFiClient.h>
-#include <FS.h>
 #include <Wire.h>
 #include "APIServer.hpp"
 #include "System.hpp"
+#include <LittleFS.h>
+
+#define FSImplementation LittleFS
 
 const int TIME_SLICE = 500; // 500 us
 
