@@ -17,6 +17,8 @@ struct ADCChannel {
   float min;
   float offset;
   float factor;
+  float factorSquared;
+  float factorCubed;
   float baseline;
 
   Reading<float> *scaled;
