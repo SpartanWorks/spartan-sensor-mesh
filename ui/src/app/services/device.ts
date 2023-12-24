@@ -47,7 +47,7 @@ export interface UpdateCallback {
   (arg: DeviceData): void;
 }
 
-const TIMEOUT = 2000;
+const TIMEOUT = 5000;
 
 export class DeviceService {
   baseUrl: string;

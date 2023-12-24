@@ -226,7 +226,8 @@ void streamJSON(WiFiClient& client, JSONVar& json) {
     int len = json.length();
     for (uint16_t i = 0; i < len; i++) {
       JSONVar value = json[i];
-      streamJSON(client, value);
+      // NOTE Assumes that these will be small enough to fit in RAM one at one time.
+      client.write(JSON.stringify(value).c_str());
 
       if (i < len - 1) {
         client.write(",");
