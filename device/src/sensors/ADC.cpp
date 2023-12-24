@@ -12,15 +12,15 @@ ADCChannel::ADCChannel(JSONVar &config, Reading<float> *s, Reading<float> *r):
   this->min = (double) config["min"];
   this->offset = (double) config["offset"];
   this->factor = (double) config["factor"];
-  if (config["factorSquared"] == undefined) {
-    this->factorSquared = 0;
-  } else {
+  if (config.hasOwnProperty("factorSquared")) {
     this->factorSquared = (double) config["factorSquared"];
-  }
-  if (config["factorCubed"] == undefined) {
-    this->factorCubed = 0;
   } else {
+    this->factorSquared = 0;
+  }
+  if (config.hasOwnProperty("factorCubed")) {
     this->factorCubed = (double) config["factorCubed"];
+  } else {
+    this->factorCubed = 0;
   }
   this->baseline = 0;
 }
