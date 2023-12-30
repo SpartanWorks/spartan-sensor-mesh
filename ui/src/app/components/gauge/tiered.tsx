@@ -1,25 +1,16 @@
 import * as preact from "preact";
-import { ColorGauge } from "./color";
+import { ColorGauge, ColorBand } from "./color";
 
-export interface Tier {
-  min: number;
-  max: number;
-  color: string;
-}
-
-function identifyTier(value: number, tiers: Tier[], defaultTier: Tier): Tier {
-  const needle = tiers.find((tier) => {
-    if (tier.min <= value && tier.max > value) { return true; }
-    else { return false; }
-  });
+function identifyTier(value: number, tiers: ColorBand[], defaultTier: ColorBand): ColorBand {
+  const needle = tiers.find((tier) => (tier.min <= value && tier.max > value));
   return needle || defaultTier;
 }
 
 interface TieredGaugeProps {
   value: number;
   variance?: number;
-  tiers: Tier[];
-  defaultTier: Tier;
+  tiers: ColorBand[];
+  defaultTier: ColorBand;
   errorTooltip: string;
   isError: boolean;
   children: any;
@@ -33,6 +24,7 @@ export const TieredGauge = (props: TieredGaugeProps) => {
                 min={Math.min(tier.min, props.value)}
                 max={Math.max(tier.max, props.value)}
                 color={tier.color}
+                defaultColor={props.defaultTier.color}
                 isError={props.isError}
                 errorTooltip={props.errorTooltip}>
       {props.children}
