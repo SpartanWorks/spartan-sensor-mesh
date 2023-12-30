@@ -1,3 +1,5 @@
+import com.typesafe.sbt.packager.docker._
+
 val scala3Version = "3.2.2"
 val http4sVersion = "0.23.14"
 val circeVersion = "0.14.5"
@@ -48,7 +50,14 @@ lazy val root = project
     // Docker packaging:
     Docker / packageName := packageName.value,
     Docker / version := version.value,
-    dockerBaseImage := "openjdk:17",
+    dockerBaseImage := "openjdk:23-slim",
+    dockerCommands := dockerCommands.value.flatMap {
+      case cmd @ ExecCmd("VOLUME", "/opt/docker/data") =>
+        Seq(cmd, ExecCmd("RUN", "apt-get", "update"), ExecCmd("RUN", "apt-get", "install", "-y", "nut-client"))
+      case cmd => Seq(cmd)
+    },
+    dockerExposedVolumes := Seq("/opt/docker/data"),
+    dockerEntrypoint := Seq("/opt/docker/bin/spartan-sensor-mesh", "/opt/docker/data/agent_config.json"),
     dockerExposedPorts ++= Seq(8080),
 
     // GraalVM packaging:
