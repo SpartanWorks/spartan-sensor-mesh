@@ -30,6 +30,12 @@ sbt Docker/publishLocal # Creates a runnable container image.
 sbt GraalVMNativeImage/packageBin # Creates a native binary for your system.
 ```
 
+You can run the Agent Docker image with the following command. Put your agent config JSON in the ./data directory, along with optional UI assets.
+
+```
+docker run --network host -v ./data:/opt/docker/data -it spartan-sensor-mesh:0.1.0-SNAPSHOT
+```
+
 ## Configuration
 
 The `device` backend expects two configuration files to be present in its filesystem:

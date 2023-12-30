@@ -4,7 +4,7 @@ import cats.effect.*
 import cats.implicits.*
 import io.circe.Json
 import ssm.domain.ObservableReading
-import ssm.integrations.DDGCurrencyApi
+import ssm.integrations.{DDGCurrencyApi, NUTCli}
 import ssm.model.generated.*
 
 import scala.concurrent.duration.*
@@ -15,21 +15,46 @@ trait Node:
   def data: IO[Data]
 
 object Node:
-  def apply(config: Config, currencyApi: DDGCurrencyApi): Node =
-    new NodeImpl(config, new ReadingsBuilder(config.sensors, currencyApi))
+  def apply(config: Config, currencyApi: DDGCurrencyApi, nutCli: NUTCli): Node =
+    new NodeImpl(config, new ReadingsBuilder(config.sensors, currencyApi, nutCli))
 
   private[service] case class ObservableReadingConfig(reading: ObservableReading, samplingInterval: FiniteDuration, windowSize: Int)
 
-  private[service] class ReadingsBuilder(config: List[ConfigSensorsInner], currencyApi: DDGCurrencyApi):
+  // FIXME This should ideally be moved into separate integartion builders that are passed here.
+  private[service] class ReadingsBuilder(config: List[ConfigSensorsInner], currencyApi: DDGCurrencyApi, nutCli: NUTCli):
     def build: List[ObservableReadingConfig] =
       config.flatMap {
         case ConfigSensorsInner("currency", true, samplingInterval, _, readings) =>
-          readings.map { case ReadingConfig(target, source, averaging, widgetConfig) =>
-            ObservableReadingConfig(
-              ObservableReading("ddg", "currency", source, currencyApi.latest(source, target), target, 0, 1000, widgetConfig),
-              samplingInterval.toInt.millis,
-              averaging.toInt
-            )
+          readings.map {
+            case ReadingConfig(target, source, averaging, widgetConfig) =>
+              ObservableReadingConfig(
+                ObservableReading("ddg", "currency", source, currencyApi.latest(source, target), target, 0, 1000, widgetConfig),
+                samplingInterval.toInt.millis,
+                averaging.toInt
+              )
+          }
+        case ConfigSensorsInner("network-ups-tools", true, samplingInterval, connection, readings) =>
+          (for
+            // FIXME This is pretty fragile, could use a better way to pass config to the integrations.
+            upsName <- connection("upsName").as[String]
+            upsHost <- connection("host").as[String]
+          yield s"$upsName@$upsHost").toSeq.flatMap { ups =>
+            readings.map {
+              case ReadingConfig(variable, name, averaging, widgetConfig) =>
+                // FIXME It should be left to the widget config.
+                val unit = variable match {
+                  case "battery.charge" | "ups.load" => "%"
+                  case "battery.voltage" | "input.voltage" | "output.voltage" => "V"
+                  case "battery.runtime" => "s"
+                  case _ => ""
+                }
+                ObservableReadingConfig(
+                  // TODO Could actually populate the model name and type using the UPS provided values.
+                  ObservableReading("nut", "ups", name, nutCli.fetch(ups, variable), unit, 0, 100, widgetConfig),
+                  samplingInterval.toInt.millis,
+                  averaging.toInt
+                )
+            }
           }
 
         case _ => Nil

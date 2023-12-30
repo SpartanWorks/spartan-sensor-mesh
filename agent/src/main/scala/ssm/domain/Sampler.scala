@@ -53,7 +53,7 @@ object Sampler:
       yield ()
 
     def sampler(samplingInterval: FiniteDuration, windowSize: Int): Resource[IO, Unit] =
-      samplerStream(samplingInterval, windowSize).compile.resource.drain
+      samplerStream(samplingInterval, windowSize).compile.drain.background.map(_ => ())
 
     def status: IO[Status] =
       statusRef.get

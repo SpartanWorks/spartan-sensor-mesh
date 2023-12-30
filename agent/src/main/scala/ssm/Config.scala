@@ -14,7 +14,7 @@ import ssm.model.generated.{ Config => Node}
 
 import scala.concurrent.duration.FiniteDuration
 
-case class Rest(host: String, port: Int, logRequests: Boolean)
+case class Rest(host: String, port: Int, logRequests: Boolean, dataPath: String)
 
 case class MDNS(serviceName: String, serviceType: String, port: Int, scanInterval: FiniteDuration, retryInterval: FiniteDuration, dnsTTL: FiniteDuration)
 
@@ -43,7 +43,7 @@ object Config:
       }
       .compile
       .resource
-     .lastOrError
+      .lastOrError
 
   def loadNodeConfigWithFallback(filename: Option[String]): Resource[IO, Node] =
     val n = filename.map(Config.loadFromFile(_)).sequence

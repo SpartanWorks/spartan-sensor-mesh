@@ -1,17 +1,17 @@
 import * as preact from "preact";
 import { SensorReading } from "../../services/device";
 import * as styles from "../../styles/widget.css";
-import { ColorGauge } from "./color";
+import { ColorBand, ColorGauge } from "./color";
 import { JetGauge } from "./jet";
 import { SensorLabel } from "./label";
-import { Tier, TieredGauge } from "./tiered";
+import { TieredGauge } from "./tiered";
 
 interface Props {
   data: SensorReading;
   min?: number;
   max?: number;
-  color?: "jet" | string;
-  tiers?: Tier[];
+  color?: "jet" | string | ColorBand[];
+  tiers?: ColorBand[];
   rounding?: number;
 }
 
@@ -31,7 +31,7 @@ export const GaugeWidget = (props: Props) => {
     const def = {
       min: ps.min,
       max: ps.max,
-      color: props.tiers.at(-1)?.color ?? props.color ?? "gray",
+      color: props.tiers.at(-1)?.color ?? props.tiers.at(-1)?.color ?? "gray",
     };
     gauge = (
       <TieredGauge tiers={props.tiers} defaultTier={def} {...ps}>
@@ -46,7 +46,7 @@ export const GaugeWidget = (props: Props) => {
     );
   } else {
     gauge = (
-      <ColorGauge color={props.color ?? "gray"} {...ps}>
+      <ColorGauge color={props.color || "gray"} defaultColor="gray" {...ps}>
         <SensorLabel data={props.data} rounding={props.rounding ?? 1} />
       </ColorGauge>
     );
