@@ -1,5 +1,5 @@
 import * as preact from "preact";
-import { ColorGauge, ColorBand } from "./color";
+import { ColorBand, ColorGauge } from "./color";
 
 function identifyTier(value: number, tiers: ColorBand[], defaultTier: ColorBand): ColorBand {
   const needle = tiers.find((tier) => (tier.min <= value && tier.max > value));
