@@ -31,6 +31,21 @@ object ProcFS:
         .compile
         .lastOrError
 
+    private def rate(producer: IO[Double]): IO[Double] = {
+      // FIXME Not great, could use a proper scan or something along those lines.
+      val lastValueRef = Ref.unsafe[IO, Double](0)
+      val lastTimeRef = Ref.unsafe[IO, Double](0)
+      for {
+        newValue <- producer
+        newTime <- getUptime("uptime") // FIXME Also not great, but I love it.
+        lastValue <- lastValueRef.get
+        lastTime <- lastTimeRef.get
+        _ <- lastValueRef.set(newValue)
+        _ <- lastTimeRef.set(newTime)
+      } yield (newValue - lastValue)/(newTime - lastTime)
+    }
+
+
     def getUptime(variable: String): IO[Double] =
       variable match {
         case "uptime" | "idle" =>
@@ -62,9 +77,30 @@ object ProcFS:
           IO.raiseError(BadVariable(s"$variable doesn't name a valid load average value: 1min, 5min or 15min."))
     }
 
+    def getSysClass(file: String, variable: String): IO[Double] =
+      slurp(s"$file/$variable")
+       .flatMap { file =>
+         IO.fromTry(Try(file.toDouble))
+       }
+
+    def getThermal(file: String, variable: String): IO[Double] =
+      getSysClass(file, variable).map { r =>
+         r / 1000
+       }
+
+    def getNetwork(file: String, variable: String): IO[Double] =
+      variable match {
+        case "rx" | "tx" =>
+          rate(getSysClass(file, s"statistics/${variable}_bytes").map { v => v / 1024 })
+        case _ =>
+          IO.raiseError(BadVariable(s"$variable doesn't name a valid network value: rx or tx."))
+      }
+
     def get(file: String, variable: String): IO[Double] =
       file match {
         case "/proc/uptime" => getUptime(variable)
         case "/proc/loadavg" => getLoadavg(variable)
+        case f if "/sys/class/thermal/.+".r.matches(f) => getThermal(f, variable)
+        case f if "/sys/class/net/.+".r.matches(f) => getNetwork(f, variable)
         case _ => IO.raiseError(BadFile(s"The file $file is not supported!"))
       }

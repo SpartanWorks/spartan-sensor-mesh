@@ -65,8 +65,8 @@ object Node:
                 case "/proc/uptime" => "s"
                 case "/proc/stat" => ""
                 case "/proc/meminfo" => "kB"
-                case f if "/sys/class/thermal/.+".r.matches(f) => ""
-                case f if "/sys/class/net/.+".r.matches(f) => ""
+                case f if "/sys/class/thermal/.+".r.matches(f) => "°C"
+                case f if "/sys/class/net/.+".r.matches(f) => "kBps" // FIXME This only makes sense for transfers.
                 case _ => ""
               }
               ObservableReadingConfig(
