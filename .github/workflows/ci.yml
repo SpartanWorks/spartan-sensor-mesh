@@ -120,6 +120,12 @@ jobs:
           name: test-results
           path: agent/target/test-reports/
 
+      - name: Build an Uberjar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./agent
+        run: sbt assembly
+
       - name: Build a Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

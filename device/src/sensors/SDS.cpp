@@ -74,9 +74,9 @@ SDS* SDS::create(JSONVar &config) {
     JSONVar cfg = readings[i]["widget"];
 
     if (type == "pm10") {
-      sds->pm10 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 1000), cfg);
+      sds->pm10 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 2000), cfg);
     } else if (type == "pm2.5") {
-      sds->pm25 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 1000), cfg);
+      sds->pm25 = new Reading<float>(name, "SDS", type, new WindowedValue<float>(window, "μg/m³", 0, 2000), cfg);
     }
   }
 

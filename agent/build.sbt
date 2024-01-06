@@ -60,11 +60,16 @@ lazy val root = project
     dockerEntrypoint := Seq("/opt/docker/bin/spartan-sensor-mesh", "/opt/docker/data/agent_config.json"),
     dockerExposedPorts ++= Seq(8080),
 
-    // GraalVM packaging:
+    // Uberjar
     assembly / mainClass := Some("ssm.Main"),
     assembly / assemblyJarName := s"${packageName.value}_3-${version.value}.jar",
-    graalVMNativeImageGraalVersion := Some("22.3.1"),
+    assemblyMergeStrategy := {
+      case PathList(ps @ _*) if ps.last.endsWith("module-info.class") => MergeStrategy.first
+      case x => (assemblyMergeStrategy).value(x)
+    },
 
+    // GraalVM packaging:
+    graalVMNativeImageGraalVersion := Some("22.3.1"),
     graalVMNativeImageOptions ++= Seq(
       "--no-fallback",
       "--static",
