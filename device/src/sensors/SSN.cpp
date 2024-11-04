@@ -3,12 +3,14 @@
 SSN::SSN(uint16_t interval):
     sampleInterval(interval),
     ramFree(nullptr),
-    fsFree(nullptr)
+    fsFree(nullptr),
+    uptime(nullptr)
 {}
 
 SSN::~SSN() {
   if (this->ramFree) delete this->ramFree;
   if (this->fsFree) delete this->fsFree;
+  if (this->uptime) delete this->uptime;
 }
 
 SSN* SSN::create(JSONVar &config) {
@@ -27,6 +29,8 @@ SSN* SSN::create(JSONVar &config) {
       ssn->ramFree = new Reading<float>(name, "SSN", type, new WindowedValue<float>(window, "%", 0, 100), cfg);
     } else if (type == "filesystem-free") {
       ssn->fsFree = new Reading<float>(name, "SSN", type, new WindowedValue<float>(window, "%", 0, 100), cfg);
+    } else if (type == "uptime") {
+      ssn->uptime = new Reading<float>(name, "SSN", type, new WindowedValue<float>(window, "s", 0, 31536000), cfg);
     }
   }
 
@@ -51,6 +55,10 @@ void SSN::update() {
   if (this->fsFree != nullptr) {
     this->fsFree->add(SSN::fsUsedBytes() * 100.0 / SSN::fsTotalBytes());
   }
+
+  if (this->uptime != nullptr) {
+    this->uptime->add(millis() / 1000);
+  }
 }
 
 void SSN::connect(Device *d) const {
@@ -59,6 +67,9 @@ void SSN::connect(Device *d) const {
   }
   if (this->fsFree != nullptr) {
     d->attach(this->fsFree);
+  }
+  if (this->uptime != nullptr) {
+    d->attach(this->uptime);
   }
 }
 

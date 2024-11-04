@@ -9,6 +9,7 @@ private:
   uint16_t sampleInterval;
   Reading<float> *ramFree;
   Reading<float> *fsFree;
+  Reading<float> *uptime;
 
   SSN(uint16_t);
 
