@@ -23,6 +23,7 @@ class System {
 
   bool begin(JSONVar& config);
   void run();
+  void reset();
 
   Scheduler& scheduler();
   Device& device();

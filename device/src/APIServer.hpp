@@ -19,8 +19,7 @@
 #include <Arduino_JSON.h>
 #include <WiFiClient.h>
 #include <FS.h>
-#include "Device.hpp"
-#include "Log.hpp"
+#include "System.hpp"
 
 #define SSM_PORT 80
 
@@ -45,8 +44,7 @@
 
 class APIServer: public WebServer {
 private:
-  const Device &device;
-  Log &log;
+  System &system;
   FS &files;
 
   void handleOptions();
@@ -61,7 +59,7 @@ private:
   void sendJSON(int code, JSONVar& json);
 
 public:
-  APIServer(const Device &d, Log &log, FS &fs);
+  APIServer(System &s, FS &fs);
   void begin();
 };
 

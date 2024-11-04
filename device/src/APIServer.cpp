@@ -1,6 +1,6 @@
 #include "APIServer.hpp"
 
-APIServer::APIServer(const Device &d, Log &l, FS &fs): WebServer(SSM_PORT), device(d), log(l), files(fs) {
+APIServer::APIServer(System &s, FS &fs): WebServer(SSM_PORT), system(s), files(fs) {
 }
 
 bool waitForConnection(Log &log, uint32_t timeout) {
@@ -34,24 +34,24 @@ bool connect(Log &log, const String ssid, const String password) {
 }
 
 void APIServer::handleOptions() {
-  log.debug("Serving OPTIONS");
+  this->system.log().debug("Serving OPTIONS");
   this->sendHeader(ALLOWED_HEADER, AUTHORIZATION_HEADER);
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->send(200, APPLICATION_JSON, STATUS_OK);
 }
 
 void APIServer::handleApiLogin() {
-  log.debug("Serving /api/login");
+  this->system.log().debug("Serving /api/login");
 
-  bool authorized = this->authenticate(this->device.name().c_str(), this->device.password().c_str());
+  bool authorized = this->authenticate(this->system.device().name().c_str(), this->system.device().password().c_str());
 
   return authorized ? this->send(200, APPLICATION_JSON, STATUS_OK) : this->requestAuthentication();
 }
 
 void APIServer::handleApiConfig() {
-  log.debug("Serving /api/config");
+  this->system.log().debug("Serving /api/config");
 
-  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+  if(!this->authenticate(this->system.device().name().c_str(), this->system.device().password().c_str())) {
     this->send(401, APPLICATION_JSON, UNAUTHORIZED);
   }
 
@@ -67,8 +67,8 @@ void APIServer::handleApiConfig() {
     }
   }
 
-  if(connect(log, ssid, pass)) {
-    log.debug("Saving WiFi configuration...");
+  if(connect(this->system.log(), ssid, pass)) {
+    this->system.log().debug("Saving WiFi configuration...");
     File f = this->files.open(WIFI_CONFIG_FILE, "w");
     f.write((const uint8_t*)ssid.c_str(), ssid.length());
     f.write('\n');
@@ -83,33 +83,32 @@ void APIServer::handleApiConfig() {
 }
 
 void APIServer::handleApiReset() {
-  log.debug("Serving /api/reset");
+  this->system.log().debug("Serving /api/reset");
 
-  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+  if(!this->authenticate(this->system.device().name().c_str(), this->system.device().password().c_str())) {
     this->send(401, APPLICATION_JSON, UNAUTHORIZED);
   }
 
   this->send(200, APPLICATION_JSON, STATUS_OK);
 
-  // TODO This should ideally induce a graceful restart of all sensors and then the whole platform.
-  ESP.restart();
+  this->system.reset();
 }
 
 void APIServer::handleApiData() {
-  log.debug("Serving /api/data");
+  this->system.log().debug("Serving /api/data");
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
 
-  JSONVar body = this->device.toJSONVar();
+  JSONVar body = this->system.device().toJSONVar();
   this->sendJSON(200, body);
 }
 
 void APIServer::handleApiMesh() {
-  log.debug("Serving /api/mesh");
+  this->system.log().debug("Serving /api/mesh");
   JSONVar mesh;
 
   JSONVar self;
 
-  self["hostname"] = this->device.name();
+  self["hostname"] = this->system.device().name();
   self["ip"] = WiFi.localIP().toString();
   self["port"] = SSM_PORT;
 
@@ -136,7 +135,7 @@ void APIServer::handleApiMesh() {
 }
 
 void APIServer::handleWildcard() {
-  log.debug("Serving *");
+  this->system.log().debug("Serving *");
   File f = this->files.open("/static/index.html.gz", "r");
 
   if(!f) {
@@ -148,16 +147,16 @@ void APIServer::handleWildcard() {
 }
 
 void APIServer::restoreWiFiConfig() {
-  log.debug("Reading WiFi configuration...");
+  this->system.log().debug("Reading WiFi configuration...");
   if(!this->files.exists(WIFI_CONFIG_FILE)) {
-    log.debug("Config unavailable.");
+    this->system.log().debug("Config unavailable.");
   } else {
     File f = this->files.open(WIFI_CONFIG_FILE, "r");
 
     String ssid = f.readStringUntil('\n');
     String pass = f.readStringUntil('\n');
 
-    connect(log, ssid, pass);
+    connect(this->system.log(), ssid, pass);
 
     f.close();
   }

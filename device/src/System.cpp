@@ -189,6 +189,12 @@ void System::run() {
   sched.run();
 }
 
+void System::reset() {
+  // TODO Reset the sensors gracefully.
+
+  ESP.restart();
+}
+
 Scheduler& System::scheduler() {
   return sched;
 }

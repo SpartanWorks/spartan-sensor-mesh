@@ -117,7 +117,7 @@ void setup(void){
   ssn.log().info("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(ssn.device(), ssn.log(), FSImplementation);
+  APIServer *server = new APIServer(ssn, FSImplementation);
   server->begin();
   ssn.scheduler().spawn("handle API", 100, [server](Task *t) {
     server->handleClient();
@@ -142,7 +142,6 @@ void setup(void){
     ElegantOTA.loop();
   });
 
-  // mDNS
   MDNS.addService("http", "tcp", SSM_PORT);
   ssn.log().info("API server initialized");
 }
