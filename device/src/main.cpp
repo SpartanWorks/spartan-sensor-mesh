@@ -23,6 +23,7 @@ const int SCL_PIN = 22;
 #include <Wire.h>
 #include "APIServer.hpp"
 #include "System.hpp"
+#include <ElegantOTA.h>
 #include <LittleFS.h>
 
 #define FSImplementation LittleFS
@@ -122,6 +123,26 @@ void setup(void){
     server->handleClient();
   });
 
+  // OTA
+  ElegantOTA.begin(server, ssn.device().name().c_str(), ssn.device().password().c_str());
+  ElegantOTA.onStart([]() {
+    ssn.log().info("OTA update started!");
+  });
+  ElegantOTA.onProgress([](size_t current, size_t total) {
+    ssn.log().info("OTA update progress: %u bytes", current);
+  });
+  ElegantOTA.onEnd([](bool success) {
+    if (success) {
+      ssn.log().info("OTA update succeeded!");
+    } else {
+      ssn.log().info("OTA update failed!");
+    }
+  });
+  ssn.scheduler().spawn("handle OTA", 100, [server](Task *t) {
+    ElegantOTA.loop();
+  });
+
+  // mDNS
   MDNS.addService("http", "tcp", SSM_PORT);
   ssn.log().info("API server initialized");
 }
