@@ -26,7 +26,7 @@ const int SCL_PIN = 22;
 #include <ElegantOTA.h>
 #include <LittleFS.h>
 
-#define FSImplementation LittleFS
+#include "sensors/SSN.hpp"
 
 const int TIME_SLICE = 500; // 500 us
 
@@ -38,23 +38,13 @@ const int SERVICE_QUERY_INTERVAL = 300000; // 5 minutes
 
 void setup(void){
   // FILE SYSTEM
-  FSImplementation.begin();
-  uint32_t usedBytes = 0;
-  uint32_t totalBytes = 0;
-#ifdef ESP32
-  usedBytes = FSImplementation.usedBytes();
-  totalBytes = FSImplementation.totalBytes();
-#endif
-#ifdef ESP8266
-  FSInfo info;
-  FSImplementation.info(info);
-  usedBytes = info.usedBytes;
-  totalBytes = info.totalBytes;
-#endif
+  LittleFS.begin();
+  uint32_t usedBytes = SSN::fsUsedBytes();
+  uint32_t totalBytes = SSN::fsTotalBytes();
 
   // SYSTEM
-  if(FSImplementation.exists("/device_config.json")) {
-    File configFile = FSImplementation.open("/device_config.json", "r");
+  if(LittleFS.exists("/device_config.json")) {
+    File configFile = LittleFS.open("/device_config.json", "r");
     JSONVar config = JSON.parse(configFile.readString());
     ssn.begin(config);
     configFile.close();
@@ -66,7 +56,7 @@ void setup(void){
 
   ssn.log().info("File system initialized (%ldB / %ldB):", usedBytes, totalBytes);
 
-  File dir = FSImplementation.open("/", "r");
+  File dir = LittleFS.open("/", "r");
   if(!dir.isDirectory()) {
     ssn.log().warn("/ is not a directory!");
   } else {
@@ -117,7 +107,7 @@ void setup(void){
   ssn.log().info("mDNS responder initialized");
 
   // API
-  APIServer *server = new APIServer(ssn, FSImplementation);
+  APIServer *server = new APIServer(ssn, LittleFS);
   server->begin();
   ssn.scheduler().spawn("handle API", 100, [server](Task *t) {
     server->handleClient();

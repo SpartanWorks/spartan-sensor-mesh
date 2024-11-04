@@ -9,6 +9,7 @@
 #include "sensors/CCS.hpp"
 #include "sensors/SGP.hpp"
 #include "sensors/ADC.hpp"
+#include "sensors/SSN.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -63,7 +64,20 @@ bool System::begin(JSONVar &config) {
     String type = (const char*) sensor["type"];
 
     if((bool) sensor["enabled"]) {
-      if(type == "BMP") {
+      if(type == "SSN") {
+        l.info("Attaching SSN with config: ");
+        l.info(sensor);
+
+        SSN *ssn = SSN::create(sensor);
+
+        if(ssn == nullptr) {
+          l.warn("Bad SSN configuration, skipping.");
+          continue;
+        }
+
+        ssn->begin(*this);
+      }
+      else if(type == "BMP") {
         l.info("Attaching BMP with config: ");
         l.info(sensor);
 
