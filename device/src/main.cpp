@@ -37,8 +37,8 @@ const int SERVICE_QUERY_INTERVAL = 300000; // 5 minutes
 void setup(void){
   // FILE SYSTEM
   LittleFS.begin();
-  uint32_t usedBytes = SSN::fsUsedBytes();
-  uint32_t totalBytes = SSN::fsTotalBytes();
+  uint32_t usedBytes = SSN::usedFSSize();
+  uint32_t totalBytes = SSN::totalFSSize();
 
   // SYSTEM
   if(LittleFS.exists("/device_config.json")) {

@@ -19,9 +19,11 @@ private:
 
   static SSN* create(JSONVar &config);
 
-  static uint32_t fsUsedBytes();
-  static uint32_t fsTotalBytes();
-  static uint32_t fsFreeBytes();
+  static uint32_t usedFSSize();
+  static uint32_t totalFSSize();
+  static uint32_t freeFSSize();
+  static uint32_t totalHeapSize();
+  static uint32_t freeHeapSize();
 
   void begin(System &system);
   void update();

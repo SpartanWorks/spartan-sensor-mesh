@@ -49,11 +49,11 @@ void SSN::begin(System &system) {
 
 void SSN::update() {
   if (this->ramFree != nullptr) {
-    this->ramFree->add(ESP.getFreeHeap() * 100.0 / ESP.getHeapSize());
+    this->ramFree->add(SSN::freeHeapSize() * 100.0 / SSN::totalHeapSize());
   }
 
   if (this->fsFree != nullptr) {
-    this->fsFree->add(SSN::fsUsedBytes() * 100.0 / SSN::fsTotalBytes());
+    this->fsFree->add(SSN::freeFSSize() * 100.0 / SSN::totalFSSize());
   }
 
   if (this->uptime != nullptr) {
@@ -73,7 +73,7 @@ void SSN::connect(Device *d) const {
   }
 }
 
-uint32_t SSN::fsUsedBytes() {
+size_t SSN::usedFSSize() {
 #ifdef ESP32
   return LittleFS.usedBytes();
 #endif
@@ -84,7 +84,7 @@ uint32_t SSN::fsUsedBytes() {
 #endif
 }
 
-uint32_t SSN::fsTotalBytes() {
+size_t SSN::totalFSSize() {
 #ifdef ESP32
   return LittleFS.totalBytes();
 #endif
@@ -95,6 +95,19 @@ uint32_t SSN::fsTotalBytes() {
 #endif
 }
 
-uint32_t SSN::fsFreeBytes() {
-  return SSN::fsTotalBytes() - SSN::fsUsedBytes();
+size_t SSN::freeFSSize() {
+  return SSN::totalFSSize() - SSN::usedFSSize();
+}
+
+size_t SSN::freeHeapSize() {
+return ESP.getFreeHeap();
+}
+
+size_t SSN::totalHeapSize() {
+#ifdef ESP32
+  return ESP.getHeapSize();
+#endif
+#ifdef ESP8266
+  return ESP.getMaxFreeBlockSize();
+#endif
 }
