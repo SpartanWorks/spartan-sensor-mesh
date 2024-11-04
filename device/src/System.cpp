@@ -1,5 +1,4 @@
 #include "System.hpp"
-#include "Device.hpp"
 #include "sensors/BMP.hpp"
 #include "sensors/DallasTemp.hpp"
 #include "sensors/DHT.hpp"
@@ -9,11 +8,13 @@
 #include "sensors/CCS.hpp"
 #include "sensors/SGP.hpp"
 #include "sensors/ADC.hpp"
+#include "sensors/SSN.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
     sched(Scheduler(slice, l)),
-    dev(Device())
+    dev(Device()),
+    m(Mesh())
 {}
 
 bool System::begin(JSONVar &config) {
@@ -63,7 +64,20 @@ bool System::begin(JSONVar &config) {
     String type = (const char*) sensor["type"];
 
     if((bool) sensor["enabled"]) {
-      if(type == "BMP") {
+      if(type == "SSN") {
+        l.info("Attaching SSN with config: ");
+        l.info(sensor);
+
+        SSN *ssn = SSN::create(sensor);
+
+        if(ssn == nullptr) {
+          l.warn("Bad SSN configuration, skipping.");
+          continue;
+        }
+
+        ssn->begin(*this);
+      }
+      else if(type == "BMP") {
         l.info("Attaching BMP with config: ");
         l.info(sensor);
 
@@ -181,12 +195,17 @@ bool System::begin(JSONVar &config) {
   }
 
   l.info("Device tree initialized");
-
   return true;
 }
 
 void System::run() {
   sched.run();
+}
+
+void System::reset() {
+  // TODO Reset the sensors gracefully.
+
+  ESP.restart();
 }
 
 Scheduler& System::scheduler() {
@@ -199,4 +218,8 @@ Device& System::device() {
 
 Log& System::log() {
   return l;
+}
+
+Mesh& System::mesh() {
+  return m;
 }

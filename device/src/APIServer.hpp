@@ -4,7 +4,6 @@
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 
 #define WebServer ESP8266WebServer
 
@@ -13,14 +12,12 @@
 #ifdef ESP32
 #include <WiFi.h>
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #endif
 
 #include <Arduino_JSON.h>
 #include <WiFiClient.h>
 #include <FS.h>
-#include "Device.hpp"
-#include "Log.hpp"
+#include "System.hpp"
 
 #define SSM_PORT 80
 
@@ -45,13 +42,13 @@
 
 class APIServer: public WebServer {
 private:
-  const Device &device;
-  Log &log;
+  System &system;
   FS &files;
 
   void handleOptions();
   void handleApiLogin();
   void handleApiConfig();
+  void handleApiReset();
   void handleApiMesh();
   void handleApiData();
   void handleWildcard();
@@ -60,7 +57,7 @@ private:
   void sendJSON(int code, JSONVar& json);
 
 public:
-  APIServer(const Device &d, Log &log, FS &fs);
+  APIServer(System &s, FS &fs);
   void begin();
 };
 

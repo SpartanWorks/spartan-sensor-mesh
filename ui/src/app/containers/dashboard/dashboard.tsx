@@ -4,8 +4,8 @@ import { GaugeWidget } from "../../components/gauge/widget";
 import { iconCogs, RedirectButton } from "../../components/redirect/redirect";
 import { Spinner } from "../../components/spinner/spinner";
 import { UnsupportedSensor } from "../../components/unsupported/unsupported";
-import { DeviceData, SensorReading } from "../../services/device";
-import { DashboardStore } from "../../store/dashboard";
+import { SensorReading } from "../../services/device";
+import { DashboardStore, DeviceDataWithState } from "../../store/dashboard";
 import * as styles from "./dashboard.css";
 
 interface Props {
@@ -81,12 +81,12 @@ function reduceReadings(group: SensorReading[]): SensorReading[] {
   }
 }
 
-function deviceTag(device: DeviceData): string {
-  return device.group + " / " + device.name;
+function deviceTag(device: DeviceDataWithState): string {
+  return device.data.group + " / " + device.data.name;
 }
 
-function renderReadings(device: DeviceData) {
-  const grouped = device.readings.reduce((groups, s) => {
+function renderReadings(device: DeviceDataWithState) {
+  const grouped = device.data.readings.reduce((groups, s) => {
     const group = s.type + "/" + s.name;
     if (groups.has(group)) {
       groups.get(group)?.push(s);
@@ -102,8 +102,15 @@ function renderReadings(device: DeviceData) {
     .slice()
     .sort((a, b) => (a.type > b.type ? 1 : -1));
 
+  const staleStyle = {
+    "opacity": device.stale ? "0.5" : "1.0",
+    "-webkit-transition": "opacity 0.5s ease-in-out",
+    "-moz-transition": "opacity 0.5s ease-in-out",
+    "transition": "opacity 0.5s ease-in-out"
+  };
+
   return (
-    <div className={styles.deviceWrapper}>
+    <div className={styles.deviceWrapper} style={staleStyle} >
       <div className={styles.deviceTag}>{ deviceTag(device) }</div>
       { recombined.map(renderSensor) }
     </div>

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 #include "Log.hpp"
+#include "Mesh.hpp"
 #include "Scheduler.hpp"
 #include "Device.hpp"
 #include "Sensor.hpp"
@@ -15,17 +16,20 @@
 class System {
  private:
   Log l;
-  Scheduler sched;
+  Mesh m;
   Device dev;
+  Scheduler sched;
 
  public:
   System(Timestamp slice);
 
   bool begin(JSONVar& config);
   void run();
+  void reset();
 
   Scheduler& scheduler();
   Device& device();
+  Mesh& mesh();
   Log& log();
 };
 
