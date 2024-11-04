@@ -82,6 +82,19 @@ void APIServer::handleApiConfig() {
   }
 }
 
+void APIServer::handleApiReset() {
+  log.debug("Serving /api/reset");
+
+  if(!this->authenticate(this->device.name().c_str(), this->device.password().c_str())) {
+    this->send(401, APPLICATION_JSON, UNAUTHORIZED);
+  }
+
+  this->send(200, APPLICATION_JSON, STATUS_OK);
+
+  // TODO This should ideally induce a graceful restart of all sensors and then the whole platform.
+  ESP.restart();
+}
+
 void APIServer::handleApiData() {
   log.debug("Serving /api/data");
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
@@ -158,6 +171,7 @@ void APIServer::begin() {
   this->on("/api/login" , HTTP_OPTIONS, [this]() { this->handleOptions(); });
   this->on("/api/login",  HTTP_GET,     [this]() { this->handleApiLogin(); });
   this->on("/api/config",               [this]() { this->handleApiConfig(); });
+  this->on("/api/reset",                [this]() { this->handleApiReset(); });
   this->on("/api/mesh",   HTTP_GET,     [this]() { this->handleApiMesh(); });
   this->on("/api/data",                 [this]() { this->handleApiData(); });
   this->onNotFound(                     [this]() { this->handleWildcard(); });

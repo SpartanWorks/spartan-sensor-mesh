@@ -52,6 +52,7 @@ private:
   void handleOptions();
   void handleApiLogin();
   void handleApiConfig();
+  void handleApiReset();
   void handleApiMesh();
   void handleApiData();
   void handleWildcard();
