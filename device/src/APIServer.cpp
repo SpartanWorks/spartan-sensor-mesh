@@ -106,30 +106,17 @@ void APIServer::handleApiMesh() {
   this->system.log().debug("Serving /api/mesh");
   JSONVar mesh;
 
-  JSONVar self;
-
-  self["hostname"] = this->system.device().name();
-  self["ip"] = WiFi.localIP().toString();
-  self["port"] = SSM_PORT;
-
-  mesh[0] = self;
-
   uint16_t i = 0;
-  while(true) {
-    String hostname = MDNS.hostname(i); // FIXME Causes an error log on the serial.
-
-    if(hostname == "") break;
-
+  foreach<Host>(this->system.mesh().getHosts(), [&](Host h) {
     JSONVar ssn;
 
-    ssn["hostname"] = hostname;
-    ssn["ip"] = MDNS.IP(i).toString();
-    ssn["port"] = MDNS.port(i);
+    ssn["hostname"] = h.hostname;
+    ssn["ip"] = h.ip;
+    ssn["port"] = h.port;
 
-    mesh[i + 1] = ssn;
+    mesh[i] = ssn;
     i++;
-  }
-
+  });
   this->sendHeader(CORS_HEADER, ALLOWED_ORIGIN);
   this->sendJSON(200, mesh);
 }

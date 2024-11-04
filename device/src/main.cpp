@@ -2,7 +2,6 @@
 
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
 const int SDA_PIN = 4;
@@ -11,7 +10,6 @@ const int SCL_PIN = 5;
 
 #ifdef ESP32
 #include <WiFi.h>
-#include <WebServer.h>
 #include <ESPmDNS.h>
 
 const int SDA_PIN = 21;
@@ -91,21 +89,6 @@ void setup(void){
   ssn.log().info("- Password: %s", ssn.device().password().c_str());
   ssn.log().info("- IP address: %s", WiFi.softAPIP().toString().c_str());
 
-  // SERVICE DISCOVERY
-  MDNS.begin(ssn.device().name().c_str());
-  MDNS.addService("ssm", "tcp", SSM_PORT);
-  ssn.scheduler().spawn("scan SSM services", 125, [](Task *t) {
-      ssn.log().debug("Querying for SSM services via mDNS.");
-      MDNS.queryService("ssm", "tcp");
-      t->sleep(SERVICE_QUERY_INTERVAL);
-  });
-#ifdef ESP8266
-  ssn.scheduler().spawn("handle mDNS", 125, [](Task *t) {
-    MDNS.update();
-  });
-#endif
-  ssn.log().info("mDNS responder initialized");
-
   // API
   APIServer *server = new APIServer(ssn, LittleFS);
   server->begin();
@@ -132,8 +115,21 @@ void setup(void){
     ElegantOTA.loop();
   });
 
-  MDNS.addService("http", "tcp", SSM_PORT);
   ssn.log().info("API server initialized");
+
+  // Service discovery
+  ssn.mesh().begin(ssn.device().name(), WiFi.localIP().toString(), SSM_PORT);
+
+  ssn.scheduler().spawn("scan for SSM services", 125, [](Task *t) {
+    ssn.log().debug("Querying for SSM services via mDNS.");
+    ssn.mesh().scan();
+    t->sleep(SERVICE_QUERY_INTERVAL);
+  });
+  ssn.scheduler().spawn("handle mesh", 125, [](Task *t) {
+    ssn.mesh().update();
+  });
+
+  ssn.log().info("Mesh responder initialized");
 }
 
 void loop(void) {

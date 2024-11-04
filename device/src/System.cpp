@@ -1,5 +1,4 @@
 #include "System.hpp"
-#include "Device.hpp"
 #include "sensors/BMP.hpp"
 #include "sensors/DallasTemp.hpp"
 #include "sensors/DHT.hpp"
@@ -14,7 +13,8 @@
 System::System(Timestamp slice):
     l(Log()),
     sched(Scheduler(slice, l)),
-    dev(Device())
+    dev(Device()),
+    m(Mesh())
 {}
 
 bool System::begin(JSONVar &config) {
@@ -195,7 +195,6 @@ bool System::begin(JSONVar &config) {
   }
 
   l.info("Device tree initialized");
-
   return true;
 }
 
@@ -219,4 +218,8 @@ Device& System::device() {
 
 Log& System::log() {
   return l;
+}
+
+Mesh& System::mesh() {
+  return m;
 }

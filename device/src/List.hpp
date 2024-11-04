@@ -26,4 +26,12 @@ void foreach(const List<T> *i, std::function<void(T)> f) {
   }
 }
 
+template<typename T>
+bool contains(List<T> *list, T needle) {
+  if(list == nullptr) {
+    return false;
+  } else {
+    return list->item == needle || contains(list->next, needle);
+  }
+}
 #endif
