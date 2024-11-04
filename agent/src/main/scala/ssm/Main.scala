@@ -29,7 +29,7 @@ object Main extends ResourceApp.Forever:
       _ <- log.info("Booting services...").resource
       client <- BlazeClientBuilder[IO].resource
       mdns = MDNS(config.mdns.serviceName, config.mdns.serviceType)
-      node = Node(nodeConfig, DDGCurrencyApi(client), NUTCli())
+      node = Node(nodeConfig, DDGCurrencyApi(client), NUTCli(), ProcFS())
 
       routes = Router(
         "/api/mesh" -> MeshApi.routes(mdns),
