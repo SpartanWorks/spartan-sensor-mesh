@@ -4,7 +4,7 @@ import cats.effect.*
 import cats.implicits.*
 import io.circe.Json
 import ssm.domain.ObservableReading
-import ssm.integrations.{DDGCurrencyApi, NUTCli}
+import ssm.integrations.{DDGCurrencyApi, NUTCli, ProcFS}
 import ssm.model.generated.*
 
 import scala.concurrent.duration.*
@@ -15,13 +15,13 @@ trait Node:
   def data: IO[Data]
 
 object Node:
-  def apply(config: Config, currencyApi: DDGCurrencyApi, nutCli: NUTCli): Node =
-    new NodeImpl(config, new ReadingsBuilder(config.sensors, currencyApi, nutCli))
+  def apply(config: Config, currencyApi: DDGCurrencyApi, nutCli: NUTCli, procFs: ProcFS): Node =
+    new NodeImpl(config, new ReadingsBuilder(config.sensors, currencyApi, nutCli, procFs))
 
   private[service] case class ObservableReadingConfig(reading: ObservableReading, samplingInterval: FiniteDuration, windowSize: Int)
 
   // FIXME This should ideally be moved into separate integartion builders that are passed here.
-  private[service] class ReadingsBuilder(config: List[ConfigSensorsInner], currencyApi: DDGCurrencyApi, nutCli: NUTCli):
+  private[service] class ReadingsBuilder(config: List[ConfigSensorsInner], currencyApi: DDGCurrencyApi, nutCli: NUTCli, procFs: ProcFS):
     def build: List[ObservableReadingConfig] =
       config.flatMap {
         case ConfigSensorsInner("currency", true, samplingInterval, _, readings) =>
@@ -56,7 +56,25 @@ object Node:
                 )
             }
           }
-
+        case ConfigSensorsInner(file, true, samplingInterval, _, readings) if "/(proc|sys/class)/.+".r.matches(file) =>
+          readings.map {
+            case ReadingConfig(valueName, name, averaging, widgetConfig) =>
+              val unit = file match {
+                // FIXME It should be left to the widget config.
+                case "/proc/loadavg" => ""
+                case "/proc/uptime" => "s"
+                case "/proc/stat" => ""
+                case "/proc/meminfo" => "kB"
+                case f if "/sys/class/thermal/.+".r.matches(f) => "°C"
+                case f if "/sys/class/net/.+".r.matches(f) => "kBps" // FIXME This only makes sense for transfers.
+                case _ => ""
+              }
+              ObservableReadingConfig(
+                ObservableReading("proc-fs", file, name, procFs.get(file, valueName), unit, 0, Double.MaxValue, widgetConfig),
+                samplingInterval.toInt.millis,
+                averaging.toInt
+                )
+          }
         case _ => Nil
       }
 
