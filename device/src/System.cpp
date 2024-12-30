@@ -9,6 +9,7 @@
 #include "sensors/SGP.hpp"
 #include "sensors/ADC.hpp"
 #include "sensors/SSN.hpp"
+#include "sensors/ZE25O3.hpp"
 
 System::System(Timestamp slice):
     l(Log()),
@@ -186,6 +187,17 @@ bool System::begin(JSONVar &config) {
         }
 
         dht->begin(*this);
+      } else if (type == "ZE25-O3") {
+        l.info("Attaching ZE25-O3 with config: ");
+        l.info(sensor);
+        ZE25O3 *ze25 = ZE25O3::create(sensor);
+
+        if(ze25 == nullptr) {
+          l.warn("Bad ZE25-O3 configuration, skipping.");
+          continue;
+        }
+
+        ze25->begin(*this);
       } else {
         l.warn("Skipping unrecognized sensor %s.", type.c_str());
       }
